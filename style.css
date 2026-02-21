@@ -191,6 +191,41 @@ svg {
 .hero {
     padding-top: calc(80px + var(--section-padding));
     padding-bottom: var(--section-padding);
+    background-color: var(--navy);
+    position: relative;
+    overflow: hidden;
+    /* Subtle background animation */
+    background: radial-gradient(circle at 75% 50%, rgba(47, 182, 166, 0.15) 0%, rgba(22, 62, 99, 1) 50%);
+    background-size: 150% 150%;
+    animation: heroGradient 15s ease infinite;
+}
+
+@keyframes heroGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Subtle Teal Glow behind product - cleaner approach */
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(47, 182, 166, 0.12) 0%, transparent 70%);
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .hero__inner {
@@ -198,16 +233,19 @@ svg {
     grid-template-columns: 1.1fr 0.9fr;
     align-items: center;
     gap: 80px;
+    position: relative;
+    z-index: 2;
 }
 
 .hero__headline {
+    color: var(--white);
     font-size: clamp(2.5rem, 5vw, 4rem);
     margin-bottom: 24px;
 }
 
 .hero__subheadline {
     font-size: 1.25rem;
-    color: var(--gray);
+    color: rgba(255, 255, 255, 0.7);
     margin-bottom: 48px;
     max-width: 500px;
 }
@@ -229,6 +267,8 @@ svg {
     display: flex;
     justify-content: center;
     align-items: center;
+    /* Soft shadow below device */
+    filter: drop-shadow(0 40px 60px rgba(0, 0, 0, 0.3));
 }
 
 .iphone-mockup-wrapper::after {
