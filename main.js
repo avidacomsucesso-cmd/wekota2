@@ -8,13 +8,29 @@ window.addEventListener('scroll', () => {
     }
 });
 
-/* Smooth Scroll */
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
-        }
-    });
-});
+/* Carousel Logic */
+const track = document.querySelector('.carousel-track');
+const cards = document.querySelectorAll('.testimonial-card');
+let index = 0;
+
+function slide() {
+    if (!track) return;
+    index++;
+    if (index > cards.length - 2) {
+        index = 0;
+    }
+    const move = index * -50; // Slide 50% each time since 2 cards are visible on desktop
+
+    // Adjust for mobile (100%)
+    if (window.innerWidth <= 768) {
+        track.style.transform = `translateX(${index * -100}%)`;
+    } else {
+        track.style.transform = `translateX(calc(${move}% - ${index * 16}px))`;
+    }
+}
+
+let carouselInterval = setInterval(slide, 4000);
+
+// Pause on hover
+track?.addEventListener('mouseenter', () => clearInterval(carouselInterval));
+track?.addEventListener('mouseleave', () => carouselInterval = setInterval(slide, 4000));
