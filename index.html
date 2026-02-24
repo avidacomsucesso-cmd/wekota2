@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -20,12 +21,19 @@
     <div class="container header__inner">
       <a href="#" class="logo">
         <svg class="logo__symbol" viewBox="0 0 40 40" fill="none">
-          <path d="M20 20 L20 2 A18 18 0 0 0 2 20 Z" fill="#163E63" />
-          <path d="M20 20 L2 20 A18 18 0 0 0 20 38 Z" fill="#163E63" />
-          <path d="M20 20 L20 38 A18 18 0 0 0 38 20 Z" fill="#163E63" />
-          <path d="M20 20 L38 20 A18 18 0 0 0 20 2 Z" fill="#2FB6A6" />
+          <!-- Top Left -->
+          <path d="M20 5 A15 15 0 0 0 5 20" stroke="#163E63" stroke-width="6" fill="none" />
+          <!-- Bottom Left -->
+          <path d="M5 20 A15 15 0 0 0 20 35" stroke="#163E63" stroke-width="6" fill="none" />
+          <!-- Bottom Right -->
+          <path d="M20 35 A15 15 0 0 0 35 20" stroke="#163E63" stroke-width="6" fill="none" />
+          <!-- Top Right (Teal) -->
+          <path d="M35 20 A15 15 0 0 0 20 5" stroke="#2FB6A6" stroke-width="6" fill="none" />
         </svg>
-        <span>WEKOTA</span>
+        <div class="logo__text">
+          <span class="logo__brand">WEKOTA</span>
+          <span class="logo__tagline">Together, we access.</span>
+        </div>
       </a>
       <a href="#reservar" class="btn btn--outline-navy">Entrar na Lista</a>
     </div>
@@ -41,19 +49,87 @@
           <a href="#reservar" class="btn btn--primary btn--lg">Quero minha posição prioritária</a>
         </div>
         <div class="hero__visual">
-          <div class="iphone-mockup-wrapper"></div>
+          <img src="images/hero-split.png" alt="iPhone 17 Pro Max Split View" class="hero__img">
         </div>
       </div>
     </section>
 
-    <!-- 3️⃣ PRODUCT SHOWCASE SECTION (VISUAL IMPACT) -->
-    <section class="section-padding bg-light">
+    <!-- 3️⃣ FEATURED DEVICE (PREMIUM CARD) -->
+    <section class="section-padding bg-light" id="aparelho">
+      <div class="container">
+        <div class="featured-card">
+          <!-- Left Content -->
+          <div class="featured-card__left">
+            <span class="badge badge--teal">DISPOSITIVO EM DESTAQUE</span>
+            <h2 class="featured-card__title">iPhone 17 Pro Max 256GB <br> <span class="text-teal">Laranja</span></h2>
+
+            <p class="featured-card__desc">
+              Performance premium. Cor exclusiva. Alto valor de revenda. <br>
+              Reservado exclusivamente para o primeiro grupo WEKOTA.
+            </p>
+
+            <ul class="checklist">
+              <li><i data-lucide="check-circle" class="checklist-icon"></i> Performance premium de próxima geração</li>
+              <li><i data-lucide="check-circle" class="checklist-icon"></i> Cor Laranja exclusiva — disponibilidade
+                limitada</li>
+              <li><i data-lucide="check-circle" class="checklist-icon"></i> Ativo de alto valor de revenda</li>
+            </ul>
+
+            <div class="payment-card">
+              <div class="payment-card__header">
+                <span>ESTRUTURA DE PAGAMENTO</span>
+              </div>
+              <div class="payment-card__body">
+                <div class="payment-main">
+                  <span class="payment-value">12 meses</span>
+                  <span class="payment-label">duração do grupo</span>
+                </div>
+                <div class="payment-grid">
+                  <div class="payment-item">
+                    <span class="item-value">Fixas</span>
+                    <span class="item-label">Mensalidades</span>
+                  </div>
+                  <div class="payment-item">
+                    <span class="item-value">Isento</span>
+                    <span class="item-label">Juros</span>
+                  </div>
+                  <div class="payment-item">
+                    <span class="item-value">Zero</span>
+                    <span class="item-label">Taxas ocultas</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <a href="#reservar" class="btn btn--primary btn--lg" style="margin-top: 32px; width: fit-content;">
+              Reservar Minha Posição <i data-lucide="arrow-right"
+                style="width: 18px; height: 18px; margin-left: 8px;"></i>
+            </a>
+          </div>
+
+          <!-- Right Visual -->
+          <div class="featured-card__right">
+            <div class="group-badge">
+              <svg viewBox="0 0 40 40" class="group-logo">
+                <path d="M20 20 L20 2 A18 18 0 0 0 2 20 Z" fill="#FFFFFF" opacity="0.5" />
+                <path d="M20 20 L2 20 A18 18 0 0 0 20 38 Z" fill="#FFFFFF" opacity="0.5" />
+                <path d="M20 20 L20 38 A18 18 0 0 0 38 20 Z" fill="#FFFFFF" opacity="0.5" />
+                <path d="M20 20 L38 20 A18 18 0 0 0 20 2 Z" fill="#2FB6A6" />
+              </svg>
+              <span>GRUPO #01</span>
+            </div>
+            <img src="images/product-orange.png" alt="iPhone 17 Pro Max Orange" class="featured-img">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3.5️⃣ LINEUP SECTION (COLOR VARIATIONS) -->
+    <section class="section-padding">
       <div class="container text-center">
-        <h2 class="hero__headline" style="font-size: 2.5rem; margin-bottom: 8px;">iPhone 17 Pro Max</h2>
-        <p style="text-transform: uppercase; letter-spacing: 0.2em; font-weight: 600; color: var(--gray);">256GB —
-          Orange</p>
-        <div class="showcase__visual">
-          <div class="showcase__img-large"></div>
+        <h2 class="hero__headline" style="font-size: 2.5rem; margin-bottom: 24px;">Escolha a sua cor.</h2>
+        <div class="lineup__visual">
+          <img src="images/lineup.png" alt="iPhone 17 Pro Max Lineup" class="lineup__img">
         </div>
       </div>
     </section>
@@ -69,55 +145,8 @@
           <p style="font-size: 1.125rem; color: var(--gray); max-width: 700px; margin: 0 auto;">Construímos uma
             plataforma baseada na transparência absoluta e no rigor contratual europeu.</p>
         </div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-              </svg>
-            </div>
-            <h3 class="feature-card__title">Sede na Europa</h3>
-            <p class="feature-card__desc">Empresa registada e operante sob a jurisdição da União Europeia.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-              </svg>
-            </div>
-            <h3 class="feature-card__title">Contrato Formal</h3>
-            <p class="feature-card__desc">Estrutura jurídica robusta que protege todos os participantes do grupo.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-            </div>
-            <h3 class="feature-card__title">Custos Transparentes</h3>
-            <p class="feature-card__desc">Modelo sem letras miúdas. Valores fixos e definidos desde o primeiro dia.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
-            <h3 class="feature-card__title">Proteção do Dispositivo</h3>
-            <p class="feature-card__desc">Tecnologia avançada para garantir a segurança física e lógica da sua
-              aquisição.</p>
-          </div>
+        <div class="features-collage">
+          <img src="images/features-grid.png" alt="iPhone 17 Pro Max Technical Features" class="features-collage__img">
         </div>
       </div>
     </section>
@@ -221,30 +250,62 @@
           <p style="font-size: 1.125rem; color: var(--gray); max-width: 800px; margin: 0 auto;">Oferecemos uma
             alternativa inteligente ao crédito bancário tradicional, focada no acesso coletivo e organizado.</p>
         </div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div style="font-size: 0.875rem; font-weight: 700; color: var(--teal); margin-bottom: 12px;">01.</div>
-            <h3 class="feature-card__title">Reserva de Posição</h3>
-            <p class="feature-card__desc">Inscrição na lista prioritária para qualificação no grupo inaugural.</p>
+        <div class="timeline">
+          <!-- Step 1 -->
+          <div class="timeline-step">
+            <div class="motion-container motion-radar">
+              <i data-lucide="user-plus" class="timeline-icon"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="step-number">01.</div>
+              <h3 class="feature-card__title">Reserva de Posição</h3>
+              <p class="feature-card__desc">Inscrição na lista prioritária para qualificação no grupo inaugural.</p>
+            </div>
           </div>
-          <div class="feature-card">
-            <div style="font-size: 0.875rem; font-weight: 700; color: var(--teal); margin-bottom: 12px;">02.</div>
-            <h3 class="feature-card__title">Formalização Contratual</h3>
-            <p class="feature-card__desc">Assinatura de contrato europeu blindado com regras de entrega claras.</p>
+
+          <!-- Step 2 -->
+          <div class="timeline-step">
+            <div class="motion-container motion-flow">
+              <i data-lucide="file-text" class="timeline-icon"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="step-number">02.</div>
+              <h3 class="feature-card__title">Formalização Contratual</h3>
+              <p class="feature-card__desc">Assinatura de contrato europeu blindado com regras de entrega claras.</p>
+            </div>
           </div>
-          <div class="feature-card">
-            <div style="font-size: 0.875rem; font-weight: 700; color: var(--teal); margin-bottom: 12px;">03.</div>
-            <h3 class="feature-card__title">Pagamento Sustentável</h3>
-            <p class="feature-card__desc">Mensalidades fixas sem variação de juros ou taxas surpresas.</p>
+
+          <!-- Step 3 -->
+          <div class="timeline-step">
+            <div class="motion-container motion-wave">
+              <i data-lucide="credit-card" class="timeline-icon"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="step-number">03.</div>
+              <h3 class="feature-card__title">Pagamento Sustentável</h3>
+              <p class="feature-card__desc">Mensalidades fixas sem variação de juros ou taxas surpresas.</p>
+            </div>
           </div>
-          <div class="feature-card">
-            <div style="font-size: 0.875rem; font-weight: 700; color: var(--teal); margin-bottom: 12px;">04.</div>
-            <h3 class="feature-card__title">Entrega Garantida</h3>
-            <p class="feature-card__desc">Receba o seu iPhone seguindo a ordem cronológica do grupo.</p>
+
+          <!-- Step 4 -->
+          <div class="timeline-step">
+            <div class="motion-container motion-streak">
+              <i data-lucide="package" class="timeline-icon"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="step-number">04.</div>
+              <h3 class="feature-card__title">Entrega Garantida</h3>
+              <p class="feature-card__desc">Receba o seu iPhone seguindo a ordem cronológica do grupo.</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Script to initialize icons -->
+    <script>
+      lucide.createIcons();
+    </script>
 
     <!-- 6️⃣ ABOUT WEKOTA & TRANSPARENCY -->
     <section class="section-padding bg-navy" id="sobre">
@@ -325,17 +386,18 @@
   <footer class="footer bg-navy">
     <div class="container footer__grid">
       <div class="footer__col">
-        <a href="#" class="logo" style="color: var(--white); margin-bottom: 24px;">
+        <a href="#" class="logo" style="margin-bottom: 24px;">
           <svg class="logo__symbol" viewBox="0 0 40 40" fill="none">
-            <path d="M20 20 L20 2 A18 18 0 0 0 2 20 Z" fill="#FFFFFF" />
-            <path d="M20 20 L2 20 A18 18 0 0 0 20 38 Z" fill="#FFFFFF" />
-            <path d="M20 20 L20 38 A18 18 0 0 0 38 20 Z" fill="#FFFFFF" />
-            <path d="M20 20 L38 20 A18 18 0 0 0 20 2 Z" fill="#2FB6A6" />
+            <path d="M20 5 A15 15 0 0 0 5 20" stroke="white" stroke-width="6" />
+            <path d="M5 20 A15 15 0 0 0 20 35" stroke="white" stroke-width="6" />
+            <path d="M20 35 A15 15 0 0 0 35 20" stroke="white" stroke-width="6" />
+            <path d="M35 20 A15 15 0 0 0 20 5" stroke="#2FB6A6" stroke-width="6" />
           </svg>
-          <span>WEKOTA</span>
+          <div class="logo__text">
+            <span class="logo__brand" style="color: var(--white);">WEKOTA</span>
+            <span class="logo__tagline" style="color: rgba(255,255,255,0.6);">Together, we access.</span>
+          </div>
         </a>
-        <p class="footer__desc" style="font-weight: 600; color: var(--white); margin-bottom: 12px;">"Together, we
-          access."</p>
         <p class="footer__desc">Plataforma europeia de aquisição coletiva estruturada.</p>
       </div>
       <div class="footer__col">
