@@ -903,11 +903,11 @@
 
     <label class="form-label">Produto</label>
     <div class="product-cards">
-      <div class="product-card selected" onclick="selectCard(this, 'product-cards')">
+      <div class="product-card selected">
         <div class="pc-radio"></div>
         <div class="pc-info">
           <h4>iPhone 17 Pro Max 256GB</h4>
-          <p>Desde <span class="pc-price">€75/mês</span></p>
+          <p>Cor Laranja — <span class="pc-price">Desde €75/mês</span></p>
         </div>
         <div class="pc-badge">Popular</div>
       </div>
@@ -993,15 +993,15 @@
       </div>
       <div class="cs-row">
         <span class="cs-label">Prestação mensal</span>
-        <span class="cs-value highlight-val">€75,00/mês</span>
+        <span class="cs-value highlight-val" id="summary-price">€75,00/mês</span>
       </div>
       <div class="cs-row">
-        <span class="cs-label">Total (24 prestações)</span>
-        <span class="cs-value">€1.800,00</span>
+        <span class="cs-label">Total</span>
+        <span class="cs-value" id="summary-total">€1.800,00</span>
       </div>
       <div class="cs-row">
         <span class="cs-label">Inclui taxa de serviço</span>
-        <span class="cs-value">25% (€450,00)</span>
+        <span class="cs-value">25%</span>
       </div>
       <div class="cs-row">
         <span class="cs-label">Garantia do produto</span>
@@ -1279,15 +1279,20 @@
         const durEl = document.querySelector('.dur-card.selected .dur-months');
         const durationText = durEl ? durEl.textContent.trim() : '24';
         
-        const product = prodEl ? prodEl.textContent.trim() : 'Default Product';
+        const product = prodEl ? prodEl.textContent.trim() : 'iPhone 17 Pro Max 256GB';
         const duration = durationText + ' meses';
         const plan = `${product} - ${duration}`;
 
-        // Set Price ID based on duration selection
-        // TODO: Replace these placeholders with real Stripe Price IDs
+        // Update Summary values dynamically
+        const summaryPrice = document.getElementById('summary-price');
+        const summaryTotal = document.getElementById('summary-total');
         if (durationText === '12') {
+            if(summaryPrice) summaryPrice.textContent = '€149,00/mês';
+            if(summaryTotal) summaryTotal.textContent = '€1.788,00';
             selectedPlanPriceId = 'price_12_months_ID_HERE'; 
         } else {
+            if(summaryPrice) summaryPrice.textContent = '€75,00/mês';
+            if(summaryTotal) summaryTotal.textContent = '€1.800,00';
             selectedPlanPriceId = 'price_24_months_ID_HERE';
         }
 
