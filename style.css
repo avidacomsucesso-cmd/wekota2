@@ -228,7 +228,13 @@ body {
 .nav-btn:hover { background: var(--navy); color: var(--white); }
 
 /* PAYMENT STRUCTURE */
-.payment-flex { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+.payment-flex { 
+    display: flex; 
+    gap: 32px; 
+    justify-content: center; 
+    flex-wrap: wrap; 
+    padding-top: 20px;
+}
 .payment-card-premium { 
     background: var(--white); 
     border: 1px solid var(--border); 
@@ -526,6 +532,7 @@ body {
 .featured-plan {
     border: 2px solid var(--teal) !important;
     position: relative;
+    margin-top: 15px;
 }
 
 .badge-upgrade {
