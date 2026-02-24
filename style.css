@@ -187,34 +187,36 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
-.step-card:hover { transform: translateY(-10px); border-color: var(--teal); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+.step-card:hover { transform: translateY(-10px); border-color: var(--teal); box-shadow: 0 30px 60px rgba(22, 62, 99, 0.1); }
 .step-icon-wrap { 
     position: relative; 
     margin-bottom: 32px; 
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--light-bg);
-    border-radius: 20px;
+    background: var(--navy);
+    border-radius: 24px;
     transition: var(--transition);
+    box-shadow: 0 10px 20px rgba(22, 62, 99, 0.2);
 }
-.step-card:hover .step-icon-wrap { background: var(--teal-10); }
-.step-icon { width: 36px; height: 36px; color: var(--navy); position: relative; z-index: 2; transition: var(--transition); }
-.step-card:hover .step-icon { color: var(--teal); }
+.step-card:hover .step-icon-wrap { background: var(--teal); transform: scale(1.05); box-shadow: 0 10px 25px rgba(47, 182, 166, 0.3); }
+.step-icon { width: 40px; height: 40px; color: var(--white); position: relative; z-index: 2; transition: var(--transition); }
 .step-number-bg { 
     position: absolute; 
-    top: 50%; 
-    left: 50%; 
-    transform: translate(-50%, -50%);
-    font-size: 2.5rem; 
-    font-weight: 900; 
-    color: rgba(30, 41, 59, 0.05); 
+    top: 20px; 
+    right: 20px;
+    font-size: 1.25rem; 
+    font-weight: 800; 
+    color: var(--teal);
+    opacity: 0.15;
     z-index: 1; 
 }
-.step-title { font-size: 1.15rem; font-weight: 700; color: var(--navy); line-height: 1.4; }
+.step-card:hover .step-number-bg { opacity: 0.3; color: var(--navy); }
+.step-title { font-size: 1.2rem; font-weight: 700; color: var(--navy); line-height: 1.4; }
 
 /* PRODUCT CAROUSEL */
 .product-carousel-wrapper { position: relative; width: 100%; max-width: 900px; margin: 0 auto; overflow: hidden; }
