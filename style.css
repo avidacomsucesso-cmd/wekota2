@@ -119,19 +119,54 @@ body {
 
 /* HERO */
 .hero {
-    padding-top: 180px;
-    padding-bottom: 100px;
+    padding-top: 140px;
+    padding-bottom: 60px;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
     background: radial-gradient(circle at 70% 50%, rgba(47, 182, 166, 0.1), var(--navy) 60%);
     color: var(--white);
     position: relative;
     overflow: hidden;
 }
 
-.hero__inner { display: grid; grid-template-columns: 1.1fr 0.9fr; align-items: center; gap: 60px; }
-.hero__headline { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; line-height: 1.1; margin-bottom: 24px; }
-.hero__subheadline { font-size: 1.5rem; color: var(--white-60); margin-bottom: 8px; }
-.hero__mini-text { font-size: 1rem; font-weight: 500; color: var(--teal); margin-bottom: 40px; text-transform: uppercase; letter-spacing: 0.1em; }
-.hero__img { width: 100%; max-width: 500px; filter: drop-shadow(0 40px 100px rgba(0,0,0,0.5)); }
+.hero__inner { 
+    display: grid; 
+    grid-template-columns: 1.1fr 0.9fr; 
+    align-items: center; 
+    gap: 60px; 
+    width: 100%;
+}
+
+.hero__headline { 
+    font-size: clamp(2.5rem, 5vw, 3.8rem); 
+    font-weight: 800; 
+    line-height: 1.1; 
+    margin-bottom: 20px; 
+}
+
+.hero__subheadline { 
+    font-size: 1.35rem; 
+    color: var(--white-60); 
+    margin-bottom: 8px; 
+    max-width: 550px;
+}
+
+.hero__mini-text { 
+    font-size: 0.9rem; 
+    font-weight: 500; 
+    color: var(--teal); 
+    margin-bottom: 32px; 
+    text-transform: uppercase; 
+    letter-spacing: 0.1em; 
+}
+
+.hero__img { 
+    width: 100%; 
+    max-width: 460px; 
+    height: auto;
+    filter: drop-shadow(0 40px 100px rgba(0,0,0,0.5)); 
+}
 
 /* AUTHORITY SECTION */
 .authority-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
@@ -225,8 +260,14 @@ body {
 
 /* MOBILE */
 @media (max-width: 768px) {
-    .hero__inner { grid-template-columns: 1fr; text-align: center; }
-    .hero__img { max-width: 300px; margin-top: 40px; }
+    .hero {
+        padding-top: 110px;
+        padding-bottom: 40px;
+        min-height: auto;
+    }
+    .hero__inner { grid-template-columns: 1fr; text-align: center; gap: 30px; }
+    .hero__headline { font-size: 2.2rem; }
+    .hero__img { max-width: 260px; margin-top: 20px; }
     .authority-grid { grid-template-columns: 1fr; gap: 40px; text-align: center; }
     .bullet-item { justify-content: center; }
     .steps-grid { grid-template-columns: 1fr; }
