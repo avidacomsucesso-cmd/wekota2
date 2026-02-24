@@ -113,7 +113,7 @@ body {
 
 .header__inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
 .logo { display: flex; align-items: center; text-decoration: none; }
-.logo__img-official { height: 60px; width: auto; object-fit: contain; }
+.logo__img-official { height: 80px; width: auto; object-fit: contain; }
 .brightness-invert { filter: brightness(0) invert(1); }
 
 /* HERO */
@@ -621,7 +621,7 @@ body {
         display: none;
     }
     .logo__img-official {
-        height: 45px;
+        height: 60px;
     }
     .hero {
         padding-top: 110px;
