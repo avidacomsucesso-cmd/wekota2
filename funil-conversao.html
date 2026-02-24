@@ -1139,87 +1139,82 @@
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
   // Initialize Supabase
-  // Note: Env vars might not work directly in HTML without a build step like Vite. 
-  // Assuming this is running in a Vite env based on previous context.
-  // If not, we'd need hardcoded keys or a config file. 
-  // Given the previous turns used import.meta.env, I'll stick to that.
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
   let currentLeadId = null
 
-  // UI Logic needs to be exposed or re-implemented here if we want to mix.
-  // Simplest way: Expose save functions to window so onclicks work, OR add event listeners.
-  // I replaced onclicks with IDs for the buttons above.
+  // Ensure goTo is accessible globally even if defined in index.html (it should be if not in a module there)
+  // But here we need to call it.
 
-  document.getElementById('btn-step1').addEventListener('click', async () => {
-    const name = document.querySelector('#screen-step1 input[type="text"]').value
-    const email = document.querySelector('#screen-step1 input[type="email"]').value
-    const phone = document.querySelector('#screen-step1 input[type="tel"]').value
-    const country = document.querySelector('#screen-step1 select').value
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnStep1 = document.getElementById('btn-step1');
+    if (btnStep1) {
+      btnStep1.addEventListener('click', async () => {
+        const name = document.querySelector('#screen-step1 input[type="text"]').value
+        const email = document.querySelector('#screen-step1 input[type="email"]').value
+        const phone = document.querySelector('#screen-step1 input[type="tel"]').value
+        const country = document.querySelector('#screen-step1 select').value
 
-    if (!name || !email || !phone || !country) {
-      alert('Por favor, preencha todos os campos.')
-      return
+        if (!name || !email || !phone || !country) {
+          alert('Por favor, preencha todos os campos.')
+          return
+        }
+
+        btnStep1.textContent = 'A guardar...'
+        btnStep1.disabled = true
+
+        try {
+          const { data, error } = await supabase
+            .from('leads')
+            .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
+            .select()
+
+          if (error) throw error
+
+          currentLeadId = data[0].id
+          window.goTo('step2')
+        } catch (error) {
+          console.error('Error:', error)
+          alert('Erro ao guardar. Verifique a consola ou tente novamente.')
+        } finally {
+          btnStep1.textContent = 'Continuar'
+          btnStep1.disabled = false
+        }
+      });
     }
 
-    // Show loading state?
-    const btn = document.getElementById('btn-step1')
-    const originalText = btn.textContent
-    btn.textContent = 'A guardar...'
-    btn.disabled = true
+    const btnStep2 = document.getElementById('btn-step2');
+    if (btnStep2) {
+      btnStep2.addEventListener('click', async () => {
+        const product = document.querySelector('.product-card.selected h4').textContent.trim()
+        const duration = document.querySelector('.dur-card.selected .dur-months').textContent.trim() + ' meses'
+        const plan = `${product} - ${duration}`
 
-    try {
-      const { data, error } = await supabase
-        .from('leads')
-        .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
-        .select()
+        btnStep2.textContent = 'A guardar...'
+        btnStep2.disabled = true
 
-      if (error) throw error
-
-      currentLeadId = data[0].id
-      window.goTo('step2')
-    } catch (error) {
-      console.error('Error:', error)
-      alert('Erro ao guardar. Tente novamente.')
-    } finally {
-      btn.textContent = originalText
-      btn.disabled = false
+        try {
+          if (currentLeadId) {
+            const { error } = await supabase
+              .from('leads')
+              .update({ plan, status: 'selected_plan' })
+              .eq('id', currentLeadId)
+            
+            if (error) throw error
+          }
+          window.goTo('step3')
+        } catch (error) {
+          console.error('Error:', error)
+          window.goTo('step3')
+        } finally {
+          btnStep2.textContent = 'Continuar'
+          btnStep2.disabled = false
+        }
+      });
     }
-  })
-
-  document.getElementById('btn-step2').addEventListener('click', async () => {
-    const product = document.querySelector('.product-card.selected h4').textContent.trim()
-    const duration = document.querySelector('.dur-card.selected .dur-months').textContent.trim() + ' meses'
-    const plan = `${product} - ${duration}`
-
-    const btn = document.getElementById('btn-step2')
-    const originalText = btn.textContent
-    btn.textContent = 'A guardar...'
-    btn.disabled = true
-
-    try {
-      if (currentLeadId) {
-        const { error } = await supabase
-          .from('leads')
-          .update({ plan, status: 'selected_plan' })
-          .eq('id', currentLeadId)
-        
-        if (error) throw error
-      }
-      window.goTo('step3')
-    } catch (error) {
-      console.error('Error:', error)
-      // Proceed anyway or alert? Proceeding for UX flow, maybe lead didn't save in step 1.
-      window.goTo('step3')
-    } finally {
-      btn.textContent = originalText
-      btn.disabled = false
-    }
-  })
-
-  // We can add more steps here (KYC upload logic would go to storage, etc.)
+  });
 </script>
 
 <script>
