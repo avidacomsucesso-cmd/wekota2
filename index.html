@@ -146,6 +146,68 @@
       </div>
     </section>
 
+    <!-- 4.1️⃣ SEÇÃO ESCASSEZ (URGENCY) -->
+    <section class="urgency-banner section-padding" style="background: linear-gradient(rgba(22, 62, 99, 0.95), rgba(22, 62, 99, 0.95)), url('images/hero-split.png') center/cover fixed;">
+      <div class="container text-center text-white">
+        <div class="status-badge-premium mb-24">
+          <span class="status-dot-pulse"></span> INSCRIÇÕES ABERTAS PARA O GRUPO
+        </div>
+        
+        <h2 class="urgency-title mb-16">Posições limitadas <br> <span class="text-teal">disponíveis.</span></h2>
+        <p class="section-desc text-white-60 mb-32 mx-auto">O grupo abrirá apenas quando os primeiros <strong>10 participantes qualificados</strong> confirmarem a sua posição.</p>
+        
+        <div class="positions-status mb-48">
+          <div class="dots-row">
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+          </div>
+          <p class="dots-label mt-16">4 de 10 posições confirmadas — 6 restantes</p>
+        </div>
+
+        <div class="countdown-wrapper mb-48">
+          <p class="countdown-header mb-16"><i data-lucide="clock" class="icon-sm"></i> A JANELA DE INSCRIÇÃO FECHA EM</p>
+          <div class="countdown-grid">
+            <div class="timer-unit">
+              <span id="days">06</span>
+              <label>DIAS</label>
+            </div>
+            <span class="timer-sep">:</span>
+            <div class="timer-unit">
+              <span id="hours">03</span>
+              <label>HORAS</label>
+            </div>
+            <span class="timer-sep">:</span>
+            <div class="timer-unit">
+              <span id="minutes">47</span>
+              <label>MIN</label>
+            </div>
+            <span class="timer-sep">:</span>
+            <div class="timer-unit">
+              <span id="seconds">00</span>
+              <label>SEG</label>
+            </div>
+          </div>
+        </div>
+
+        <a href="https://wa.me/351000000000" class="btn btn--primary btn--lg mb-24">
+          Reservar Minha Posição <i data-lucide="arrow-right" class="ml-8"></i>
+        </a>
+        
+        <p class="disclaimer-text text-white-60">
+          Ao clicar, será conectado a um consultor WEKOTA via WhatsApp. <br>
+          Sem compromisso nesta fase.
+        </p>
+      </div>
+    </section>
+
     <!-- 5️⃣ ESTRUTURA DE PAGAMENTO -->
     <section class="section-padding bg-light" id="pagamento">
       <div class="container">
@@ -442,6 +504,39 @@
         updateTestimonials();
       });
     });
+
+    // URGENCY COUNTDOWN SCRIPT
+    function startCountdown() {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + 6);
+      targetDate.setHours(targetDate.getHours() + 3);
+      targetDate.setMinutes(targetDate.getMinutes() + 47);
+
+      function updateTimer() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById('days').innerText = String(d).padStart(2, '0');
+        document.getElementById('hours').innerText = String(h).padStart(2, '0');
+        document.getElementById('minutes').innerText = String(m).padStart(2, '0');
+        document.getElementById('seconds').innerText = String(s).padStart(2, '0');
+
+        if (distance < 0) {
+          clearInterval(timerInterval);
+          document.querySelector('.countdown-grid').innerHTML = "<h3 class='text-teal'>JANELA ENCERRADA</h3>";
+        }
+      }
+
+      updateTimer();
+      const timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    startCountdown();
   </script>
 </body>
 </html>
