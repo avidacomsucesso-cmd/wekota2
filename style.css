@@ -295,6 +295,81 @@ svg {
     transform: scale(1.02);
 }
 
+/* ABOUT SECTION ENHANCEMENTS */
+.about-grid {
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 80px; 
+    align-items: start;
+}
+
+.badge-teal {
+    text-transform: uppercase; 
+    letter-spacing: 0.1em; 
+    font-weight: 700; 
+    color: var(--teal); 
+    margin-bottom: 24px;
+}
+
+.about-text-wrapper p {
+    color: rgba(255, 255, 255, 0.8); 
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.about-lead {
+    font-weight: 600;
+    color: var(--white) !important;
+    font-size: 1.25rem !important;
+}
+
+.transparency-card {
+    background: rgba(255, 255, 255, 0.05); 
+    padding: 48px; 
+    border-radius: var(--radius-lg); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.transparency-title {
+    color: var(--white); 
+    margin-bottom: 32px;
+    font-size: 1.5rem;
+}
+
+.transparency-list {
+    list-style: none;
+    padding: 0;
+}
+
+.transparency-list li {
+    margin-bottom: 24px; 
+    display: flex; 
+    align-items: flex-start; 
+    gap: 16px;
+}
+
+.check-icon {
+    color: var(--teal);
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.list-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.list-text strong {
+    color: var(--white);
+    font-size: 1.1rem;
+}
+
+.list-text span {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
 /* TIMELINE & MOTION ENHANCEMENTS */
 .timeline {
     display: grid;
@@ -1053,5 +1128,16 @@ svg {
 
     .payment-card__body {
         gap: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+    }
+    
+    .transparency-card {
+        padding: 32px;
     }
 }
