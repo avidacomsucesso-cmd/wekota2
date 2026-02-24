@@ -356,9 +356,10 @@ body {
 }
 
 .institutional-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-.inst-item { text-align: center; padding: 32px; background: var(--light-bg); border-radius: var(--radius-lg); }
-.inst-icon { width: 32px; height: 32px; color: var(--teal); margin-bottom: 16px; }
-.inst-item h4 { font-size: 0.9rem; font-weight: 700; color: var(--navy); }
+.inst-item { text-align: center; padding: 32px; background: var(--light-bg); border-radius: var(--radius-lg); transition: var(--transition); }
+.inst-item:hover { transform: translateY(-5px); background: var(--white); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+.inst-icon { width: 48px; height: 48px; color: var(--teal); margin-bottom: 20px; }
+.inst-item h4 { font-size: 1rem; font-weight: 700; color: var(--navy); }
 
 /* SAFETY SECTION */
 .safety-grid { max-width: 800px; margin: 0 auto; }
@@ -390,6 +391,22 @@ body {
 
 /* MOBILE */
 @media (max-width: 768px) {
+    .header {
+        height: 70px;
+    }
+    .header .btn {
+        display: none;
+    }
+    .logo__symbol {
+        width: 32px;
+        height: 32px;
+    }
+    .logo__brand {
+        font-size: 1.2rem;
+    }
+    .logo__tagline {
+        font-size: 0.6rem;
+    }
     .hero {
         padding-top: 110px;
         padding-bottom: 40px;
