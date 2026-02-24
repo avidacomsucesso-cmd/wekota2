@@ -522,6 +522,52 @@ body {
     letter-spacing: 0.05em;
 }
 
+/* UPGRADE BADGE & INFO */
+.featured-plan {
+    border: 2px solid var(--teal) !important;
+    position: relative;
+}
+
+.badge-upgrade {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--teal);
+    color: var(--white);
+    padding: 6px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    box-shadow: 0 4px 10px rgba(47, 182, 166, 0.3);
+    z-index: 10;
+}
+
+.upgrade-info {
+    background: var(--teal-10);
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    border: 1px solid rgba(47, 182, 166, 0.2);
+}
+
+.upgrade-icon {
+    color: var(--teal);
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.upgrade-info p {
+    font-size: 0.9rem;
+    color: var(--navy);
+    line-height: 1.4;
+    margin: 0;
+}
+
 /* INSTITUTIONAL GRID */
 .institutional-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 .inst-item { text-align: center; padding: 32px; background: var(--light-bg); border-radius: var(--radius-lg); transition: var(--transition); }
