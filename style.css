@@ -240,8 +240,8 @@ body {
 .payment-card-premium:hover { box-shadow: 0 40px 80px rgba(0,0,0,0.05); }
 .card-header-finance { background: var(--light-bg); padding: 40px; border-bottom: 1px solid var(--border); }
 .finance-tag { font-size: 0.75rem; font-weight: 800; color: var(--teal); letter-spacing: 0.1em; display: block; margin-bottom: 16px; }
-.duration-title { font-size: 2.5rem; font-weight: 800; color: var(--navy); }
-.duration-subtitle { color: var(--gray); font-size: 1rem; }
+.duration-title { font-size: 2.5rem; font-weight: 800; color: var(--navy); line-height: 1; }
+.duration-subtitle { color: var(--gray); font-size: 1rem; margin-top: 8px; }
 .card-body-finance { padding: 40px; }
 .finance-list { margin-bottom: 32px; }
 .finance-list li { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-weight: 500; }
@@ -498,6 +498,31 @@ body {
 .ml-8 { margin-left: 8px; }
 .icon-sm { width: 16px; height: 16px; }
 
+.installment-price {
+    background: var(--white);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.price-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--teal);
+}
+
+.price-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* INSTITUTIONAL GRID */
 .institutional-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 .inst-item { text-align: center; padding: 32px; background: var(--light-bg); border-radius: var(--radius-lg); transition: var(--transition); }
 .inst-item:hover { transform: translateY(-5px); background: var(--white); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
