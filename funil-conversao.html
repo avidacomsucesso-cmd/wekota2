@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WEKOTA — Fluxo de Conversão (Protótipo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0F2B3C;
+      --navy-deep: #091D2A;
+      --navy-mid: #0E2435;
+      --teal: #4ECBA5;
+      --teal-hover: #3DB893;
+      --teal-light: #6EDBB8;
+      --teal-glow: rgba(78, 203, 165, 0.10);
+      --teal-glow-strong: rgba(78, 203, 165, 0.18);
+      --teal-border: rgba(78, 203, 165, 0.25);
+      --slate: #8FA3B0;
+      --white: #FFFFFF;
+      --text: #C8D6DE;
+      --text-bright: #E8EFF3;
+      --red: #E74C3C;
+      --red-soft: rgba(231, 76, 60, 0.1);
+      --gold: #F4D03F;
+      --divider: rgba(255,255,255,0.06);
+      --card-bg: rgba(255,255,255,0.035);
+      --card-border: rgba(255,255,255,0.08);
+      --card-hover: rgba(255,255,255,0.06);
+      --input-bg: rgba(255,255,255,0.05);
+      --input-border: rgba(255,255,255,0.12);
+      --input-focus: rgba(78, 203, 165, 0.4);
+      --whatsapp: #25D366;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy-deep);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── PROTOTYPE BANNER ── */
+    .proto-banner {
+      background: linear-gradient(90deg, var(--teal), #3DB893);
+      color: var(--navy-deep);
+      text-align: center;
+      padding: 0.6rem 1rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    }
+
+    /* ── CONTAINER ── */
+    .funnel-wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 60px 20px 40px;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ── HEADER ── */
+    .funnel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 0 1.5rem;
+    }
+    .funnel-logo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 1.2rem; color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .funnel-logo span { color: var(--teal); }
+    .funnel-close {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--slate);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .funnel-close:hover { background: var(--card-hover); color: var(--white); }
+
+    /* ── PROGRESS ── */
+    .progress-wrap {
+      margin-bottom: 2rem;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .progress-wrap.visible { opacity: 1; }
+    .progress-steps {
+      display: flex; gap: 6px; margin-bottom: 0.5rem;
+    }
+    .progress-dot {
+      flex: 1; height: 3px;
+      background: var(--divider);
+      border-radius: 3px;
+      transition: background 0.5s;
+    }
+    .progress-dot.active { background: var(--teal); }
+    .progress-dot.done { background: var(--teal); opacity: 0.5; }
+    .progress-label {
+      font-size: 0.72rem; color: var(--slate);
+      font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      display: none;
+      animation: screenIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+    .screen.active { display: block; }
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .screen-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.65rem; font-weight: 800;
+      color: var(--white); line-height: 1.2;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.6rem;
+    }
+    .screen-sub {
+      font-size: 0.95rem; color: var(--slate);
+      line-height: 1.6; margin-bottom: 1.75rem;
+    }
+    .screen-sub strong { color: var(--text-bright); font-weight: 600; }
+
+    /* ── SPLIT CTA (Step 0) ── */
+    .split-choices {
+      display: flex; flex-direction: column; gap: 12px;
+      margin-top: 1.5rem;
+    }
+    .split-btn {
+      position: relative;
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.35rem 1.5rem;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none; text-align: left;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .split-btn-primary {
+      background: linear-gradient(135deg, var(--teal), #3DB893);
+      color: var(--navy-deep);
+      box-shadow: 0 8px 32px rgba(78, 203, 165, 0.25);
+    }
+    .split-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(78, 203, 165, 0.35);
+    }
+    .split-btn-secondary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+    }
+    .split-btn-secondary:hover {
+      background: var(--card-hover);
+      border-color: var(--teal-border);
+    }
+    .split-icon {
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 14px;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .split-btn-primary .split-icon {
+      background: rgba(15, 43, 60, 0.15);
+    }
+    .split-btn-secondary .split-icon {
+      background: var(--teal-glow);
+    }
+    .split-text h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 0.15rem;
+    }
+    .split-btn-primary .split-text h3 { color: var(--navy-deep); }
+    .split-btn-secondary .split-text h3 { color: var(--white); }
+    .split-text p {
+      font-size: 0.82rem; opacity: 0.8;
+      line-height: 1.4;
+    }
+    .split-badge {
+      position: absolute; top: -8px; right: 16px;
+      background: var(--navy-deep);
+      color: var(--teal);
+      font-size: 0.65rem; font-weight: 700;
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--teal-border);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--slate);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 0.45rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 12px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      transition: all 0.25s;
+      outline: none;
+    }
+    .form-input::placeholder { color: rgba(143, 163, 176, 0.5); }
+    .form-input:focus {
+      border-color: var(--teal);
+      background: rgba(78, 203, 165, 0.05);
+      box-shadow: 0 0 0 3px var(--input-focus);
+    }
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .form-select {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 12px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238FA3B0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+    .form-select option { background: var(--navy); color: var(--white); }
+
+    /* ── PRODUCT CARDS ── */
+    .product-cards {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .product-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .product-card:hover { background: var(--card-hover); }
+    .product-card.selected {
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+    .product-card .pc-radio {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--input-border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s;
+    }
+    .product-card.selected .pc-radio {
+      border-color: var(--teal);
+      background: var(--teal);
+    }
+    .product-card.selected .pc-radio::after {
+      content: '✓'; color: var(--navy-deep);
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .pc-info h4 {
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--white); margin-bottom: 0.15rem;
+    }
+    .pc-info p {
+      font-size: 0.8rem; color: var(--slate);
+    }
+    .pc-info .pc-price {
+      color: var(--teal); font-weight: 700;
+    }
+    .pc-badge {
+      margin-left: auto;
+      background: var(--teal-glow);
+      border: 1px solid var(--teal-border);
+      color: var(--teal);
+      font-size: 0.65rem; font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    /* ── DURATION CARDS ── */
+    .duration-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .dur-card {
+      padding: 1.25rem;
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-align: center;
+      position: relative;
+    }
+    .dur-card:hover { background: var(--card-hover); }
+    .dur-card.selected {
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+    .dur-card .dur-months {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      color: var(--white);
+    }
+    .dur-card .dur-label {
+      font-size: 0.78rem; color: var(--slate);
+      font-weight: 500; margin-bottom: 0.6rem;
+    }
+    .dur-card .dur-price {
+      font-size: 1rem; font-weight: 700;
+      color: var(--teal);
+    }
+    .dur-card .dur-price-label {
+      font-size: 0.72rem; color: var(--slate);
+    }
+    .dur-card .dur-upgrade {
+      margin-top: 0.6rem;
+      font-size: 0.68rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .dur-badge {
+      position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+      background: var(--teal);
+      color: var(--navy-deep);
+      font-size: 0.6rem; font-weight: 800;
+      padding: 0.2rem 0.7rem;
+      border-radius: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ── KYC UPLOAD ── */
+    .upload-zone {
+      border: 2px dashed var(--input-border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 1rem;
+    }
+    .upload-zone:hover {
+      border-color: var(--teal-border);
+      background: var(--teal-glow);
+    }
+    .upload-zone.uploaded {
+      border-color: var(--teal);
+      border-style: solid;
+      background: var(--teal-glow);
+    }
+    .upload-icon {
+      font-size: 2rem; margin-bottom: 0.5rem;
+    }
+    .upload-zone h4 {
+      font-size: 0.92rem; font-weight: 700;
+      color: var(--white); margin-bottom: 0.25rem;
+    }
+    .upload-zone p {
+      font-size: 0.8rem; color: var(--slate);
+    }
+
+    /* ── POSITION REVEAL ── */
+    .reveal-container {
+      text-align: center;
+      padding: 2rem 0;
+    }
+    .reveal-ring {
+      width: 160px; height: 160px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      border: 3px solid var(--teal-border);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      animation: ringPulse 2s ease-in-out infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(78,203,165,0.3); }
+      50% { box-shadow: 0 0 0 20px rgba(78,203,165,0); }
+    }
+    .reveal-number {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 4rem; font-weight: 800;
+      color: var(--teal);
+      animation: numberReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      animation-delay: 0.5s;
+      opacity: 0;
+    }
+    @keyframes numberReveal {
+      from { opacity: 0; transform: scale(0.3); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .reveal-label {
+      font-size: 0.82rem; color: var(--slate);
+      font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .reveal-meaning {
+      font-size: 1.1rem; color: var(--white);
+      font-weight: 600; margin-bottom: 0.3rem;
+    }
+    .reveal-detail {
+      font-size: 0.88rem; color: var(--slate);
+    }
+
+    /* ── CONTRACT SUMMARY ── */
+    .contract-summary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .cs-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--divider);
+    }
+    .cs-row:last-child { border-bottom: none; }
+    .cs-label { font-size: 0.85rem; color: var(--slate); }
+    .cs-value { font-size: 0.9rem; color: var(--white); font-weight: 600; }
+    .cs-value.highlight-val { color: var(--teal); font-size: 1.05rem; }
+
+    /* ── PAYMENT METHODS ── */
+    .pay-methods {
+      display: flex; flex-direction: column; gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .pay-method {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .pay-method:hover { background: var(--card-hover); }
+    .pay-method.selected {
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+    .pay-icon {
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--input-bg);
+      border-radius: 10px;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .pay-method.selected .pay-icon {
+      background: var(--teal-glow-strong);
+    }
+    .pay-info h4 {
+      font-size: 0.92rem; font-weight: 700; color: var(--white);
+    }
+    .pay-info p {
+      font-size: 0.75rem; color: var(--slate);
+    }
+    .pay-rec {
+      margin-left: auto;
+      font-size: 0.65rem; font-weight: 700;
+      color: var(--teal);
+      background: var(--teal-glow);
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, var(--teal), #3DB893);
+      color: var(--navy-deep);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      border: none; border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 6px 24px rgba(78, 203, 165, 0.2);
+      letter-spacing: -0.01em;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 36px rgba(78, 203, 165, 0.3);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      width: 100%;
+      padding: 0.85rem 1.5rem;
+      background: transparent;
+      color: var(--slate);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 600;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-top: 0.6rem;
+    }
+    .btn-secondary:hover { border-color: var(--teal-border); color: var(--teal); }
+
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      display: flex; gap: 1.25rem; justify-content: center;
+      margin: 2rem 0 1rem;
+      flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; color: var(--slate);
+      font-weight: 500;
+    }
+    .trust-icon { color: var(--teal); font-size: 0.85rem; }
+
+    /* ── WHATSAPP FLOAT ── */
+    .wa-float {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 56px; height: 56px;
+      background: var(--whatsapp);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+      transition: all 0.3s;
+      z-index: 100;
+      font-size: 1.6rem;
+      color: white;
+      text-decoration: none;
+    }
+    .wa-float:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px rgba(37, 211, 102, 0.5);
+    }
+    .wa-tooltip {
+      position: absolute; right: 68px; top: 50%; transform: translateY(-50%);
+      background: var(--white);
+      color: var(--navy-deep);
+      font-size: 0.78rem; font-weight: 600;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .wa-float:hover .wa-tooltip { opacity: 1; }
+
+    /* ── DOUBT SCREEN ── */
+    .doubt-options {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: 1.5rem;
+    }
+    .doubt-btn {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.15rem 1.35rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+    }
+    .doubt-btn:hover {
+      background: var(--card-hover);
+      border-color: var(--teal-border);
+    }
+    .doubt-btn.wa {
+      background: rgba(37, 211, 102, 0.08);
+      border-color: rgba(37, 211, 102, 0.2);
+    }
+    .doubt-btn.wa:hover {
+      background: rgba(37, 211, 102, 0.14);
+    }
+    .doubt-icon {
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .doubt-btn.wa .doubt-icon { background: rgba(37,211,102,0.15); }
+    .doubt-btn .doubt-icon { background: var(--teal-glow); }
+    .doubt-text h4 { font-size: 0.95rem; font-weight: 700; color: var(--white); }
+    .doubt-text p { font-size: 0.8rem; color: var(--slate); }
+
+    /* ── FAQ QUICK ── */
+    .faq-quick {
+      margin-top: 2rem;
+    }
+    .faq-quick h3 {
+      font-size: 0.78rem; font-weight: 700;
+      color: var(--slate); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 0.8rem;
+    }
+    .faq-item {
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--divider);
+      cursor: pointer;
+    }
+    .faq-q {
+      font-size: 0.92rem; color: var(--white);
+      font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .faq-q span { color: var(--teal); transition: transform 0.3s; font-size: 1.1rem; }
+    .faq-item.open .faq-q span { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s;
+      font-size: 0.85rem; color: var(--slate);
+      line-height: 1.6;
+    }
+    .faq-item.open .faq-a {
+      max-height: 200px;
+      padding-top: 0.6rem;
+    }
+
+    /* ── SUCCESS ── */
+    .success-icon {
+      width: 80px; height: 80px;
+      margin: 0 auto 1.5rem;
+      background: var(--teal-glow-strong);
+      border: 2px solid var(--teal-border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      animation: successPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes successPop {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+    .success-confetti {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      animation: confetti 0.6s ease both;
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+    @keyframes confetti {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── INLINE NOTICE ── */
+    .inline-notice {
+      display: flex; align-items: flex-start; gap: 0.65rem;
+      padding: 0.85rem 1rem;
+      background: var(--teal-glow);
+      border: 1px solid var(--teal-border);
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-size: 0.82rem; color: var(--teal-light);
+    }
+    .inline-notice .n-icon { flex-shrink: 0; font-size: 1rem; }
+
+    /* ── CHECKBOX ── */
+    .check-row {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      margin: 1rem 0;
+      cursor: pointer;
+    }
+    .check-box {
+      width: 22px; height: 22px; flex-shrink: 0;
+      border: 2px solid var(--input-border);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      margin-top: 0.1rem;
+    }
+    .check-row.checked .check-box {
+      background: var(--teal); border-color: var(--teal);
+    }
+    .check-row.checked .check-box::after {
+      content: '✓'; color: var(--navy-deep);
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .check-text {
+      font-size: 0.85rem; color: var(--text); line-height: 1.5;
+    }
+    .check-text a { color: var(--teal); text-decoration: none; }
+
+    /* ── UTIL ── */
+    .mt-1 { margin-top: 1rem; }
+    .mt-2 { margin-top: 2rem; }
+    .text-center { text-align: center; }
+    .text-sm { font-size: 0.82rem; }
+    .text-xs { font-size: 0.72rem; }
+    .text-slate { color: var(--slate); }
+    .text-teal { color: var(--teal); }
+  </style>
+</head>
+<body>
+
+<div class="proto-banner">⚡ Protótipo Interativo — Fluxo de Conversão WEKOTA</div>
+
+<!-- WhatsApp Float -->
+<a class="wa-float" href="#" onclick="return false;">
+  💬
+  <div class="wa-tooltip">Falar com a equipa</div>
+</a>
+
+<div class="funnel-wrap">
+
+  <!-- Header -->
+  <div class="funnel-header">
+    <div class="funnel-logo">WEKO<span>TA</span></div>
+    <div class="funnel-close" onclick="goTo('split')">✕</div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-steps" id="progressSteps">
+      <div class="progress-dot" data-step="1"></div>
+      <div class="progress-dot" data-step="2"></div>
+      <div class="progress-dot" data-step="3"></div>
+      <div class="progress-dot" data-step="4"></div>
+      <div class="progress-dot" data-step="5"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">Passo 1 de 5</div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SCREEN 0: SPLIT — COMPRAR OU PERGUNTAR -->
+  <!-- ============================================ -->
+  <div class="screen active" id="screen-split">
+    <div class="screen-title">Pronto para garantir o seu iPhone 17 Pro Max?</div>
+    <div class="screen-sub">Junte-se a um grupo, pague prestações fixas, receba o seu produto. <strong>Sem banco, sem juros, sem surpresas.</strong></div>
+
+    <div class="split-choices">
+      <button class="split-btn split-btn-primary" onclick="goTo('step1')">
+        <span class="split-badge">🔥 4 posições restantes</span>
+        <div class="split-icon">🚀</div>
+        <div class="split-text">
+          <h3>Quero garantir o meu</h3>
+          <p>Inscrição rápida em 3 minutos. Sem compromisso até confirmar.</p>
+        </div>
+      </button>
+
+      <button class="split-btn split-btn-secondary" onclick="goTo('doubt')">
+        <div class="split-icon">💬</div>
+        <div class="split-text">
+          <h3>Tenho dúvidas primeiro</h3>
+          <p>Fale com a nossa equipa ou veja as perguntas frequentes.</p>
+        </div>
+      </button>
+    </div>
+
+    <div class="trust-bar">
+      <div class="trust-item"><span class="trust-icon">🔒</span> Pagamentos seguros (EMI UE)</div>
+      <div class="trust-item"><span class="trust-icon">🇪🇺</span> Empresa europeia</div>
+      <div class="trust-item"><span class="trust-icon">✓</span> 14 dias para desistir</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SCREEN DOUBT: DÚVIDAS -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-doubt">
+    <div class="screen-title">Sem pressão. Estamos aqui para ajudar.</div>
+    <div class="screen-sub">Escolha o canal que preferir. Respondemos em minutos, não em dias.</div>
+
+    <div class="doubt-options">
+      <a class="doubt-btn wa" href="#">
+        <div class="doubt-icon">💬</div>
+        <div class="doubt-text">
+          <h4>WhatsApp</h4>
+          <p>Resposta em menos de 15 minutos · Seg-Sex 9h-20h</p>
+        </div>
+      </a>
+      <a class="doubt-btn" href="#">
+        <div class="doubt-icon">📧</div>
+        <div class="doubt-text">
+          <h4>Email</h4>
+          <p>contato@wekota.eu · Resposta em até 24 horas</p>
+        </div>
+      </a>
+      <a class="doubt-btn" href="#">
+        <div class="doubt-icon">📄</div>
+        <div class="doubt-text">
+          <h4>Condições do Programa</h4>
+          <p>Tudo sobre como funciona, preço e direitos</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="faq-quick">
+      <h3>Perguntas rápidas</h3>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Preciso de NIF ou conta bancária portuguesa? <span>+</span></div>
+        <div class="faq-a">Não. Basta ter passaporte válido e residir em Portugal ou Espanha. Aceitamos transferência internacional, cartão, MB Way, Bizum e débito direto SEPA.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">É seguro? E se alguém não pagar? <span>+</span></div>
+        <div class="faq-a">Os pagamentos são custodiados por uma Instituição de Moeda Eletrónica licenciada na UE — o seu dinheiro nunca passa pela WEKOTA. Temos um Fundo de Reserva que cobre atrasos de outros membros sem afetar a sua entrega.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Quando recebo o meu produto? <span>+</span></div>
+        <div class="faq-a">No mês correspondente à sua posição no grupo. A WEKOTA atribui-lhe uma posição e informa-o antes de pagar — se não concordar, pode recusar sem custo.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Posso desistir depois de aderir? <span>+</span></div>
+        <div class="faq-a">Sim. Tem 14 dias para desistir sem motivo e sem custo, garantido pela lei europeia. Após esse prazo, pode sair do grupo com reembolso proporcional.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Qual é o custo total? <span>+</span></div>
+        <div class="faq-a">O preço do produto + 25% de taxa de serviço, divididos em prestações fixas. Zero surpresas. Vê o valor exato da prestação antes de assinar.</div>
+      </div>
+    </div>
+
+    <button class="btn-primary mt-2" onclick="goTo('split')">← Voltar e aderir agora</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 1: DADOS BÁSICOS -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step1">
+    <div class="screen-title">Vamos começar 👋</div>
+    <div class="screen-sub">Só precisamos do essencial. <strong>Demora menos de 1 minuto.</strong></div>
+
+    <div class="form-group">
+      <label class="form-label">Nome completo</label>
+      <input class="form-input" type="text" placeholder="Como está no seu passaporte" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" placeholder="seu@email.com" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Telemóvel</label>
+        <input class="form-input" type="tel" placeholder="+351 900 000 000" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">País de residência</label>
+        <select class="form-select">
+          <option value="">Selecionar</option>
+          <option value="pt">🇵🇹 Portugal</option>
+          <option value="es">🇪🇸 Espanha</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="inline-notice">
+      <span class="n-icon">🔒</span>
+      <span>Os seus dados estão protegidos pelo RGPD. Nunca partilhamos informação com terceiros para marketing.</span>
+    </div>
+
+    <button class="btn-primary" onclick="goTo('step2')">Continuar</button>
+    <button class="btn-secondary" onclick="goTo('split')">← Voltar</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 2: PRODUTO + DURAÇÃO -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step2">
+    <div class="screen-title">O que quer adquirir?</div>
+    <div class="screen-sub">Escolha o produto e a duração do grupo.</div>
+
+    <label class="form-label">Produto</label>
+    <div class="product-cards">
+      <div class="product-card selected" onclick="selectCard(this, 'product-cards')">
+        <div class="pc-radio"></div>
+        <div class="pc-info">
+          <h4>iPhone 17 Pro Max 256GB</h4>
+          <p>Desde <span class="pc-price">€80/mês</span></p>
+        </div>
+        <div class="pc-badge">Popular</div>
+      </div>
+      <div class="product-card" onclick="selectCard(this, 'product-cards')">
+        <div class="pc-radio"></div>
+        <div class="pc-info">
+          <h4>iPhone 17 Pro Max 512GB</h4>
+          <p>Desde <span class="pc-price">€93/mês</span></p>
+        </div>
+      </div>
+      <div class="product-card" onclick="selectCard(this, 'product-cards')">
+        <div class="pc-radio"></div>
+        <div class="pc-info">
+          <h4>Samsung Galaxy S25 Ultra 256GB</h4>
+          <p>Desde <span class="pc-price">€72/mês</span></p>
+        </div>
+      </div>
+    </div>
+
+    <label class="form-label">Duração do grupo</label>
+    <div class="duration-cards">
+      <div class="dur-card" onclick="selectDur(this)">
+        <div class="dur-months">12</div>
+        <div class="dur-label">meses</div>
+        <div class="dur-price">€160/mês</div>
+        <div class="dur-price-label">Recebe mais rápido</div>
+      </div>
+      <div class="dur-card selected" onclick="selectDur(this)">
+        <div class="dur-badge">Mais escolhido</div>
+        <div class="dur-months">24</div>
+        <div class="dur-label">meses</div>
+        <div class="dur-price">€80/mês</div>
+        <div class="dur-price-label">Prestação mais baixa</div>
+        <div class="dur-upgrade">⭐ Recebe sempre o modelo mais recente</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goTo('step3')">Continuar</button>
+    <button class="btn-secondary" onclick="goTo('step1')">← Voltar</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 3: KYC — VERIFICAÇÃO DE IDENTIDADE -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step3">
+    <div class="screen-title">Verificação de identidade</div>
+    <div class="screen-sub">Para segurança de todos os membros do grupo. <strong>Rápido e confidencial.</strong></div>
+
+    <div class="upload-zone" onclick="simulateUpload(this)">
+      <div class="upload-icon">🛂</div>
+      <h4>Fotografia do passaporte</h4>
+      <p>Página com a foto. Aceite: JPG, PNG ou PDF.</p>
+    </div>
+
+    <div class="upload-zone" onclick="simulateUpload(this)">
+      <div class="upload-icon">🤳</div>
+      <h4>Selfie de verificação</h4>
+      <p>Tire uma selfie segurando o passaporte.</p>
+    </div>
+
+    <div class="inline-notice">
+      <span class="n-icon">🔒</span>
+      <span>As imagens são processadas por um prestador KYC certificado e eliminadas após verificação. A WEKOTA não armazena fotografias de documentos.</span>
+    </div>
+
+    <button class="btn-primary" onclick="goTo('step4')">Verificar e continuar</button>
+    <button class="btn-secondary" onclick="goTo('step2')">← Voltar</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 4: POSIÇÃO REVELADA + CONTRATO -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step4">
+    <div class="screen-title text-center">A sua posição no grupo</div>
+
+    <div class="reveal-container">
+      <div class="reveal-label">Posição atribuída</div>
+      <div class="reveal-ring">
+        <div class="reveal-number" id="revealNum">7</div>
+      </div>
+      <div class="reveal-meaning">Recebe o seu iPhone no mês 7</div>
+      <div class="reveal-detail">Grupo de 24 meses · iPhone 17 Pro Max 256GB</div>
+    </div>
+
+    <div class="contract-summary">
+      <div class="cs-row">
+        <span class="cs-label">Produto</span>
+        <span class="cs-value">iPhone 17 Pro Max 256GB</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Grupo</span>
+        <span class="cs-value">24 meses · 24 membros</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">A sua posição</span>
+        <span class="cs-value highlight-val">Posição 7 (mês 7)</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Prestação mensal</span>
+        <span class="cs-value highlight-val">€80,00/mês</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Total (24 prestações)</span>
+        <span class="cs-value">€1.920,00</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Inclui taxa de serviço</span>
+        <span class="cs-value">25% (€384,00)</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Garantia do produto</span>
+        <span class="cs-value">Modelo mais recente na entrega ⭐</span>
+      </div>
+    </div>
+
+    <div class="check-row" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Li e aceito os <a href="/condicoes">Termos e Condições Gerais</a> e a <a href="/privacidade">Política de Privacidade</a>.</div>
+    </div>
+
+    <div class="check-row" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Compreendo que a propriedade do produto transfere-se para mim após o pagamento da última prestação.</div>
+    </div>
+
+    <button class="btn-primary mt-1" onclick="goTo('step5')">Aceitar posição e continuar</button>
+    <button class="btn-secondary" onclick="goTo('split')">Recusar posição</button>
+    <p class="text-xs text-slate text-center mt-1">Se recusar, pode voltar mais tarde sem compromisso.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 5: PAGAMENTO -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step5">
+    <div class="screen-title">Configure o pagamento</div>
+    <div class="screen-sub">Escolha como quer pagar as prestações mensais. <strong>A primeira prestação é cobrada quando o grupo iniciar.</strong></div>
+
+    <label class="form-label">Método de pagamento</label>
+    <div class="pay-methods">
+      <div class="pay-method selected" onclick="selectPay(this)">
+        <div class="pay-icon">🏦</div>
+        <div class="pay-info">
+          <h4>Débito Direto SEPA</h4>
+          <p>Automático todos os meses. Zero preocupação.</p>
+        </div>
+        <span class="pay-rec">Recomendado</span>
+      </div>
+      <div class="pay-method" onclick="selectPay(this)">
+        <div class="pay-icon">💳</div>
+        <div class="pay-info">
+          <h4>Cartão de débito/crédito</h4>
+          <p>Visa ou Mastercard. Cobrança automática mensal.</p>
+        </div>
+      </div>
+      <div class="pay-method" onclick="selectPay(this)">
+        <div class="pay-icon">📱</div>
+        <div class="pay-info">
+          <h4>MB Way / Bizum</h4>
+          <p>Notificação mensal para aprovar o pagamento.</p>
+        </div>
+      </div>
+      <div class="pay-method" onclick="selectPay(this)">
+        <div class="pay-icon">🌍</div>
+        <div class="pay-info">
+          <h4>Transferência internacional</h4>
+          <p>Wise, Remitly ou transferência SEPA manual.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="inline-notice">
+      <span class="n-icon">🔒</span>
+      <span>Todos os pagamentos são processados pela nossa EMI parceira licenciada na UE. Os seus dados financeiros nunca são armazenados pela WEKOTA.</span>
+    </div>
+
+    <button class="btn-primary" onclick="goTo('success')">Confirmar adesão</button>
+    <button class="btn-secondary" onclick="goTo('step4')">← Voltar</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SUCCESS -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-success">
+    <div class="success-confetti">🎉</div>
+    <div class="success-icon">✓</div>
+    <div class="screen-title text-center">Bem-vindo ao grupo!</div>
+    <div class="screen-sub text-center">A sua inscrição está confirmada. Agora é só esperar o grupo completar para o ciclo começar.</div>
+
+    <div class="contract-summary">
+      <div class="cs-row">
+        <span class="cs-label">Produto</span>
+        <span class="cs-value">iPhone 17 Pro Max 256GB</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">A sua posição</span>
+        <span class="cs-value highlight-val">Posição 7 de 24</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Prestação</span>
+        <span class="cs-value highlight-val">€80,00/mês</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Estado do grupo</span>
+        <span class="cs-value">18 de 24 posições preenchidas</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Próximo passo</span>
+        <span class="cs-value">Notificamos quando o grupo iniciar</span>
+      </div>
+    </div>
+
+    <div class="inline-notice">
+      <span class="n-icon">📧</span>
+      <span>Enviámos o contrato assinado e o resumo da adesão para o seu email. Guarde-o para referência.</span>
+    </div>
+
+    <button class="btn-primary" onclick="goTo('split')">← Voltar ao início (demo)</button>
+
+    <div class="trust-bar">
+      <div class="trust-item"><span class="trust-icon">📱</span> Acompanhe pelo WhatsApp</div>
+      <div class="trust-item"><span class="trust-icon">📧</span> Notificações por email</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const stepLabels = {
+    step1: { n: 1, label: 'Dados pessoais' },
+    step2: { n: 2, label: 'Produto e duração' },
+    step3: { n: 3, label: 'Verificação de identidade' },
+    step4: { n: 4, label: 'Posição e contrato' },
+    step5: { n: 5, label: 'Pagamento' },
+  };
+
+  function goTo(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('screen-' + screenId);
+    if (target) {
+      target.classList.remove('active');
+      void target.offsetWidth; // force reflow
+      target.classList.add('active');
+    }
+
+    const pw = document.getElementById('progressWrap');
+    const info = stepLabels[screenId];
+    if (info) {
+      pw.classList.add('visible');
+      document.getElementById('progressLabel').textContent = `Passo ${info.n} de 5 — ${info.label}`;
+      document.querySelectorAll('.progress-dot').forEach(d => {
+        const s = parseInt(d.dataset.step);
+        d.className = 'progress-dot';
+        if (s < info.n) d.classList.add('done');
+        if (s === info.n) d.classList.add('active');
+      });
+    } else {
+      pw.classList.remove('visible');
+    }
+
+    // Re-trigger reveal animation
+    if (screenId === 'step4') {
+      const rn = document.getElementById('revealNum');
+      rn.style.animation = 'none';
+      void rn.offsetWidth;
+      rn.style.animation = 'numberReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both 0.5s';
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function selectCard(el, parentClass) {
+    el.closest('.' + parentClass).querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectDur(el) {
+    document.querySelectorAll('.dur-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectPay(el) {
+    document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function simulateUpload(el) {
+    el.classList.toggle('uploaded');
+    if (el.classList.contains('uploaded')) {
+      el.querySelector('h4').textContent = '✓ Documento carregado';
+      el.querySelector('p').textContent = 'Toque para substituir';
+    }
+  }
+
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+  }
+
+  function toggleFaq(el) {
+    el.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
