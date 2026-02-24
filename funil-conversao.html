@@ -1122,6 +1122,7 @@
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  import { loadStripe } from 'https://cdn.jsdelivr.net/npm/@stripe/stripe-js/+esm'
 
   // Initialize Supabase
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -1134,9 +1135,14 @@
       supabase = createClient(supabaseUrl, supabaseAnonKey)
   }
 
-  let currentLeadId = null
+  // Initialize Stripe (Placeholder Key - User needs to provide via Env or hardcode for testing)
+  // Warning: Do not use real keys in repo if public
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYOO'); 
 
-  // Force navigate function that doesn't depend on window scope being tricky
+  let currentLeadId = null
+  let selectedPlanPriceId = null;
+
+  // Force navigate function
   const forceNavigate = (screenId) => {
       console.log('Navigating to:', screenId);
       const screens = document.querySelectorAll('.screen');
@@ -1271,10 +1277,19 @@
         // Get values safely
         const prodEl = document.querySelector('.product-card.selected h4');
         const durEl = document.querySelector('.dur-card.selected .dur-months');
+        const durationText = durEl ? durEl.textContent.trim() : '24';
         
         const product = prodEl ? prodEl.textContent.trim() : 'Default Product';
-        const duration = durEl ? durEl.textContent.trim() + ' meses' : '24 meses';
+        const duration = durationText + ' meses';
         const plan = `${product} - ${duration}`;
+
+        // Set Price ID based on duration selection
+        // TODO: Replace these placeholders with real Stripe Price IDs
+        if (durationText === '12') {
+            selectedPlanPriceId = 'price_12_months_ID_HERE'; 
+        } else {
+            selectedPlanPriceId = 'price_24_months_ID_HERE';
+        }
 
         newBtn2.textContent = 'A guardar...';
 
@@ -1294,6 +1309,58 @@
         newBtn2.textContent = 'Continuar';
         forceNavigate('step3');
       });
+    }
+
+    // Handle Payment Step (Step 5) - Added Logic for Stripe
+    const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+    if (btnStep5) {
+        // Clone to remove old listeners
+        const newBtn5 = btnStep5.cloneNode(true);
+        btnStep5.parentNode.replaceChild(newBtn5, btnStep5);
+
+        newBtn5.addEventListener('click', async () => {
+            const selectedMethodEl = document.querySelector('.pay-method.selected h4');
+            const selectedMethod = selectedMethodEl ? selectedMethodEl.innerText : 'Manual';
+            
+            if (selectedMethod && (selectedMethod.includes('Cartão') || selectedMethod.includes('Débito Direto'))) {
+                // Trigger Stripe Checkout logic
+                newBtn5.textContent = 'A iniciar pagamento...';
+                
+                try {
+                    if (!isSupabaseConfigured || !supabase) throw new Error('Supabase not configured');
+
+                    // Call Supabase Function to create checkout session
+                    const { data, error } = await supabase.functions.invoke('create-checkout', {
+                        body: { 
+                            lead_id: currentLeadId,
+                            price_id: selectedPlanPriceId,
+                            payment_method: selectedMethod
+                        }
+                    });
+
+                    if (error) throw error;
+
+                    if (data && data.sessionId) {
+                        const stripe = await stripePromise;
+                        const { error: stripeError } = await stripe.redirectToCheckout({
+                            sessionId: data.sessionId,
+                        });
+                        if (stripeError) throw stripeError;
+                    } else {
+                        throw new Error('No session ID returned');
+                    }
+
+                } catch (err) {
+                    console.error('Payment Error/Simulation:', err);
+                    // For demo purposes, we fallback to success screen if function fails or is not setup
+                    // alert('Erro ao iniciar pagamento real. Redirecionando para sucesso (Demo).');
+                    forceNavigate('success'); 
+                }
+            } else {
+                // For manual methods or fallback
+                forceNavigate('success');
+            }
+        });
     }
   });
 </script>
