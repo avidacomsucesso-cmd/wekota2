@@ -208,8 +208,10 @@ svg {
 
 /* HERO */
 .hero {
-    padding-top: calc(80px + var(--section-padding));
-    padding-bottom: var(--section-padding);
+    padding-top: 80px; /* Header height */
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
     background-color: var(--navy);
     position: relative;
     overflow: hidden;
@@ -254,11 +256,13 @@ svg {
     gap: 80px;
     position: relative;
     z-index: 2;
+    padding: 40px 0;
 }
 
 .hero__headline {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    margin-bottom: 24px;
+    font-size: clamp(2.5rem, 5vw, 3.8rem);
+    margin-bottom: 20px;
+    line-height: 1.1;
 }
 
 .hero .hero__headline {
@@ -268,7 +272,7 @@ svg {
 .hero__subheadline {
     font-size: 1.25rem;
     color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 48px;
+    margin-bottom: 32px;
     max-width: 500px;
 }
 
@@ -280,11 +284,11 @@ svg {
 
 .hero__img {
     width: 100%;
-    max-width: 500px;
+    max-width: 480px;
+    height: auto;
     filter: drop-shadow(0 40px 60px rgba(0, 0, 0, 0.4));
     transition: var(--transition);
-    mix-blend-mode: multiply;
-    /* Removes white background */
+    mix-blend-mode: normal;
 }
 
 .hero__img:hover {
@@ -800,12 +804,17 @@ svg {
     overflow: hidden;
     position: relative;
     padding: 20px 0 60px;
+    cursor: grab;
+}
+
+.carousel-container:active {
+    cursor: grabbing;
 }
 
 .carousel-track {
     display: flex;
     gap: 32px;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s ease-out;
 }
 
 .testimonial-card {
@@ -815,6 +824,7 @@ svg {
     border-radius: var(--radius-lg);
     border: 1px solid var(--navy-10);
     position: relative;
+    user-select: none;
 }
 
 .testimonial-text {
@@ -972,27 +982,33 @@ svg {
 /* MOBILE */
 @media (max-width: 768px) {
     :root {
-        --section-padding: 80px;
+        --section-padding: 60px;
     }
 
     .hero {
-        padding-top: 140px;
+        padding-top: 80px;
+        min-height: auto;
+        padding-bottom: 60px;
     }
 
     .hero__inner {
         grid-template-columns: 1fr;
         text-align: center;
-        gap: 40px;
+        gap: 32px;
+        padding: 40px 0;
+    }
+
+    .hero__headline {
+        font-size: 2.25rem;
     }
 
     .hero__subheadline {
-        margin: 0 auto 32px;
+        margin: 0 auto 24px;
+        font-size: 1.1rem;
     }
 
-    .footer__grid {
-        grid-template-columns: 1fr;
-        gap: 40px;
-        text-align: center;
+    .hero__img {
+        max-width: 300px;
     }
 
     .mobile-sticky-cta {
@@ -1012,5 +1028,30 @@ svg {
 
     .form-grid {
         grid-template-columns: 1fr;
+    }
+
+    .metric-value {
+        font-size: 2.5rem;
+    }
+
+    .testimonial-card {
+        flex: 0 0 85%;
+        padding: 24px;
+    }
+
+    .carousel-track {
+        gap: 16px;
+    }
+
+    .featured-grid-wrap {
+        gap: 32px;
+    }
+
+    .payment-card {
+        padding: 20px;
+    }
+
+    .payment-card__body {
+        gap: 20px;
     }
 }

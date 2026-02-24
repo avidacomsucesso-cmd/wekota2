@@ -430,6 +430,55 @@
     <a href="#reservar" class="btn btn--primary btn--full">Reservar Posição</a>
   </div>
 
+  <script>
+    // Simple Carousel Logic
+    const track = document.querySelector('.carousel-track');
+    const container = document.querySelector('.carousel-container');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+      isDown = true;
+      startX = e.pageX - track.offsetLeft;
+      scrollLeft = track.style.transform ? parseInt(track.style.transform.replace('translateX(', '').replace('px)', '')) : 0;
+    });
+
+    container.addEventListener('mouseleave', () => {
+      isDown = false;
+    });
+
+    container.addEventListener('mouseup', () => {
+      isDown = false;
+    });
+
+    container.addEventListener('mousemove', (e) => {
+      if(!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - track.offsetLeft;
+      const walk = (x - startX);
+      track.style.transform = `translateX(${scrollLeft + walk}px)`;
+    });
+
+    // Touch events
+    container.addEventListener('touchstart', (e) => {
+      isDown = true;
+      startX = e.touches[0].pageX - track.offsetLeft;
+      scrollLeft = track.style.transform ? parseInt(track.style.transform.replace('translateX(', '').replace('px)', '')) : 0;
+    });
+
+    container.addEventListener('touchend', () => {
+      isDown = false;
+    });
+
+    container.addEventListener('touchmove', (e) => {
+      if(!isDown) return;
+      const x = e.touches[0].pageX - track.offsetLeft;
+      const walk = (x - startX);
+      track.style.transform = `translateX(${scrollLeft + walk}px)`;
+    });
+  </script>
+
   <script type="module" src="./main.js"></script>
 </body>
 
