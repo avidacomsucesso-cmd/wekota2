@@ -190,8 +190,12 @@
     </section>
 
     <!-- 6️⃣ PROVA SOCIAL + MÉTRICAS -->
-    <section class="section-padding bg-white" id="prova">
+    <section class="section-padding" id="prova" style="background-color: var(--light-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
       <div class="container">
+        <div class="text-center mb-60">
+          <h2 class="section-title">Resultados que geram confiança.</h2>
+        </div>
+        
         <div class="metrics-grid">
           <div class="metric-item-premium">
             <span class="metric-value">+150</span>
@@ -207,7 +211,59 @@
           </div>
         </div>
 
-        <div class="institutional-grid">
+        <div class="carousel-container-testimonials">
+          <div class="testimonial-track">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-slide">
+              <div class="testimonial-card-premium">
+                <i data-lucide="quote" class="quote-icon"></i>
+                <p class="testimonial-text">"Sempre quis o iPhone mas fugia dos juros. O modelo da WEKOTA é a transparência que eu precisava para finalmente ter o meu Pro Max."</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">RM</div>
+                  <div class="author-info">
+                    <h4>Ricardo M.</h4>
+                    <p>Participante Qualificado</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Testimonial 2 -->
+            <div class="testimonial-slide">
+              <div class="testimonial-card-premium">
+                <i data-lucide="quote" class="quote-icon"></i>
+                <p class="testimonial-text">"Estar em um grupo com regras europeias me deu a segurança que eu não sentia em outros modelos. O contrato é muito claro."</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">SC</div>
+                  <div class="author-info">
+                    <h4>Sofia C.</h4>
+                    <p>Participante Qualificada</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Testimonial 3 -->
+            <div class="testimonial-slide">
+              <div class="testimonial-card-premium">
+                <i data-lucide="quote" class="quote-icon"></i>
+                <p class="testimonial-text">"O suporte foi excelente desde o primeiro contacto. Dá para perceber que existe uma estrutura séria por trás de tudo."</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">JP</div>
+                  <div class="author-info">
+                    <h4>João P.</h4>
+                    <p>Interessado na Lista</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+
+        <div class="institutional-grid mt-80">
           <div class="inst-item">
             <i data-lucide="shield-check" class="inst-icon"></i>
             <h4>Contrato europeu formal</h4>
@@ -223,31 +279,6 @@
           <div class="inst-item">
             <i data-lucide="package-check" class="inst-icon"></i>
             <h4>Entrega por ordem contratual</h4>
-          </div>
-        </div>
-
-        <div class="carousel-container mt-80">
-          <div class="carousel-track">
-            <div class="testimonial-card">
-              <p class="testimonial-text">"A WEKOTA é a transparência que eu precisava para finalmente ter o meu Pro Max."</p>
-              <div class="testimonial-author">
-                <div class="author-avatar">RM</div>
-                <div class="author-info">
-                  <h4>Ricardo M.</h4>
-                  <p>Qualificado</p>
-                </div>
-              </div>
-            </div>
-            <div class="testimonial-card">
-              <p class="testimonial-text">"Estar em um grupo com regras europeias me deu a segurança que eu buscava."</p>
-              <div class="testimonial-author">
-                <div class="author-avatar">SC</div>
-                <div class="author-info">
-                  <h4>Sofia C.</h4>
-                  <p>Qualificada</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -362,15 +393,15 @@
   <script>
     lucide.createIcons();
 
-    // Premium Carousel Logic
-    const track = document.querySelector('.product-carousel-track');
-    const slides = Array.from(track.children);
+    // Product Carousel
+    const productTrack = document.querySelector('.product-carousel-track');
+    const slides = Array.from(productTrack.children);
     const nextButton = document.querySelector('.nav-btn.next');
     const prevButton = document.querySelector('.nav-btn.prev');
     let currentIndex = 0;
 
     function updateCarousel() {
-      track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      productTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
     }
 
     nextButton.addEventListener('click', () => {
@@ -388,6 +419,29 @@
       currentIndex = (currentIndex + 1) % slides.length;
       updateCarousel();
     }, 5000);
+
+    // Testimonial Carousel Logic
+    const testimonialTrack = document.querySelector('.testimonial-track');
+    const testimonialSlides = Array.from(testimonialTrack.children);
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    let tIndex = 0;
+
+    function updateTestimonials() {
+      testimonialTrack.style.transform = `translateX(-${tIndex * 100}%)`;
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === tIndex));
+    }
+
+    setInterval(() => {
+      tIndex = (tIndex + 1) % testimonialSlides.length;
+      updateTestimonials();
+    }, 6000);
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        tIndex = i;
+        updateTestimonials();
+      });
+    });
   </script>
 </body>
 </html>
