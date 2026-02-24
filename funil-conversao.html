@@ -70,11 +70,12 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 1rem 0 1.5rem;
     }
-    .funnel-logo-img {
-      height: 40px;
-      width: auto;
-      object-fit: contain;
+    .funnel-logo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 1.2rem; color: var(--white);
+      letter-spacing: -0.02em;
     }
+    .funnel-logo span { color: var(--teal); }
     .funnel-close {
       width: 36px; height: 36px;
       display: flex; align-items: center; justify-content: center;
@@ -747,7 +748,7 @@
 
   <!-- Header -->
   <div class="funnel-header">
-    <img src="images/logo-oficial.png" alt="WEKOTA" class="funnel-logo-img">
+    <div class="funnel-logo">WEKO<span>TA</span></div>
     <div class="funnel-close" onclick="goTo('split')">✕</div>
   </div>
 
