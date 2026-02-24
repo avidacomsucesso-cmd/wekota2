@@ -295,8 +295,21 @@ body {
     margin-bottom: 32px;
 }
 
+.rating-stars {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+}
+
+.star-icon {
+    width: 18px;
+    height: 18px;
+    fill: var(--teal);
+    color: var(--teal);
+}
+
 .testimonial-text {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     font-weight: 500;
     color: var(--navy);
     line-height: 1.6;
@@ -332,10 +345,17 @@ body {
 
 .author-info p {
     font-size: 0.85rem;
+    color: var(--teal);
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.author-subtext {
+    font-size: 0.75rem;
     color: var(--gray);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    display: block;
+    margin-top: 4px;
 }
 
 .testimonial-dots {
