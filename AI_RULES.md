@@ -1,21 +1,17 @@
 # AI Coding Rules
 
 ## Tech Stack
-- **Framework**: React 19 (Vite-based)
-- **Language**: TypeScript
+- **Framework**: Vanilla JavaScript (ES6+)
+- **Build Tool**: Vite
 - **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui (Radix UI primitives)
-- **Icons**: lucide-react
-- **Routing**: React Router 7
-- **State Management**: React Hooks (useState, useReducer, useContext)
-- **Form Handling**: react-hook-form + zod for validation
+- **Layout**: HTML5 Semantic Elements
+- **Icons**: Lucide (via CDN or SVG)
+- **Asset Management**: Local images and CSS-based backgrounds
 
 ## Library Usage Rules
-- **UI Components**: Always check for existing components in `src/components/ui` before creating new ones. Use `shadcn/ui` patterns for consistency.
-- **Icons**: Use `lucide-react` for all iconography.
-- **Layout**: Use Tailwind CSS utility classes for all positioning, spacing, and responsiveness. Avoid custom CSS files unless absolutely necessary.
-- **Navigation**: Use `react-router-dom` for all navigation and routing logic.
-- **Data Validation**: Use `zod` for defining schemas and validating inputs or API responses.
-- **Components**: Prefer functional components with hooks. Keep components small, focused, and stored in `src/components/`.
-- **Pages**: Store top-level route components in `src/pages/`.
-- **Global State**: Use React Context for global state that doesn't change frequently (e.g., user auth, theme).
+- **Interactivity**: Use standard Web APIs and Vanilla JS for DOM manipulation, event listeners, and animations.
+- **Styling**: Use Tailwind CSS utility classes exclusively for layout, spacing, and colors. Avoid custom CSS in `style.css` unless for complex animations or global overrides.
+- **Components**: Structure the HTML with reusable sections. Maintain a clear separation between content and logic in `main.js`.
+- **Icons**: Use `lucide-react` patterns if migrating to React, but for now, use SVG icons or the Lucide library consistently.
+- **Performance**: Minimize third-party scripts. Prefer lightweight alternatives or native browser features for carousels and sticky headers.
+- **Responsive Design**: Follow a mobile-first approach using Tailwind's breakpoint prefixes (`sm:`, `md:`, `lg:`, `xl:`).
