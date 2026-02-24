@@ -360,6 +360,65 @@ body {
     border-radius: 10px;
 }
 
+/* FAQ SECTION */
+.faq-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    border-bottom: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.faq-question {
+    width: 100%;
+    padding: 24px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--navy);
+    transition: var(--transition);
+}
+
+.faq-question:hover {
+    color: var(--teal);
+}
+
+.faq-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+    color: var(--teal);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+}
+
+.faq-answer p {
+    padding-bottom: 24px;
+    color: var(--gray);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.faq-item.active .faq-icon {
+    transform: rotate(180deg);
+}
+
+.faq-item.active .faq-answer {
+    max-height: 500px;
+}
+
 /* URGENCY SECTION PREMIUM */
 .urgency-banner {
     position: relative;
@@ -622,6 +681,9 @@ body {
     }
     .logo__img-official {
         height: 120px;
+    }
+    .faq-question {
+        font-size: 1rem;
     }
     .hero {
         padding-top: 160px;

@@ -395,6 +395,88 @@
       </div>
     </section>
 
+    <!-- 7.5️⃣ FAQ SECTION -->
+    <section class="section-padding bg-white" id="faq">
+      <div class="container">
+        <div class="text-center mb-60">
+          <h2 class="section-title">Perguntas Frequentes</h2>
+          <p class="section-desc mx-auto mt-16">Esclareça as suas dúvidas sobre o modelo estruturado da WEKOTA.</p>
+        </div>
+        
+        <div class="faq-wrapper">
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>1. O que é exatamente um grupo de aquisição coletiva?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>É um grupo estruturado de participantes que reúnem as suas contribuições mensais para aceder a um produto em conjunto. Cada participante tem uma posição de entrega definida contratualmente — sabe exatamente quando receberá o seu dispositivo antes de aderir.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>2. Isto é um empréstimo ou um produto de financiamento?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Não. A WEKOTA não é uma instituição financeira e não oferece empréstimos nem financiamento. Operamos uma plataforma de acesso coletivo estruturado. Os seus pagamentos são contribuições para um fundo coletivo — sem juros, sem verificação de crédito, sem aprovação bancária.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>3. Como é determinada a minha posição de entrega?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>As posições são atribuídas por ordem de confirmação e conclusão do primeiro pagamento. Quanto mais cedo confirmar, melhor será a sua posição na fila de entrega. Todas as posições são definidas por contrato antes do início do grupo.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>4. O que acontece se precisar de sair do grupo?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Os nossos contratos incluem condições de saída e termos de reembolso claramente definidos. Tudo está documentado de forma transparente antes de se comprometer. A nossa equipa explicar-lhe-á os termos no WhatsApp antes de confirmar a sua posição.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>5. A WEKOTA é regulamentada?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>A WEKOTA opera como uma empresa com sede na Europa e cumpre as regulamentações da UE aplicáveis a plataformas comerciais coletivas. Não somos um banco nem uma instituição de pagamento. A documentação legal completa está disponível mediante pedido.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>6. Como sei que o iPhone será efetivamente entregue?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Cada grupo é estruturado com compromissos de inventário pré-adquirido. O seu dispositivo é rastreado através da tecnologia de proteção de dispositivos da nossa plataforma, desde a aquisição até à entrega. Todos os termos — incluindo garantias de entrega — constam do seu contrato.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>7. E se o iPhone 17 Pro Max ainda não foi lançado?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>O Grupo #101 destina-se ao posicionamento antecipado. Quando a Apple anunciar a disponibilidade oficial, a WEKOTA adquirirá e alocará dispositivos de acordo com a encomenda confirmada do grupo. Será informado do prazo de entrega esperado antes de se comprometer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 8️⃣ CTA FINAL -->
     <section class="section-padding bg-light" id="reservar">
       <div class="container text-center">
@@ -536,6 +618,17 @@
     }
 
     startCountdown();
+
+    // FAQ Accordion Logic
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      const question = item.querySelector('.faq-question');
+      question.addEventListener('click', () => {
+        const isOpen = item.classList.contains('active');
+        faqItems.forEach(i => i.classList.remove('active'));
+        if (!isOpen) item.classList.add('active');
+      });
+    });
   </script>
 </body>
 </html>
