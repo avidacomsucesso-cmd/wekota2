@@ -1230,22 +1230,27 @@
         
         if (isSupabaseConfigured && supabase) {
             try {
+              console.log('Tentando inserir lead:', { name, email, whatsapp: phone, country, status: 'started' });
               const { data, error } = await supabase
                 .from('leads')
                 .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
                 .select()
 
-              if (error) throw error
+              if (error) {
+                  console.error('Erro de inserção no Supabase:', error.message, error.details);
+                  throw error;
+              }
 
               if (data && data.length > 0) {
                  currentLeadId = data[0].id
+                 console.log('Lead salvo com sucesso! ID:', currentLeadId);
               }
-              console.log('Lead saved:', data);
             } catch (error) {
-              console.error('Supabase Error:', error);
+              console.error('Falha crítica na comunicação com Supabase:', error);
+              alert('Aviso: Os dados não foram salvos no banco, mas você pode continuar o teste visual.');
             }
         } else {
-            console.warn('Supabase not configured or invalid keys. Skipping save.');
+            console.warn('Supabase não configurado ou chaves inválidas (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).');
         }
         
         // ALWAYS Navigate
