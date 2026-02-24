@@ -736,7 +736,6 @@
 </head>
 <body>
 
-<div class="proto-banner">⚡ Fluxo de Conversão WEKOTA</div>
 
 <!-- WhatsApp Float -->
 <a class="wa-float" href="#" onclick="return false;">
@@ -1141,116 +1140,168 @@
   // Initialize Supabase
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  // Fallback if env vars are missing
+  const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && !supabaseUrl.includes('YOUR_SUPABASE_URL');
+  
+  let supabase = null;
+  if (isSupabaseConfigured) {
+      supabase = createClient(supabaseUrl, supabaseAnonKey)
+  }
 
   let currentLeadId = null
 
-  // Ensure goTo is accessible globally even if defined in index.html (it should be if not in a module there)
-  // But here we need to call it.
+  // Force navigate function that doesn't depend on window scope being tricky
+  const forceNavigate = (screenId) => {
+      console.log('Navigating to:', screenId);
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(s => {
+          s.classList.remove('active');
+          s.style.display = 'none'; // Force hide
+      });
+      
+      const target = document.getElementById('screen-' + screenId);
+      if (target) {
+          target.style.display = 'block'; // Force show
+          target.classList.add('active');
+          // Trigger animation
+          target.style.animation = 'none';
+          target.offsetHeight; /* trigger reflow */
+          target.style.animation = 'screenIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both';
+      }
+      
+      // Update progress bar manually here to be safe
+      const pw = document.getElementById('progressWrap');
+      if (screenId.startsWith('step')) {
+          pw.classList.add('visible');
+          // Simple logic to parse step number
+          const stepNum = parseInt(screenId.replace('step', ''));
+          document.querySelectorAll('.progress-dot').forEach(d => {
+            const s = parseInt(d.dataset.step);
+            d.className = 'progress-dot'; // Reset classes
+            if (s < stepNum) d.classList.add('done');
+            if (s === stepNum) d.classList.add('active');
+          });
+          const labels = {
+            1: 'Dados pessoais',
+            2: 'Produto e duração',
+            3: 'Verificação de identidade',
+            4: 'Posição e contrato',
+            5: 'Pagamento'
+          };
+          document.getElementById('progressLabel').textContent = `Passo ${stepNum} de 5 — ${labels[stepNum]}`;
+      }
+      
+      window.scrollTo(0, 0);
+  };
+
+  // Expose to window for the onclick handlers in HTML (like Back buttons)
+  window.goTo = forceNavigate;
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Override existing goTo to handle module scope
-    const originalGoTo = window.goTo;
-    
-    window.goTo = function(screenId) {
-      if (typeof originalGoTo === 'function') {
-        originalGoTo(screenId);
-      } else {
-        // Fallback implementation if originalGoTo isn't available
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById('screen-' + screenId);
-        if (target) {
-          target.classList.remove('active');
-          void target.offsetWidth; 
-          target.classList.add('active');
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        // Simple progress logic fallback
-        const pw = document.getElementById('progressWrap');
-        if (screenId.startsWith('step')) {
-            pw.classList.add('visible');
-        }
-      }
-    };
+    // Re-bind back buttons just in case
+    document.querySelectorAll('[onclick^="goTo"]').forEach(btn => {
+        const onclickVal = btn.getAttribute('onclick');
+        const target = onclickVal.match(/'([^']+)'/)[1];
+        btn.removeAttribute('onclick');
+        btn.addEventListener('click', () => forceNavigate(target));
+    });
 
     const btnStep1 = document.getElementById('btn-step1');
     if (btnStep1) {
-      // Remove onclick attribute to avoid conflict
-      btnStep1.removeAttribute('onclick');
+      // Remove old listeners by cloning
+      const newBtn = btnStep1.cloneNode(true);
+      btnStep1.parentNode.replaceChild(newBtn, btnStep1);
       
-      btnStep1.addEventListener('click', async (e) => {
-        e.preventDefault(); // Prevent any default form submission
+      newBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        console.log('Step 1 clicked');
         
-        const name = document.querySelector('#screen-step1 input[type="text"]').value
-        const email = document.querySelector('#screen-step1 input[type="email"]').value
-        const phone = document.querySelector('#screen-step1 input[type="tel"]').value
-        const country = document.querySelector('#screen-step1 select').value
-
-        if (!name || !email || !phone || !country) {
-          alert('Por favor, preencha todos os campos.')
-          return
+        const nameInput = document.querySelector('#screen-step1 input[type="text"]');
+        const emailInput = document.querySelector('#screen-step1 input[type="email"]');
+        
+        // Basic validation - just check if inputs exist
+        if (!nameInput || !emailInput) {
+            console.error('Inputs not found');
+            forceNavigate('step2'); // Fallback
+            return;
         }
 
-        btnStep1.textContent = 'A guardar...'
-        btnStep1.disabled = true
+        const name = nameInput.value;
+        const email = emailInput.value;
+        // Optional fields
+        const phoneInput = document.querySelector('#screen-step1 input[type="tel"]');
+        const countryInput = document.querySelector('#screen-step1 select');
+        const phone = phoneInput ? phoneInput.value : '';
+        const country = countryInput ? countryInput.value : '';
 
-        try {
-          const { data, error } = await supabase
-            .from('leads')
-            .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
-            .select()
-
-          if (error) throw error
-
-          if (data && data.length > 0) {
-             currentLeadId = data[0].id
-          }
-          
-          window.goTo('step2')
-        } catch (error) {
-          console.error('Error:', error)
-          // Even if save fails, proceed for demo purposes if it's a connection issue
-          // alert('Erro ao guardar. Verifique a consola ou tente novamente.')
-          window.goTo('step2')
-        } finally {
-          btnStep1.textContent = 'Continuar'
-          btnStep1.disabled = false
+        // Allow empty for testing if needed, or enforce
+        if (!name) {
+          alert('Por favor, preencha o Nome.');
+          return;
         }
+
+        newBtn.textContent = 'A guardar...';
+        
+        if (isSupabaseConfigured && supabase) {
+            try {
+              const { data, error } = await supabase
+                .from('leads')
+                .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
+                .select()
+
+              if (error) throw error
+
+              if (data && data.length > 0) {
+                 currentLeadId = data[0].id
+              }
+              console.log('Lead saved:', data);
+            } catch (error) {
+              console.error('Supabase Error:', error);
+            }
+        } else {
+            console.warn('Supabase not configured or invalid keys. Skipping save.');
+        }
+        
+        // ALWAYS Navigate
+        newBtn.textContent = 'Continuar';
+        forceNavigate('step2');
       });
     }
 
     const btnStep2 = document.getElementById('btn-step2');
     if (btnStep2) {
-      btnStep2.removeAttribute('onclick');
+      const newBtn2 = btnStep2.cloneNode(true);
+      btnStep2.parentNode.replaceChild(newBtn2, btnStep2);
       
-      btnStep2.addEventListener('click', async (e) => {
+      newBtn2.addEventListener('click', async (e) => {
         e.preventDefault();
+        console.log('Step 2 clicked');
         
-        const product = document.querySelector('.product-card.selected h4').textContent.trim()
-        const duration = document.querySelector('.dur-card.selected .dur-months').textContent.trim() + ' meses'
-        const plan = `${product} - ${duration}`
+        // Get values safely
+        const prodEl = document.querySelector('.product-card.selected h4');
+        const durEl = document.querySelector('.dur-card.selected .dur-months');
+        
+        const product = prodEl ? prodEl.textContent.trim() : 'Default Product';
+        const duration = durEl ? durEl.textContent.trim() + ' meses' : '24 meses';
+        const plan = `${product} - ${duration}`;
 
-        btnStep2.textContent = 'A guardar...'
-        btnStep2.disabled = true
+        newBtn2.textContent = 'A guardar...';
 
-        try {
-          if (currentLeadId) {
-            const { error } = await supabase
-              .from('leads')
-              .update({ plan, status: 'selected_plan' })
-              .eq('id', currentLeadId)
-            
-            if (error) throw error
-          }
-          window.goTo('step3')
-        } catch (error) {
-          console.error('Error:', error)
-          window.goTo('step3')
-        } finally {
-          btnStep2.textContent = 'Continuar'
-          btnStep2.disabled = false
+        if (isSupabaseConfigured && supabase && currentLeadId) {
+            try {
+                const { error } = await supabase
+                  .from('leads')
+                  .update({ plan, status: 'selected_plan' })
+                  .eq('id', currentLeadId)
+                
+                if (error) throw error
+            } catch (error) {
+                console.error('Error updating:', error);
+            }
         }
+        
+        newBtn2.textContent = 'Continuar';
+        forceNavigate('step3');
       });
     }
   });
