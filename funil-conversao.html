@@ -1121,20 +1121,41 @@
 </div>
 
 <script>
-  // Fallback global function to prevent ReferenceError before module loads or if it crashes
+  // Fallback global functions to ensure UI works even if module fails
   window.goTo = function(screenId) {
-    console.warn('Funil module not fully loaded yet. Target:', screenId);
-    // If the module loaded correctly, this function would be overwritten.
-    // If we are here, something might be wrong or it's just slow.
+    console.log('Global goTo called:', screenId);
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+    });
     const target = document.getElementById('screen-' + screenId);
     if(target) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        target.classList.add('active');
         target.style.display = 'block';
+        target.classList.add('active');
         window.scrollTo(0,0);
-    } else {
-        console.error('Screen not found:', screenId);
     }
+  };
+  window.selectDur = function(el) {
+    document.querySelectorAll('.dur-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  };
+  window.selectPay = function(el) {
+    document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  };
+  window.simulateUpload = function(el) {
+    el.classList.toggle('uploaded');
+    if (el.classList.contains('uploaded')) {
+      el.querySelector('h4').textContent = '✓ Documento carregado';
+      el.querySelector('p').textContent = 'Toque para substituir';
+    }
+  };
+  window.toggleCheck = function(el) {
+    el.classList.toggle('checked');
+  };
+  window.toggleFaq = function(el) {
+    el.classList.toggle('open');
   };
 </script>
 
@@ -1142,13 +1163,11 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
   import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
 
-  // INITIALIZATION: Direct and early initialization
+  // INITIALIZATION
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   
-  // Ensure we have a global-ish but module-scoped client
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-  console.log('Supabase client initialized at module level');
+  const supabase = (supabaseUrl && supabaseAnonKey) ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
   // Initialize Stripe (Production Key)
   const stripePromise = loadStripe('pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
@@ -1156,34 +1175,31 @@
   let currentLeadId = null
   let selectedPlanPriceId = 'price_1QxyAtUEGWHer1k6eYvVrPk'; // Default 24 meses
 
-  // Force navigate function
+  // Overwrite goTo with the animated version once module loads
   const forceNavigate = (screenId) => {
-      console.log('Navigating to:', screenId);
+      console.log('Module forceNavigate:', screenId);
       const screens = document.querySelectorAll('.screen');
       screens.forEach(s => {
           s.classList.remove('active');
-          s.style.display = 'none'; // Force hide
+          s.style.display = 'none';
       });
       
       const target = document.getElementById('screen-' + screenId);
       if (target) {
-          target.style.display = 'block'; // Force show
+          target.style.display = 'block';
           target.classList.add('active');
-          // Trigger animation
           target.style.animation = 'none';
-          target.offsetHeight; /* trigger reflow */
+          target.offsetHeight; 
           target.style.animation = 'screenIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both';
       }
       
-      // Update progress bar manually here to be safe
       const pw = document.getElementById('progressWrap');
       if (screenId.startsWith('step')) {
           pw.classList.add('visible');
-          // Simple logic to parse step number
           const stepNum = parseInt(screenId.replace('step', ''));
           document.querySelectorAll('.progress-dot').forEach(d => {
             const s = parseInt(d.dataset.step);
-            d.className = 'progress-dot'; // Reset classes
+            d.className = 'progress-dot';
             if (s < stepNum) d.classList.add('done');
             if (s === stepNum) d.classList.add('active');
           });
@@ -1194,54 +1210,24 @@
             4: 'Posição e contrato',
             5: 'Pagamento'
           };
-          document.getElementById('progressLabel').textContent = `Passo ${stepNum} de 5 — ${labels[stepNum]}`;
+          const labelEl = document.getElementById('progressLabel');
+          if(labelEl) labelEl.textContent = `Passo ${stepNum} de 5 — ${labels[stepNum]}`;
+      } else {
+          if(pw) pw.classList.remove('visible');
       }
-      
       window.scrollTo(0, 0);
   };
 
-  // Expose to window for the onclick handlers in HTML (like Back buttons)
   window.goTo = forceNavigate;
-  window.selectDur = (el) => {
-    document.querySelectorAll('.dur-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-  };
-  window.selectPay = (el) => {
-    document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-  };
-  window.simulateUpload = (el) => {
-    el.classList.toggle('uploaded');
-    if (el.classList.contains('uploaded')) {
-      el.querySelector('h4').textContent = '✓ Documento carregado';
-      el.querySelector('p').textContent = 'Toque para substituir';
-    }
-  };
-  window.toggleCheck = (el) => {
-    el.classList.toggle('checked');
-  };
-  window.toggleFaq = (el) => {
-    el.classList.toggle('open');
-  };
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Re-bind back buttons just in case
-    document.querySelectorAll('[onclick^="goTo"]').forEach(btn => {
-        const onclickVal = btn.getAttribute('onclick');
-        const target = onclickVal.match(/'([^']+)'/)[1];
-        btn.removeAttribute('onclick');
-        btn.addEventListener('click', () => forceNavigate(target));
-    });
-
+    // Initial setup if needed
+    
     const btnStep1 = document.getElementById('btn-step1');
     if (btnStep1) {
-      // Remove old listeners by cloning
-      const newBtn = btnStep1.cloneNode(true);
-      btnStep1.parentNode.replaceChild(newBtn, btnStep1);
-      
-      newBtn.addEventListener('click', async (e) => {
+      btnStep1.onclick = async (e) => {
         e.preventDefault();
-        console.log('Step 1 clicked');
+        console.log('Step 1 Logic');
         
         const nameInput = document.querySelector('#screen-step1 input[type="text"]');
         const emailInput = document.querySelector('#screen-step1 input[type="email"]');
@@ -1253,50 +1239,40 @@
 
         const name = nameInput.value;
         const email = emailInput.value;
-        const phoneInput = document.querySelector('#screen-step1 input[type="tel"]');
-        const countryInput = document.querySelector('#screen-step1 select');
-        const phone = phoneInput ? phoneInput.value : '';
-        const country = countryInput ? countryInput.value : '';
+        const phone = document.querySelector('#screen-step1 input[type="tel"]')?.value || '';
+        const country = document.querySelector('#screen-step1 select')?.value || '';
 
         if (!name || !email) {
           alert('Por favor, preencha Nome e Email.');
           return;
         }
 
-        newBtn.textContent = 'A guardar...';
+        btnStep1.textContent = 'A guardar...';
         
-        try {
-          const { data, error } = await supabase
-            .from('leads')
-            .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
-            .select()
-
-          if (error) throw error;
-          if (data && data.length > 0) currentLeadId = data[0].id;
-        } catch (error) {
-          console.error('Erro Supabase:', error);
+        if (supabase) {
+            try {
+              const { data, error } = await supabase
+                .from('leads')
+                .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
+                .select()
+              if (data && data.length > 0) currentLeadId = data[0].id;
+            } catch (error) {
+              console.error('Erro Supabase:', error);
+            }
         }
         
-        newBtn.textContent = 'Continuar';
+        btnStep1.textContent = 'Continuar';
         forceNavigate('step2');
-      });
+      };
     }
 
     const btnStep2 = document.getElementById('btn-step2');
     if (btnStep2) {
-      const newBtn2 = btnStep2.cloneNode(true);
-      btnStep2.parentNode.replaceChild(newBtn2, btnStep2);
-      
-      newBtn2.addEventListener('click', async (e) => {
+      btnStep2.onclick = async (e) => {
         e.preventDefault();
-        
         const durEl = document.querySelector('.dur-card.selected .dur-months');
         const durationText = durEl ? durEl.textContent.trim() : '24';
         
-        const product = 'iPhone 17 Pro Max 256GB';
-        const duration = durationText + ' meses';
-        const plan = `${product} - ${duration}`;
-
         const summaryPrice = document.getElementById('summary-price');
         const summaryTotal = document.getElementById('summary-total');
         
@@ -1310,50 +1286,30 @@
             if(summaryTotal) summaryTotal.textContent = '€1.800,00';
         }
 
-        newBtn2.textContent = 'A guardar...';
-
-        if (currentLeadId) {
+        if (supabase && currentLeadId) {
             try {
-                await supabase
-                  .from('leads')
-                  .update({ plan, status: 'selected_plan' })
-                  .eq('id', currentLeadId)
-            } catch (error) {
-                console.error('Error updating:', error);
-            }
+                await supabase.from('leads').update({ 
+                    plan: `iPhone 17 Pro Max - ${durationText} meses`, 
+                    status: 'selected_plan' 
+                }).eq('id', currentLeadId);
+            } catch (e) {}
         }
-        
-        newBtn2.textContent = 'Continuar';
         forceNavigate('step3');
-      });
+      };
     }
 
-    // Handle Payment Step (Step 5)
     const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
     if (btnStep5) {
-        const newBtn5 = btnStep5.cloneNode(true);
-        btnStep5.parentNode.replaceChild(newBtn5, btnStep5);
-
-        newBtn5.addEventListener('click', async () => {
+        btnStep5.onclick = async () => {
             const selectedMethodEl = document.querySelector('.pay-method.selected h4');
             const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
             
             if (selectedMethodText.includes('Cartão') || selectedMethodText.includes('Débito Direto')) {
-                newBtn5.textContent = 'A processar pagamento...';
-                newBtn5.disabled = true;
+                btnStep5.textContent = 'A processar...';
+                btnStep5.disabled = true;
                 
                 try {
-                    // DEFENSIVE CHECKS
-                    if (!supabase) {
-                        throw new Error('Cliente Supabase não inicializado.');
-                    }
-                    if (!supabase.functions) {
-                        console.error('supabase.functions is missing', supabase);
-                        throw new Error('Recurso de Edge Functions não disponível no cliente.');
-                    }
-
-                    console.log('Invocando stripe-payments com:', { action: 'create-checkout-session', lead_id: currentLeadId });
-                    
+                    if (!supabase) throw new Error('Supabase não disponível.');
                     const res = await supabase.functions.invoke('stripe-payments', {
                         body: { 
                             action: 'create-checkout-session',
@@ -1366,34 +1322,24 @@
                     });
 
                     if (res.error) throw res.error;
-
-                    const data = res.data;
-                    if (data && data.url) {
-                        window.location.href = data.url;
-                    } else if (data && data.sessionId) {
-                        const stripe = await stripePromise;
-                        await stripe.redirectToCheckout({ sessionId: data.sessionId });
+                    if (res.data?.url) {
+                        window.location.href = res.data.url;
                     } else {
-                        console.error('Resposta da função sem URL:', data);
-                        throw new Error('A função não retornou uma URL de checkout válida.');
+                        throw new Error('Função não retornou URL.');
                     }
                 } catch (err) {
-                    console.error('Erro detalhado no Checkout:', err);
-                    alert('Erro ao iniciar o checkout: ' + (err.message || 'Erro desconhecido.'));
-                    newBtn5.textContent = 'Confirmar adesão';
-                    newBtn5.disabled = false;
+                    alert('Erro no checkout: ' + err.message);
+                    btnStep5.textContent = 'Confirmar adesão';
+                    btnStep5.disabled = false;
                 }
             } else {
                 forceNavigate('success');
             }
-        });
+        };
     }
 
-    // Verificar se voltamos do Stripe com sucesso
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('status') === 'success') {
-        forceNavigate('success');
-    }
+    if (urlParams.get('status') === 'success') forceNavigate('success');
   });
 </script>
 
