@@ -1319,22 +1319,23 @@
                         cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
                     };
 
-                    console.log('Enviando pedido de checkout para Stripe...');
+                    console.log('Iniciando checkout seguro com JWT...');
                     
-                    // Chamada via FETCH padrão com headers de segurança do Supabase
+                    // Chamada via FETCH com autenticação JWT completa
                     const response = await fetch(`${supabaseUrl}/functions/v1/stripe-payments`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${supabaseAnonKey}`,
-                            'apikey': supabaseAnonKey // Essencial para passar pelo Gateway do Supabase
+                            'apikey': supabaseAnonKey, // Necessário para o Gateway validar o JWT
+                            'Authorization': `Bearer ${supabaseAnonKey}` // O JWT propriamente dito
                         },
                         body: JSON.stringify(payload)
                     });
 
                     if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`Servidor respondeu com erro: ${response.status} - ${errorText}`);
+                        const errorData = await response.json().catch(() => ({}));
+                        const errorMsg = errorData.message || errorData.error || `Erro ${response.status}`;
+                        throw new Error(`Servidor Supabase (JWT): ${errorMsg}`);
                     }
 
                     const result = await response.json();
