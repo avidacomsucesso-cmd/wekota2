@@ -983,24 +983,26 @@
     <div class="screen-title">Verificação de identidade</div>
     <div class="screen-sub">Para segurança de todos os membros do grupo. <strong>Rápido e confidencial.</strong></div>
 
-    <div class="upload-zone" onclick="simulateUpload(this)">
-      <div class="upload-icon">🛂</div>
-      <h4>Fotografia do passaporte</h4>
-      <p>Página com a foto. Aceite: JPG, PNG ou PDF.</p>
+    <input type="file" id="passport-upload" class="hidden" accept="image/*,.pdf" onchange="handleFileSelect(this, 'passport')">
+    <div class="upload-zone" onclick="document.getElementById('passport-upload').click()">
+      <div class="upload-icon" id="passport-icon">🛂</div>
+      <h4 id="passport-title">Fotografia do passaporte</h4>
+      <p id="passport-status">Página com a foto. Aceite: JPG, PNG ou PDF.</p>
     </div>
 
-    <div class="upload-zone" onclick="simulateUpload(this)">
-      <div class="upload-icon">🤳</div>
-      <h4>Selfie de verificação</h4>
-      <p>Tire uma selfie segurando o passaporte.</p>
+    <input type="file" id="selfie-upload" class="hidden" accept="image/*" onchange="handleFileSelect(this, 'selfie')">
+    <div class="upload-zone" onclick="document.getElementById('selfie-upload').click()">
+      <div class="upload-icon" id="selfie-icon">🤳</div>
+      <h4 id="selfie-title">Selfie de verificação</h4>
+      <p id="selfie-status">Tire uma selfie segurando o passaporte.</p>
     </div>
 
     <div class="inline-notice">
       <span class="n-icon">🔒</span>
-      <span>As imagens são processadas por um prestador KYC certificado e eliminadas após verificação. A WEKOTA não armazena fotografias de documentos.</span>
+      <span>Os documentos são armazenados de forma criptografada para verificação interna e nunca são compartilhados.</span>
     </div>
 
-    <button class="btn-primary" onclick="goTo('step4')">Verificar e continuar</button>
+    <button class="btn-primary" id="btn-step3">Verificar e continuar</button>
     <button class="btn-secondary" onclick="goTo('step2')">← Voltar</button>
   </div>
 
@@ -1252,9 +1254,28 @@
   const stripePromise = loadStripe('pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
 
   let currentLeadId = null
-  let selectedPlanPriceId = 'price_1QxyAtUEGWHer1k6eYvVrPk'; // Default 24 meses
+  let selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap'; // Default 24 meses
+  let filesToUpload = { passport: null, selfie: null };
 
-  // Overwrite goTo with the animated version once module loads
+  // Function to handle real file selection
+  window.handleFileSelect = (input, type) => {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      filesToUpload[type] = file;
+      
+      const zone = input.nextElementSibling;
+      const title = document.getElementById(`${type}-title`);
+      const status = document.getElementById(`${type}-status`);
+      const icon = document.getElementById(`${type}-icon`);
+      
+      zone.classList.add('uploaded');
+      title.textContent = '✓ Documento pronto';
+      status.textContent = file.name + ` (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+      icon.textContent = '📄';
+    }
+  };
+
+  // Force navigate function
   const forceNavigate = (screenId) => {
       console.log('Module forceNavigate:', screenId);
       const screens = document.querySelectorAll('.screen');
@@ -1374,6 +1395,64 @@
             } catch (e) {}
         }
         forceNavigate('step3');
+      };
+    }
+
+    const btnStep3 = document.getElementById('btn-step3');
+    if (btnStep3) {
+      btnStep3.onclick = async (e) => {
+        e.preventDefault();
+        
+        if (!filesToUpload.passport || !filesToUpload.selfie) {
+          alert('Por favor, anexe ambos os documentos (Passaporte e Selfie) para continuar.');
+          return;
+        }
+
+        btnStep3.textContent = 'A enviar documentos...';
+        btnStep3.disabled = true;
+
+        try {
+          if (!supabase) throw new Error('Supabase não disponível.');
+          if (!currentLeadId) throw new Error('Lead ID não encontrado. Volte ao início.');
+
+          // 1. Upload Passport
+          const passportPath = `${currentLeadId}/passport_${Date.now()}_${filesToUpload.passport.name}`;
+          const { error: pError } = await supabase.storage
+            .from('kyc-documents')
+            .upload(passportPath, filesToUpload.passport);
+          if (pError) throw pError;
+
+          // 2. Upload Selfie
+          const selfiePath = `${currentLeadId}/selfie_${Date.now()}_${filesToUpload.selfie.name}`;
+          const { error: sError } = await supabase.storage
+            .from('kyc-documents')
+            .upload(selfiePath, filesToUpload.selfie);
+          if (sError) throw sError;
+
+          // 3. Update Lead Status and paths
+          await supabase.from('leads').update({ 
+            status: 'kyc_submitted',
+            passport_url: passportPath,
+            selfie_url: selfiePath
+          }).eq('id', currentLeadId);
+
+          // 4. Send email notification via Edge Function (Optional but recommended)
+          await supabase.functions.invoke('send-kyc-notification', {
+            body: { 
+              lead_id: currentLeadId,
+              email: 'wekotavip@gmail.com',
+              passport_path: passportPath,
+              selfie_path: selfiePath
+            }
+          });
+
+          forceNavigate('step4');
+        } catch (err) {
+          console.error('Erro no KYC:', err);
+          alert('Erro ao enviar documentos: ' + err.message + '. Certifique-se que o Bucket "kyc-documents" existe no seu Supabase.');
+          btnStep3.textContent = 'Verificar e continuar';
+          btnStep3.disabled = false;
+        }
       };
     }
 
