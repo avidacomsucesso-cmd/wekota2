@@ -1163,11 +1163,11 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
   import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
 
-  // INITIALIZATION: Direct and early initialization with your ACTUAL keys
+  // INITIALIZATION: Using your ACTUAL long JWT Anon Key
   const supabaseUrl = 'https://eczsqgtewtpcscsyvljy.supabase.co';
-  const supabaseAnonKey = '240f8a1e4f3322774aa5f3be5b5aed0007ee8438c8fd4eaa2643b672f431aad'; // Updated with the key from your image
+  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjUxNTAsImV4cCI6MjA4NzU0MTE1MH0.HTXvOSk4Gjbg85YPfmWB59wKD943-wyjFd-iWeF9BUk'; 
   
-  // Ensure we have a global-ish but module-scoped client
+  // Create client
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
   console.log('Supabase initialized with URL:', supabaseUrl);
 
