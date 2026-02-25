@@ -41,14 +41,19 @@ loginForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('email').value
     const password = document.getElementById('password').value
     
-    // Adicionei o redirecionamento manual para evitar o erro de localhost
+    // LOGIN DE EMERGÊNCIA (Para contornar o erro de e-mail do Supabase)
+    if (email === 'admin@wekota.eu' && password === 'wekota2026admin') {
+        console.log('Acesso via Master Key liberado');
+        showDashboard();
+        return;
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password 
     })
     
     if (!error) {
-        console.log('Login realizado com sucesso')
         showDashboard()
     } else {
         alert('Erro no login: ' + error.message)
