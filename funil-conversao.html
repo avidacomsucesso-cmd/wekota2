@@ -1326,7 +1326,11 @@
                         }
                     });
 
-                    if (error) throw error;
+                    if (error) {
+                        // Tentar extrair a mensagem de erro real do corpo da resposta
+                        const details = error.context ? await error.context.json().catch(() => ({})) : {};
+                        throw new Error(details.error || error.message || 'Erro na Edge Function');
+                    }
 
                     if (data?.url) {
                         window.location.href = data.url;
