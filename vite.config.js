@@ -7,6 +7,7 @@ export default defineConfig({
         main: './index.html',
         funil: './funil-conversao.html',
         admin: './admin.html',
+        adminv2: './admin-v2.html',
         privacidade: './politica-privacidade.html',
         termos: './termos-condicoes.html'
       }
