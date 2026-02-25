@@ -9,6 +9,28 @@ const adminContent = document.getElementById('admin-content')
 const loginForm = document.getElementById('login-form')
 const leadsBody = document.getElementById('admin-leads-body')
 
+// Auth Check & Hash Token Handler
+const handleAuth = async () => {
+    // 1. Verificar se já existe sessão
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session) {
+        showDashboard()
+        return
+    }
+
+    // 2. Capturar token do URL (Magic Link fallback)
+    if (window.location.hash) {
+        const { data, error } = await supabase.auth.getSession()
+        if (data?.session) {
+            // Limpar o hash do URL para ficar bonito
+            window.history.replaceState(null, null, window.location.pathname)
+            showDashboard()
+        }
+    }
+}
+
+handleAuth()
+
 // Auth Check
 supabase.auth.getSession().then(({ data: { session } }) => {
     if (session) showDashboard()
