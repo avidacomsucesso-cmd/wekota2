@@ -41,24 +41,36 @@ loginForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('email').value
     const password = document.getElementById('password').value
     
-    // LOGIN DE EMERGÊNCIA (Para contornar o erro de e-mail do Supabase)
-    if (email === 'admin@wekota.eu' && password === 'wekota2026admin') {
-        console.log('Acesso via Master Key liberado');
+    console.log('Tentativa de login:', email);
+
+    // LOGIN DE EMERGÊNCIA (Force Bypass)
+    if (email.trim() === 'admin@wekota.eu' && password.trim() === 'wekota2026admin') {
+        console.log('Acesso via Master Key liberado - Forçando exibição');
+        localStorage.setItem('admin_bypass', 'true');
         showDashboard();
         return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password 
-    })
-    
-    if (!error) {
-        showDashboard()
-    } else {
-        alert('Erro no login: ' + error.message)
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({ 
+            email, 
+            password 
+        })
+        
+        if (!error) {
+            showDashboard()
+        } else {
+            alert('Erro no login: ' + error.message)
+        }
+    } catch (err) {
+        console.error('Erro crítico no login:', err);
     }
 })
+
+// Auto-show se já tiver bypass
+if (localStorage.getItem('admin_bypass') === 'true') {
+    showDashboard();
+}
 
 document.getElementById('logout-btn').onclick = () => {
     supabase.auth.signOut()
@@ -66,10 +78,20 @@ document.getElementById('logout-btn').onclick = () => {
 }
 
 async function showDashboard() {
-    loginScreen.style.display = 'none'
-    adminContent.style.display = 'block'
-    loadSettings()
-    loadLeads()
+    console.log('Executando showDashboard()...');
+    const loginScreen = document.getElementById('login-screen');
+    const adminContent = document.getElementById('admin-content');
+    
+    if (loginScreen && adminContent) {
+        loginScreen.style.display = 'none';
+        adminContent.style.display = 'block';
+        adminContent.classList.remove('hidden'); // Garante que a classe tailwind não bloqueie
+        console.log('Interface alternada com sucesso');
+        loadSettings();
+        loadLeads();
+    } else {
+        console.error('Elementos da interface não encontrados!', {loginScreen, adminContent});
+    }
 }
 
 // 1. Controle de Posições (Funil)
