@@ -1145,23 +1145,28 @@
   // Safe environment access
   const getEnv = (key) => {
     try {
-      return import.meta.env[key]
-    } catch (e) {
-      console.warn('Env var access failed:', key);
-      return undefined;
-    }
+      // Direct access for Vite during build/dev
+      if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
+        return import.meta.env[key];
+      }
+    } catch (e) {}
+    return undefined;
   }
 
-  const supabaseUrl = getEnv('VITE_SUPABASE_URL');
-  const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
+  // Use the env vars or fallback to what's defined in the environment
+  const supabaseUrl = getEnv('VITE_SUPABASE_URL') || '';
+  const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY') || '';
   
   let supabase = null;
   if (supabaseUrl && supabaseAnonKey) {
     try {
         supabase = createClient(supabaseUrl, supabaseAnonKey)
+        console.log('Supabase initialized successfully');
     } catch (e) {
         console.error('Supabase init failed:', e);
     }
+  } else {
+    console.error('Missing Supabase configuration. URL:', !!supabaseUrl, 'Key:', !!supabaseAnonKey);
   }
 
   // Initialize Stripe (Production Key)
@@ -1357,6 +1362,11 @@
                 newBtn5.disabled = true;
                 
                 try {
+                    if (!supabase) {
+                        throw new Error('Conexão com banco de dados não disponível. Verifique as configurações.');
+                    }
+
+                    console.log('Invocando stripe-payments...');
                     const { data, error } = await supabase.functions.invoke('stripe-payments', {
                         body: { 
                             action: 'create-checkout-session',
