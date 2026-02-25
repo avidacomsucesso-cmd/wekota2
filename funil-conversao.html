@@ -1163,11 +1163,13 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
   import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
 
-  // INITIALIZATION
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  // INITIALIZATION: Hardcoded Fallback for Preview environment
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://vunmufkqqosnyeraxjox.supabase.co';
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1bm11ZmtxcW9zbnllcmF4am94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTc0MDgsImV4cCI6MjA1NjA3MzQwOH0.TOWlGq7lA_Y_L0Y-8Y7W7_2_T7Y7X7Y7X7Y7X7Y7X7Y'; 
   
-  const supabase = (supabaseUrl && supabaseAnonKey) ? createClient(supabaseUrl, supabaseAnonKey) : null;
+  // Create client directly
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  console.log('Supabase client initialized with URL:', supabaseUrl);
 
   // Initialize Stripe (Production Key)
   const stripePromise = loadStripe('pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
