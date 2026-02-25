@@ -1321,15 +1321,14 @@
 
                     console.log('Enviando pedido de checkout para Stripe...');
                     
-                    // Chamada via FETCH com tentativa de simplificação de headers
+                    // Chamada via FETCH padrão com headers de segurança do Supabase
                     const response = await fetch(`${supabaseUrl}/functions/v1/stripe-payments`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${supabaseAnonKey}`,
-                            'apikey': supabaseAnonKey
+                            'apikey': supabaseAnonKey // Essencial para passar pelo Gateway do Supabase
                         },
-                        mode: 'cors', // O padrão é cors, mas garantimos aqui
                         body: JSON.stringify(payload)
                     });
 
