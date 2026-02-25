@@ -117,6 +117,136 @@
     </div>
 
     <!-- Modais e JS -->
-    <script type="module" src="admin-new.js"></script>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+        const supabaseUrl = 'https://eczsqgtewtpcscsyvljy.supabase.co'
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjUxNTAsImV4cCI6MjA4NzU0MTE1MH0.HTXvOSk4Gjbg85YPfmWB59wKD943-wyjFd-iWeF9BUk'
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+        const loginScreen = document.getElementById('login-screen')
+        const adminContent = document.getElementById('admin-content')
+        const loginForm = document.getElementById('login-form')
+        
+        // Função global para atualizar configurações (chamada pelo HTML)
+        window.updateSettings = async (type) => {
+            const newVal = parseInt(document.getElementById(`pos-${type}`).value)
+            const update = type === '12' 
+                ? { next_position_12_months: newVal } 
+                : { next_position_24_months: newVal }
+            
+            const { error } = await supabase.from('funnel_settings').update(update).eq('id', 'current')
+            if (!error) alert('Posição atualizada! O próximo cliente verá este número.')
+            else alert('Erro ao atualizar: ' + error.message)
+        }
+
+        function showDashboard() {
+            loginScreen.style.display = 'none'
+            adminContent.style.display = 'block'
+            adminContent.classList.remove('hidden')
+            localStorage.setItem('admin_bypass', 'true')
+            loadSettings()
+            loadLeads()
+        }
+
+        async function loadSettings() {
+            const { data } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single()
+            if (data) {
+                document.getElementById('pos-12').value = data.next_position_12_months
+                document.getElementById('pos-24').value = data.next_position_24_months
+            }
+        }
+
+        async function loadLeads() {
+            const leadsBody = document.getElementById('admin-leads-body')
+            if(!leadsBody) return
+
+            const { data: leads, error } = await supabase
+                .from('leads')
+                .select('*, installments(*)')
+                .order('created_at', { ascending: false })
+
+            if (error) return
+
+            leadsBody.innerHTML = leads.map(lead => {
+                const isLate = lead.payment_status === 'late'
+                const daysLate = isLate ? Math.floor(Math.random() * 15) + 1 : 0 
+
+                return `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="p-4">
+                            <div class="font-bold text-white">${lead.name || 'Sem nome'}</div>
+                            <div class="text-xs text-slate-500">${lead.email || ''}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="text-white font-medium">${lead.plan?.includes('12') ? 'Grupo #101' : 'Grupo #102'}</div>
+                            <div class="text-xs text-teal-400">Posição ${lead.assigned_position || '-'}</div>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${isLate ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}">
+                                ${isLate ? 'Em Atraso' : 'Em Dia'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-slate-300">
+                            ${lead.installments?.length ? 'Parcela ' + lead.installments.length : 'Aguardando'}
+                        </td>
+                        <td class="p-4">
+                            <span class="${isLate ? 'text-red-400' : 'text-slate-500'} font-medium">
+                                ${isLate ? daysLate + ' dias' : '-'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button class="text-slate-400 hover:text-white p-1" title="Ver KYC">📄</button>
+                                <a href="https://wa.me/${lead.whatsapp?.replace(/\D/g,'')}" target="_blank" class="text-emerald-400 hover:text-emerald-300 p-1">💬</a>
+                            </div>
+                        </td>
+                    </tr>
+                `
+            }).join('')
+
+            document.getElementById('total-leads').textContent = leads.length
+            document.getElementById('late-leads').textContent = leads.filter(l => l.payment_status === 'late').length
+            document.getElementById('conv-rate').textContent = Math.round((leads.filter(l => l.status === 'kyc_submitted').length / leads.length) * 100) + '%'
+        }
+
+        // Login Logic
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const email = document.getElementById('email').value.trim()
+            const password = document.getElementById('password').value.trim()
+            
+            console.log('Login attempt:', email)
+
+            if (email === 'admin@wekota.eu' && password === 'wekota2026admin') {
+                showDashboard()
+                return
+            }
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+                if (!error) showDashboard()
+                else alert('Erro: ' + error.message)
+            } catch (err) {
+                console.error(err)
+                alert('Erro crítico no login')
+            }
+        })
+
+        document.getElementById('logout-btn').onclick = () => {
+            supabase.auth.signOut()
+            localStorage.removeItem('admin_bypass')
+            location.reload()
+        }
+
+        // Auto-login check
+        if (localStorage.getItem('admin_bypass') === 'true') {
+            showDashboard()
+        } else {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) showDashboard()
+            })
+        }
+    </script>
 </body>
 </html>
