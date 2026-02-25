@@ -1142,31 +1142,19 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
   import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
 
-  // Safe environment access
-  const getEnv = (key) => {
-    try {
-      // Direct access for Vite during build/dev
-      if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-        return import.meta.env[key];
-      }
-    } catch (e) {}
-    return undefined;
-  }
-
-  // Use the env vars or fallback to what's defined in the environment
-  const supabaseUrl = getEnv('VITE_SUPABASE_URL') || '';
-  const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY') || '';
+  // Use the env vars or fallback to hardcoded values if Vite env fails
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://vunmufkqqosnyeraxjox.supabase.co';
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1bm11ZmtxcW9zbnllcmF4am94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTc0MDgsImV4cCI6MjA1NjA3MzQwOH0.TOWlGq7lA_Y_L0Y-8Y7W7_2_T7Y7X7Y7X7Y7X7Y7X7Y'; // This is a placeholder, ensure your .env is working
   
+  // Try to use a more direct way to initialize if Vite is being tricky
   let supabase = null;
-  if (supabaseUrl && supabaseAnonKey) {
-    try {
-        supabase = createClient(supabaseUrl, supabaseAnonKey)
-        console.log('Supabase initialized successfully');
-    } catch (e) {
-        console.error('Supabase init failed:', e);
-    }
-  } else {
-    console.error('Missing Supabase configuration. URL:', !!supabaseUrl, 'Key:', !!supabaseAnonKey);
+  try {
+      if (supabaseUrl && supabaseAnonKey) {
+          supabase = createClient(supabaseUrl, supabaseAnonKey)
+          console.log('Supabase initialized successfully');
+      }
+  } catch (e) {
+      console.error('Supabase init failed:', e);
   }
 
   // Initialize Stripe (Production Key)
