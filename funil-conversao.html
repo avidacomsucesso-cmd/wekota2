@@ -1312,7 +1312,11 @@
                 
                 try {
                     if (!supabase) throw new Error('Supabase não disponível.');
-                    const res = await supabase.functions.invoke('stripe-payments', {
+                    
+                    // Tentativa de chamada via invoke (mais seguro)
+                    console.log('Tentando invocar stripe-payments...');
+                    
+                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
                         body: { 
                             action: 'create-checkout-session',
                             lead_id: currentLeadId,
@@ -1323,14 +1327,43 @@
                         }
                     });
 
-                    if (res.error) throw res.error;
-                    if (res.data?.url) {
-                        window.location.href = res.data.url;
+                    // Se falhar o invoke (CORS ou rede), tentamos via FETCH direto como plano B
+                    if (error) {
+                        console.warn('Invoke falhou, tentando via fetch direto...', error);
+                        const functionUrl = `${supabaseUrl}/functions/v1/stripe-payments`;
+                        const response = await fetch(functionUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${supabaseAnonKey}`
+                            },
+                            body: JSON.stringify({
+                                action: 'create-checkout-session',
+                                lead_id: currentLeadId,
+                                price_id: selectedPlanPriceId,
+                                payment_method: selectedMethodText,
+                                success_url: window.location.origin + '/funil-conversao.html?status=success',
+                                cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
+                            })
+                        });
+                        
+                        const fetchResult = await response.json();
+                        if (fetchResult.url) {
+                            window.location.href = fetchResult.url;
+                            return;
+                        } else {
+                            throw new Error(fetchResult.error || 'Falha no fetch direto da função.');
+                        }
+                    }
+
+                    if (data?.url) {
+                        window.location.href = data.url;
                     } else {
-                        throw new Error('Função não retornou URL.');
+                        throw new Error('Função não retornou URL de pagamento.');
                     }
                 } catch (err) {
-                    alert('Erro no checkout: ' + err.message);
+                    console.error('Erro Final no checkout:', err);
+                    alert('Erro no checkout: ' + (err.message || 'Falha na comunicação com o servidor.'));
                     btnStep5.textContent = 'Confirmar adesão';
                     btnStep5.disabled = false;
                 }
