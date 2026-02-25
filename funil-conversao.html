@@ -1121,8 +1121,12 @@
 </div>
 
 <script type="module">
-  import { supabase } from './supabaseClient.js'
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
   import { loadStripe } from 'https://cdn.jsdelivr.net/npm/@stripe/stripe-js/+esm'
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
   // Initialize Stripe (Production Key)
   const stripePromise = loadStripe('pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
