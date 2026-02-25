@@ -1163,11 +1163,11 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
   import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
 
-  // PEGAR O URL DO AMBIENTE OU DO SEU PAINEL SUPABASE
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://eczsqgtewtpcscsyvljy.supabase.co'; 
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1MDUyODcsImV4cCI6MjA1NjA4MTI4N30.C_T_X7Y7X7Y7X7Y7X7Y7X7Y7X7Y7X7Y7X7Y7X7Y7X7Y'; 
+  // INITIALIZATION: Direct and early initialization with your ACTUAL keys
+  const supabaseUrl = 'https://eczsqgtewtpcscsyvljy.supabase.co';
+  const supabaseAnonKey = '240f8a1e4f3322774aa5f3be5b5aed0007ee8438c8fd4eaa2643b672f431aad'; // Updated with the key from your image
   
-  // Create client
+  // Ensure we have a global-ish but module-scoped client
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
   console.log('Supabase initialized with URL:', supabaseUrl);
 
