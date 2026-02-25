@@ -1242,80 +1242,66 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
   import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
 
-  // INITIALIZATION: Using your ACTUAL long JWT Anon Key
   const supabaseUrl = 'https://eczsqgtewtpcscsyvljy.supabase.co';
-  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjUxNTAsImV4cCI6MjA4NzU0MTE1MH0.HTXvOSk4Gjbg85YPfmWB59wKD943-wyjFd-iWeF9BUk'; 
+  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjUxNTAsImV4cCI6MjA1NjA4MTI1MH0.HTXvOSk4Gjbg85YPfmWB59wKD943-wyjFd-iWeF9BUk'; 
   
-  // Create client
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
-  console.log('Supabase initialized with URL:', supabaseUrl);
-
-  // Initialize Stripe (Production Key)
-  const stripePromise = loadStripe('pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
 
   let currentLeadId = null
-  let selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap'; // Default 24 meses
-  let filesToUpload = { passport: null, selfie: null };
+  let selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap'; 
+  let assignedPosition = 0; // Nova variável para armazenar a posição vinda do admin
 
-  // Function to handle real file selection
-  window.handleFileSelect = (input, type) => {
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      filesToUpload[type] = file;
-      
-      const zone = input.nextElementSibling;
-      const title = document.getElementById(`${type}-title`);
-      const status = document.getElementById(`${type}-status`);
-      const icon = document.getElementById(`${type}-icon`);
-      
-      zone.classList.add('uploaded');
-      title.textContent = '✓ Documento pronto';
-      status.textContent = file.name + ` (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-      icon.textContent = '📄';
-    }
-  };
+  // Nova Função: Obter Posição do Admin
+  async function fetchAssignedPosition(months) {
+    try {
+        const { data } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single();
+        if (data) {
+            return months === '12' ? data.next_position_12_months : data.next_position_24_months;
+        }
+    } catch (e) { console.error('Erro ao buscar posição:', e); }
+    return months === '12' ? 7 : 15; // Fallback
+  }
 
-  // Force navigate function
   const forceNavigate = (screenId) => {
-      console.log('Module forceNavigate:', screenId);
-      const screens = document.querySelectorAll('.screen');
-      screens.forEach(s => {
-          s.classList.remove('active');
-          s.style.display = 'none';
-      });
-      
-      const target = document.getElementById('screen-' + screenId);
-      if (target) {
-          target.style.display = 'block';
-          target.classList.add('active');
-          target.style.animation = 'none';
-          target.offsetHeight; 
-          target.style.animation = 'screenIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both';
-      }
-      
-      const pw = document.getElementById('progressWrap');
-      if (screenId.startsWith('step')) {
-          pw.classList.add('visible');
-          const stepNum = parseInt(screenId.replace('step', ''));
-          document.querySelectorAll('.progress-dot').forEach(d => {
+    console.log('Module forceNavigate:', screenId);
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+    });
+    
+    const target = document.getElementById('screen-' + screenId);
+    if (target) {
+        target.style.display = 'block';
+        target.classList.add('active');
+        target.style.animation = 'none';
+        target.offsetHeight; 
+        target.style.animation = 'screenIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both';
+    }
+    
+    const pw = document.getElementById('progressWrap');
+    if (screenId.startsWith('step')) {
+        pw.classList.add('visible');
+        const stepNum = parseInt(screenId.replace('step', ''));
+        document.querySelectorAll('.progress-dot').forEach(d => {
             const s = parseInt(d.dataset.step);
             d.className = 'progress-dot';
             if (s < stepNum) d.classList.add('done');
             if (s === stepNum) d.classList.add('active');
-          });
-          const labels = {
+        });
+        const labels = {
             1: 'Dados pessoais',
             2: 'Produto e duração',
             3: 'Verificação de identidade',
             4: 'Posição e contrato',
             5: 'Pagamento'
-          };
-          const labelEl = document.getElementById('progressLabel');
-          if(labelEl) labelEl.textContent = `Passo ${stepNum} de 5 — ${labels[stepNum]}`;
-      } else {
-          if(pw) pw.classList.remove('visible');
-      }
-      window.scrollTo(0, 0);
+        };
+        const labelEl = document.getElementById('progressLabel');
+        if(labelEl) labelEl.textContent = `Passo ${stepNum} de 5 — ${labels[stepNum]}`;
+    } else {
+        if(pw) pw.classList.remove('visible');
+    }
+    window.scrollTo(0, 0);
   };
 
   window.goTo = forceNavigate;
@@ -1373,15 +1359,18 @@
         const durEl = document.querySelector('.dur-card.selected .dur-months');
         const durationText = durEl ? durEl.textContent.trim() : '24';
         
+        // 1. Buscar a posição configurada no ADMIN antes de avançar
+        assignedPosition = await fetchAssignedPosition(durationText);
+
         const summaryPrice = document.getElementById('summary-price');
         const summaryTotal = document.getElementById('summary-total');
         
         if (durationText === '12') {
             if(summaryPrice) summaryPrice.textContent = '€149,00/mês';
             if(summaryTotal) summaryTotal.textContent = '€1.788,00';
-            selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5'; // ID Real de Produção (12 meses)
+            selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5';
         } else {
-            selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap'; // ID Real de Produção (24 meses)
+            selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap';
             if(summaryPrice) summaryPrice.textContent = '€75,00/mês';
             if(summaryTotal) summaryTotal.textContent = '€1.800,00';
         }
@@ -1390,7 +1379,8 @@
             try {
                 await supabase.from('leads').update({ 
                     plan: `iPhone 17 Pro Max - ${durationText} meses`, 
-                    status: 'selected_plan' 
+                    status: 'selected_plan',
+                    assigned_position: assignedPosition // SALVA A POSIÇÃO NO LEAD
                 }).eq('id', currentLeadId);
             } catch (e) {}
         }

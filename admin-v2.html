@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEKOTA | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #E2E8F0; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <div id="app" class="min-h-screen">
+        <!-- Login Screen -->
+        <div id="login-screen" class="flex items-center justify-center min-h-screen">
+            <div class="glass p-8 rounded-2xl w-full max-w-md">
+                <h1 class="text-2xl font-bold mb-6 text-center">Admin Access</h1>
+                <form id="login-form" class="space-y-4">
+                    <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-teal-500">
+                    <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-teal-500">
+                    <button type="submit" class="w-full bg-teal-500 text-slate-900 font-bold p-3 rounded-lg hover:bg-teal-400 transition-all">Entrar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="admin-content" class="hidden">
+            <nav class="glass border-b border-white/10 p-4 sticky top-0 z-50">
+                <div class="container mx-auto flex justify-between items-center">
+                    <div class="text-xl font-bold tracking-tight text-teal-400">WEKOTA <span class="text-white">ADMIN</span></div>
+                    <button id="logout-btn" class="text-slate-400 hover:text-white text-sm">Sair</button>
+                </div>
+            </nav>
+
+            <main class="container mx-auto p-6 space-y-8">
+                <!-- 1. Configuração de Posições (O QUE VOCÊ PEDIU) -->
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-2xl">
+                        <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-teal-500 rounded-full"></span> 
+                            Controle de Posições (Funil)
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                                <div>
+                                    <p class="text-sm text-slate-400">Próxima posição (12 meses)</p>
+                                    <input type="number" id="pos-12" class="bg-transparent text-2xl font-bold text-white w-20 outline-none focus:text-teal-400">
+                                </div>
+                                <button onclick="updateSettings('12')" class="bg-teal-500/10 text-teal-400 px-4 py-2 rounded-lg hover:bg-teal-500 hover:text-slate-900 transition-all text-sm font-bold">Salvar</button>
+                            </div>
+                            <div class="flex items-center justify-between bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                                <div>
+                                    <p class="text-sm text-slate-400">Próxima posição (24 meses)</p>
+                                    <input type="number" id="pos-24" class="bg-transparent text-2xl font-bold text-white w-20 outline-none focus:text-teal-400">
+                                </div>
+                                <button onclick="updateSettings('24')" class="bg-teal-500/10 text-teal-400 px-4 py-2 rounded-lg hover:bg-teal-500 hover:text-slate-900 transition-all text-sm font-bold">Salvar</button>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-4 italic">* Este é o número que aparecerá para o próximo cliente que chegar ao Passo 4.</p>
+                    </div>
+
+                    <!-- Métricas Rápidas -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="glass p-6 rounded-2xl">
+                            <p class="text-sm text-slate-400">Total Leads</p>
+                            <p id="total-leads" class="text-3xl font-bold text-white">0</p>
+                        </div>
+                        <div class="glass p-6 rounded-2xl border-l-4 border-red-500">
+                            <p class="text-sm text-slate-400">Em Atraso</p>
+                            <p id="late-leads" class="text-3xl font-bold text-white text-red-400">0</p>
+                        </div>
+                        <div class="glass p-6 rounded-2xl border-l-4 border-emerald-500">
+                            <p class="text-sm text-slate-400">Pagos Hoje</p>
+                            <p id="paid-today" class="text-3xl font-bold text-emerald-400">0€</p>
+                        </div>
+                        <div class="glass p-6 rounded-2xl">
+                            <p class="text-sm text-slate-400">Taxa Conv.</p>
+                            <p id="conv-rate" class="text-3xl font-bold text-white">0%</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Tabela de Membros e Grupos -->
+                <section class="glass rounded-2xl overflow-hidden">
+                    <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-white">Administração de Grupos & Pagamentos</h2>
+                        <div class="flex gap-2">
+                            <select id="filter-status" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-sm outline-none">
+                                <option value="all">Todos</option>
+                                <option value="late">Em Atraso</option>
+                                <option value="up_to_date">Em Dia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-white/5 text-slate-400 text-xs uppercase tracking-wider">
+                                    <th class="p-4 font-medium">Membro</th>
+                                    <th class="p-4 font-medium">Grupo / Pos.</th>
+                                    <th class="p-4 font-medium">Estado</th>
+                                    <th class="p-4 font-medium">Últ. Parcela</th>
+                                    <th class="p-4 font-medium">Atraso</th>
+                                    <th class="p-4 font-medium text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-leads-body" class="text-sm divide-y divide-white/5">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modais e JS -->
+    <script type="module" src="admin-new.js"></script>
+</body>
+</html>
