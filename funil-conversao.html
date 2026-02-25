@@ -1344,10 +1344,11 @@
                     }
 
                     // Chamar a Edge Function do Supabase para criar a sessão do Stripe
-                    console.log('Chamando create-checkout para:', { lead_id: currentLeadId, price_id: selectedPlanPriceId });
+                    console.log('Chamando stripe-payments para:', { lead_id: currentLeadId, price_id: selectedPlanPriceId });
                     
-                    const { data, error } = await supabase.functions.invoke('create-checkout', {
+                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
                         body: { 
+                            action: 'create-checkout-session',
                             lead_id: currentLeadId,
                             price_id: selectedPlanPriceId,
                             payment_method: selectedMethodText,
