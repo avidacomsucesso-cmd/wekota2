@@ -1307,63 +1307,49 @@
             const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
             
             if (selectedMethodText.includes('Cartão') || selectedMethodText.includes('Débito Direto')) {
-                btnStep5.textContent = 'A processar...';
+                btnStep5.textContent = 'A redirecionar...';
                 btnStep5.disabled = true;
                 
                 try {
-                    if (!supabase) throw new Error('Supabase não disponível.');
+                    const payload = {
+                        action: 'create-checkout-session',
+                        lead_id: currentLeadId,
+                        price_id: selectedPlanPriceId,
+                        payment_method: selectedMethodText,
+                        success_url: window.location.origin + '/funil-conversao.html?status=success',
+                        cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
+                    };
+
+                    console.log('Enviando via FETCH DIRETO para evitar bloqueios...');
                     
-                    // Tentativa de chamada via invoke (mais seguro)
-                    console.log('Tentando invocar stripe-payments...');
-                    
-                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
-                        body: { 
-                            action: 'create-checkout-session',
-                            lead_id: currentLeadId,
-                            price_id: selectedPlanPriceId,
-                            payment_method: selectedMethodText,
-                            success_url: window.location.origin + '/funil-conversao.html?status=success',
-                            cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
-                        }
+                    // Chamada via FETCH padrão para contornar qualquer erro do SDK
+                    const response = await fetch(`${supabaseUrl}/functions/v1/stripe-payments`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${supabaseAnonKey}`,
+                            'apikey': supabaseAnonKey
+                        },
+                        body: JSON.stringify(payload)
                     });
 
-                    // Se falhar o invoke (CORS ou rede), tentamos via FETCH direto como plano B
-                    if (error) {
-                        console.warn('Invoke falhou, tentando via fetch direto...', error);
-                        const functionUrl = `${supabaseUrl}/functions/v1/stripe-payments`;
-                        const response = await fetch(functionUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${supabaseAnonKey}`
-                            },
-                            body: JSON.stringify({
-                                action: 'create-checkout-session',
-                                lead_id: currentLeadId,
-                                price_id: selectedPlanPriceId,
-                                payment_method: selectedMethodText,
-                                success_url: window.location.origin + '/funil-conversao.html?status=success',
-                                cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
-                            })
-                        });
-                        
-                        const fetchResult = await response.json();
-                        if (fetchResult.url) {
-                            window.location.href = fetchResult.url;
-                            return;
-                        } else {
-                            throw new Error(fetchResult.error || 'Falha no fetch direto da função.');
-                        }
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Servidor respondeu com erro: ${response.status} - ${errorText}`);
                     }
 
-                    if (data?.url) {
-                        window.location.href = data.url;
+                    const result = await response.json();
+                    
+                    if (result.url) {
+                        console.log('URL de Checkout recebida! Redirecionando...');
+                        window.location.href = result.url;
                     } else {
-                        throw new Error('Função não retornou URL de pagamento.');
+                        throw new Error('O Stripe não retornou um link de pagamento. Verifique os logs da função no Supabase.');
                     }
+
                 } catch (err) {
-                    console.error('Erro Final no checkout:', err);
-                    alert('Erro no checkout: ' + (err.message || 'Falha na comunicação com o servidor.'));
+                    console.error('ERRO CRÍTICO NO CHECKOUT:', err);
+                    alert('Erro ao processar pagamento: ' + err.message);
                     btnStep5.textContent = 'Confirmar adesão';
                     btnStep5.disabled = false;
                 }
