@@ -509,6 +509,40 @@
       letter-spacing: 0.04em;
     }
 
+    /* ── BANK DETAILS (TRANSFER) ── */
+    .bank-details-box {
+      display: none;
+      margin-top: 1rem;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--teal-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .bank-details-box.active { display: block; }
+    .bank-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--divider);
+    }
+    .bank-row:last-child { border-bottom: none; }
+    .bank-label { font-size: 0.75rem; color: var(--slate); font-weight: 600; text-transform: uppercase; }
+    .bank-val-wrap { display: flex; align-items: center; gap: 8px; }
+    .bank-value { font-size: 0.85rem; color: var(--white); font-family: monospace; }
+    .copy-btn {
+      background: var(--teal-glow);
+      border: 1px solid var(--teal-border);
+      color: var(--teal);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: var(--teal); color: var(--navy-deep); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
     /* ── BUTTONS ── */
     .btn-primary {
       width: 100%;
@@ -1033,43 +1067,59 @@
 
     <label class="form-label">Método de pagamento</label>
     <div class="pay-methods">
-      <div class="pay-method selected" onclick="selectPay(this)">
-        <div class="pay-icon">🏦</div>
-        <div class="pay-info">
-          <h4>Débito Direto SEPA</h4>
-          <p>Automático todos os meses. Zero preocupação.</p>
-        </div>
-        <span class="pay-rec">Recomendado</span>
-      </div>
-      <div class="pay-method" onclick="selectPay(this)">
+      <div class="pay-method selected" onclick="selectPay(this, 'card')">
         <div class="pay-icon">💳</div>
         <div class="pay-info">
           <h4>Cartão de débito/crédito</h4>
           <p>Visa ou Mastercard. Cobrança automática mensal.</p>
         </div>
+        <span class="pay-rec">Recomendado</span>
       </div>
-      <div class="pay-method" onclick="selectPay(this)">
-        <div class="pay-icon">📱</div>
-        <div class="pay-info">
-          <h4>MB Way / Bizum</h4>
-          <p>Notificação mensal para aprovar o pagamento.</p>
-        </div>
-      </div>
-      <div class="pay-method" onclick="selectPay(this)">
+      <div class="pay-method" onclick="selectPay(this, 'transfer')">
         <div class="pay-icon">🌍</div>
         <div class="pay-info">
           <h4>Transferência internacional</h4>
-          <p>Wise, Remitly ou transferência SEPA manual.</p>
+          <p>Wise, Revolut ou transferência SEPA manual.</p>
         </div>
       </div>
+    </div>
+
+    <!-- Bank Details for Transfer -->
+    <div id="bankDetails" class="bank-details-box">
+      <div class="bank-row">
+        <span class="bank-label">Beneficiário</span>
+        <div class="bank-val-wrap">
+          <span class="bank-value">HEAVENWHISPER, UNIPESSOAL, LDA</span>
+          <button class="copy-btn" onclick="copyText('HEAVENWHISPER, UNIPESSOAL, LDA', this)">Copiar</button>
+        </div>
+      </div>
+      <div class="bank-row">
+        <span class="bank-label">IBAN</span>
+        <div class="bank-val-wrap">
+          <span class="bank-value">LT64 3250 0598 6608 3915</span>
+          <button class="copy-btn" onclick="copyText('LT643250059866083915', this)">Copiar</button>
+        </div>
+      </div>
+      <div class="bank-row">
+        <span class="bank-label">BIC/SWIFT</span>
+        <div class="bank-val-wrap">
+          <span class="bank-value">REVOLT21</span>
+          <button class="copy-btn" onclick="copyText('REVOLT21', this)">Copiar</button>
+        </div>
+      </div>
+      <div class="bank-row">
+        <span class="bank-label">Moeda</span>
+        <span class="bank-value">EUR</span>
+      </div>
+      <p class="text-[10px] text-slate mt-2 text-center">Envie o comprovativo para sales@wekota.eu após a transferência.</p>
     </div>
 
     <div class="inline-notice">
       <span class="n-icon">🔒</span>
-      <span>Todos os pagamentos são processados pela nossa EMI parceira licenciada na UE. Os seus dados financeiros nunca são armazenados pela WEKOTA.</span>
+      <span>Pagamentos via cartão são processados de forma segura pelo Stripe. Para transferências, a sua vaga é garantida após a recepção do comprovativo.</span>
     </div>
 
-    <button class="btn-primary" onclick="goTo('success')">Confirmar adesão</button>
+    <button class="btn-primary" id="btn-final-pay">Confirmar adesão</button>
     <button class="btn-secondary" onclick="goTo('step4')">← Voltar</button>
   </div>
 
@@ -1140,9 +1190,29 @@
     document.querySelectorAll('.dur-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
   };
-  window.selectPay = function(el) {
+  window.selectPay = function(el, type) {
     document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
+    
+    const bankDetails = document.getElementById('bankDetails');
+    if (type === 'transfer') {
+      bankDetails.classList.add('active');
+    } else {
+      bankDetails.classList.remove('active');
+    }
+  };
+  window.copyText = function(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const originalText = btn.textContent;
+      btn.textContent = 'Copiado!';
+      btn.style.background = 'var(--teal)';
+      btn.style.color = 'var(--navy-deep)';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = 'var(--teal-glow)';
+        btn.style.color = 'var(--teal)';
+      }, 2000);
+    });
   };
   window.simulateUpload = function(el) {
     el.classList.toggle('uploaded');
@@ -1306,7 +1376,7 @@
             const selectedMethodEl = document.querySelector('.pay-method.selected h4');
             const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
             
-            if (selectedMethodText.includes('Cartão') || selectedMethodText.includes('Débito Direto')) {
+            if (selectedMethodText.includes('Cartão')) {
                 btnStep5.textContent = 'A redirecionar...';
                 btnStep5.disabled = true;
                 
@@ -1345,6 +1415,50 @@
                     btnStep5.disabled = false;
                 }
             } else {
+                // Para Transferência, vai direto para o sucesso
+                forceNavigate('success');
+            }
+        };
+    }
+
+    const btnFinalPay = document.getElementById('btn-final-pay');
+    if (btnFinalPay) {
+        btnFinalPay.onclick = async () => {
+            const selectedMethodEl = document.querySelector('.pay-method.selected h4');
+            const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
+            
+            if (selectedMethodText.includes('Cartão')) {
+                btnFinalPay.textContent = 'A redirecionar...';
+                btnFinalPay.disabled = true;
+                
+                try {
+                    if (!supabase) throw new Error('Supabase não disponível.');
+                    
+                    const payload = {
+                        action: 'create-checkout-session',
+                        lead_id: currentLeadId,
+                        price_id: selectedPlanPriceId,
+                        success_url: window.location.origin + '/funil-conversao.html?status=success',
+                        cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
+                    };
+
+                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
+                        body: payload
+                    });
+
+                    if (error) throw error;
+                    if (data?.url) {
+                        window.location.href = data.url;
+                    } else {
+                        throw new Error('Função não retornou URL.');
+                    }
+                } catch (err) {
+                    alert('Erro no checkout: ' + err.message);
+                    btnFinalPay.textContent = 'Confirmar adesão';
+                    btnFinalPay.disabled = false;
+                }
+            } else {
+                // Para Transferência, finaliza direto
                 forceNavigate('success');
             }
         };
