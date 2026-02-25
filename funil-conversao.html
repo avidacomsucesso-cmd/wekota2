@@ -1324,47 +1324,68 @@
 
         newBtn5.addEventListener('click', async () => {
             const selectedMethodEl = document.querySelector('.pay-method.selected h4');
-            const selectedMethod = selectedMethodEl ? selectedMethodEl.innerText : 'Manual';
+            const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
             
-            if (selectedMethod && (selectedMethod.includes('Cartão') || selectedMethod.includes('Débito Direto'))) {
-                // Trigger Stripe Checkout logic
-                newBtn5.textContent = 'A iniciar pagamento...';
+            console.log('Método selecionado:', selectedMethodText);
+
+            // Se for Cartão ou Débito Direto, usamos o Stripe
+            if (selectedMethodText.includes('Cartão') || selectedMethodText.includes('Débito Direto')) {
+                newBtn5.textContent = 'A processar pagamento...';
+                newBtn5.disabled = true;
                 
                 try {
-                    if (!isSupabaseConfigured || !supabase) throw new Error('Supabase not configured');
+                    if (!isSupabaseConfigured || !supabase) {
+                        throw new Error('Supabase não está configurado corretamente.');
+                    }
 
-                    // Call Supabase Function to create checkout session
+                    if (!currentLeadId) {
+                        // Se por algum motivo o ID do lead não estiver aqui, tentamos prosseguir ou avisar
+                        console.warn('Lead ID ausente no momento do checkout.');
+                    }
+
+                    // Chamar a Edge Function do Supabase para criar a sessão do Stripe
+                    console.log('Chamando create-checkout para:', { lead_id: currentLeadId, price_id: selectedPlanPriceId });
+                    
                     const { data, error } = await supabase.functions.invoke('create-checkout', {
                         body: { 
                             lead_id: currentLeadId,
                             price_id: selectedPlanPriceId,
-                            payment_method: selectedMethod
+                            payment_method: selectedMethodText,
+                            success_url: window.location.origin + '/funil-conversao.html?status=success',
+                            cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
                         }
                     });
 
                     if (error) throw error;
 
-                    if (data && data.sessionId) {
+                    if (data && data.url) {
+                        // Redirecionar para a página de Checkout do Stripe (Hosted)
+                        window.location.href = data.url;
+                    } else if (data && data.sessionId) {
+                        // Fallback para sessionId se a URL não vier
                         const stripe = await stripePromise;
-                        const { error: stripeError } = await stripe.redirectToCheckout({
-                            sessionId: data.sessionId,
-                        });
-                        if (stripeError) throw stripeError;
+                        await stripe.redirectToCheckout({ sessionId: data.sessionId });
                     } else {
-                        throw new Error('No session ID returned');
+                        throw new Error('Não foi possível gerar o link de pagamento.');
                     }
 
                 } catch (err) {
-                    console.error('Payment Error/Simulation:', err);
-                    // For demo purposes, we fallback to success screen if function fails or is not setup
-                    // alert('Erro ao iniciar pagamento real. Redirecionando para sucesso (Demo).');
-                    forceNavigate('success'); 
+                    console.error('Erro no Checkout Stripe:', err);
+                    alert('Erro ao iniciar o checkout: ' + (err.message || 'Tente novamente mais tarde.'));
+                    newBtn5.textContent = 'Confirmar adesão';
+                    newBtn5.disabled = false;
                 }
             } else {
-                // For manual methods or fallback
+                // Para métodos manuais (MB Way, Transferência), vai direto para o sucesso
                 forceNavigate('success');
             }
         });
+    }
+
+    // Verificar se voltamos do Stripe com sucesso
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('status') === 'success') {
+        forceNavigate('success');
     }
   });
 </script>
