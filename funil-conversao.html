@@ -1125,7 +1125,7 @@
   import { loadStripe } from 'https://cdn.jsdelivr.net/npm/@stripe/stripe-js/+esm'
 
   // Initialize Stripe (Production Key)
-  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
+  const stripePromise = loadStripe('pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
 
   let currentLeadId = null
   let selectedPlanPriceId = 'price_1QxyAtUEGWHer1k6eYvVrPk'; // Default 24 meses
@@ -1176,6 +1176,27 @@
 
   // Expose to window for the onclick handlers in HTML (like Back buttons)
   window.goTo = forceNavigate;
+  window.selectDur = (el) => {
+    document.querySelectorAll('.dur-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  };
+  window.selectPay = (el) => {
+    document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  };
+  window.simulateUpload = (el) => {
+    el.classList.toggle('uploaded');
+    if (el.classList.contains('uploaded')) {
+      el.querySelector('h4').textContent = '✓ Documento carregado';
+      el.querySelector('p').textContent = 'Toque para substituir';
+    }
+  };
+  window.toggleCheck = (el) => {
+    el.classList.toggle('checked');
+  };
+  window.toggleFaq = (el) => {
+    el.classList.toggle('open');
+  };
 
   document.addEventListener('DOMContentLoaded', () => {
     // Re-bind back buttons just in case
@@ -1335,82 +1356,6 @@
         forceNavigate('success');
     }
   });
-</script>
-
-<script>
-  const stepLabels = {
-    step1: { n: 1, label: 'Dados pessoais' },
-    step2: { n: 2, label: 'Produto e duração' },
-    step3: { n: 3, label: 'Verificação de identidade' },
-    step4: { n: 4, label: 'Posição e contrato' },
-    step5: { n: 5, label: 'Pagamento' },
-  };
-
-  function goTo(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const target = document.getElementById('screen-' + screenId);
-    if (target) {
-      target.classList.remove('active');
-      void target.offsetWidth; // force reflow
-      target.classList.add('active');
-    }
-
-    const pw = document.getElementById('progressWrap');
-    const info = stepLabels[screenId];
-    if (info) {
-      pw.classList.add('visible');
-      document.getElementById('progressLabel').textContent = `Passo ${info.n} de 5 — ${info.label}`;
-      document.querySelectorAll('.progress-dot').forEach(d => {
-        const s = parseInt(d.dataset.step);
-        d.className = 'progress-dot';
-        if (s < info.n) d.classList.add('done');
-        if (s === info.n) d.classList.add('active');
-      });
-    } else {
-      pw.classList.remove('visible');
-    }
-
-    // Re-trigger reveal animation
-    if (screenId === 'step4') {
-      const rn = document.getElementById('revealNum');
-      rn.style.animation = 'none';
-      void rn.offsetWidth;
-      rn.style.animation = 'numberReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both 0.5s';
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function selectCard(el, parentClass) {
-    el.closest('.' + parentClass).querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-
-  function selectDur(el) {
-    document.querySelectorAll('.dur-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-
-  function selectPay(el) {
-    document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-
-  function simulateUpload(el) {
-    el.classList.toggle('uploaded');
-    if (el.classList.contains('uploaded')) {
-      el.querySelector('h4').textContent = '✓ Documento carregado';
-      el.querySelector('p').textContent = 'Toque para substituir';
-    }
-  }
-
-  function toggleCheck(el) {
-    el.classList.toggle('checked');
-  }
-
-  function toggleFaq(el) {
-    el.classList.toggle('open');
-  }
 </script>
 
 </body>
