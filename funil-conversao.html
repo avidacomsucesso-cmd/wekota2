@@ -1142,20 +1142,13 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
   import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
 
-  // Use the env vars or fallback to hardcoded values if Vite env fails
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://vunmufkqqosnyeraxjox.supabase.co';
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1bm11ZmtxcW9zbnllcmF4am94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA0OTc0MDgsImV4cCI6MjA1NjA3MzQwOH0.TOWlGq7lA_Y_L0Y-8Y7W7_2_T7Y7X7Y7X7Y7X7Y7X7Y'; // This is a placeholder, ensure your .env is working
+  // INITIALIZATION: Direct and early initialization
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   
-  // Try to use a more direct way to initialize if Vite is being tricky
-  let supabase = null;
-  try {
-      if (supabaseUrl && supabaseAnonKey) {
-          supabase = createClient(supabaseUrl, supabaseAnonKey)
-          console.log('Supabase initialized successfully');
-      }
-  } catch (e) {
-      console.error('Supabase init failed:', e);
-  }
+  // Ensure we have a global-ish but module-scoped client
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  console.log('Supabase client initialized at module level');
 
   // Initialize Stripe (Production Key)
   const stripePromise = loadStripe('pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
@@ -1350,12 +1343,18 @@
                 newBtn5.disabled = true;
                 
                 try {
+                    // DEFENSIVE CHECKS
                     if (!supabase) {
-                        throw new Error('Conexão com banco de dados não disponível. Verifique as configurações.');
+                        throw new Error('Cliente Supabase não inicializado.');
+                    }
+                    if (!supabase.functions) {
+                        console.error('supabase.functions is missing', supabase);
+                        throw new Error('Recurso de Edge Functions não disponível no cliente.');
                     }
 
-                    console.log('Invocando stripe-payments...');
-                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
+                    console.log('Invocando stripe-payments com:', { action: 'create-checkout-session', lead_id: currentLeadId });
+                    
+                    const res = await supabase.functions.invoke('stripe-payments', {
                         body: { 
                             action: 'create-checkout-session',
                             lead_id: currentLeadId,
@@ -1366,19 +1365,21 @@
                         }
                     });
 
-                    if (error) throw error;
+                    if (res.error) throw res.error;
 
+                    const data = res.data;
                     if (data && data.url) {
                         window.location.href = data.url;
                     } else if (data && data.sessionId) {
                         const stripe = await stripePromise;
                         await stripe.redirectToCheckout({ sessionId: data.sessionId });
                     } else {
-                        throw new Error('Não foi possível gerar o link de pagamento.');
+                        console.error('Resposta da função sem URL:', data);
+                        throw new Error('A função não retornou uma URL de checkout válida.');
                     }
                 } catch (err) {
-                    console.error('Erro no Checkout Stripe:', err);
-                    alert('Erro ao iniciar o checkout: ' + (err.message || 'Tente novamente.'));
+                    console.error('Erro detalhado no Checkout:', err);
+                    alert('Erro ao iniciar o checkout: ' + (err.message || 'Erro desconhecido.'));
                     newBtn5.textContent = 'Confirmar adesão';
                     newBtn5.disabled = false;
                 }
