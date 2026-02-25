@@ -1315,12 +1315,11 @@
                         action: 'create-checkout-session',
                         lead_id: currentLeadId,
                         price_id: selectedPlanPriceId,
-                        payment_method: selectedMethodText,
                         success_url: window.location.origin + '/funil-conversao.html?status=success',
                         cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
                     };
 
-                    console.log('Enviando via FETCH DIRETO para evitar bloqueios...');
+                    console.log('Enviando pedido de checkout para Stripe...');
                     
                     // Chamada via FETCH com tentativa de simplificação de headers
                     const response = await fetch(`${supabaseUrl}/functions/v1/stripe-payments`, {
