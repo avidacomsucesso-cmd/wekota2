@@ -1135,9 +1135,8 @@
       supabase = createClient(supabaseUrl, supabaseAnonKey)
   }
 
-  // Initialize Stripe (Placeholder Key - User needs to provide via Env or hardcode for testing)
-  // Warning: Do not use real keys in repo if public
-  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_TYOO'); 
+  // Initialize Stripe (Production Key)
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
 
   let currentLeadId = null
   let selectedPlanPriceId = null;
@@ -1289,11 +1288,11 @@
         if (durationText === '12') {
             if(summaryPrice) summaryPrice.textContent = '€149,00/mês';
             if(summaryTotal) summaryTotal.textContent = '€1.788,00';
-            selectedPlanPriceId = 'price_12_months_ID_HERE'; 
+            selectedPlanPriceId = 'price_1Qx...'; // Replace with real 12-month Price ID
         } else {
             if(summaryPrice) summaryPrice.textContent = '€75,00/mês';
             if(summaryTotal) summaryTotal.textContent = '€1.800,00';
-            selectedPlanPriceId = 'price_24_months_ID_HERE';
+            selectedPlanPriceId = 'price_1Qy...'; // Replace with real 24-month Price ID
         }
 
         newBtn2.textContent = 'A guardar...';
