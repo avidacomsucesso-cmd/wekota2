@@ -1322,7 +1322,7 @@
 
                     console.log('Enviando via FETCH DIRETO para evitar bloqueios...');
                     
-                    // Chamada via FETCH padrão para contornar qualquer erro do SDK
+                    // Chamada via FETCH com tentativa de simplificação de headers
                     const response = await fetch(`${supabaseUrl}/functions/v1/stripe-payments`, {
                         method: 'POST',
                         headers: {
@@ -1330,6 +1330,7 @@
                             'Authorization': `Bearer ${supabaseAnonKey}`,
                             'apikey': supabaseAnonKey
                         },
+                        mode: 'cors', // O padrão é cors, mas garantimos aqui
                         body: JSON.stringify(payload)
                     });
 
