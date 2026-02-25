@@ -1311,45 +1311,32 @@
                 btnStep5.disabled = true;
                 
                 try {
-                    const payload = {
-                        action: 'create-checkout-session',
-                        lead_id: currentLeadId,
-                        price_id: selectedPlanPriceId,
-                        success_url: window.location.origin + '/funil-conversao.html?status=success',
-                        cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
-                    };
-
-                    console.log('Iniciando checkout seguro com JWT...');
+                    if (!supabase) throw new Error('Supabase não disponível.');
                     
-                    // Chamada via FETCH com autenticação JWT completa
-                    const response = await fetch(`${supabaseUrl}/functions/v1/stripe-payments`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'apikey': supabaseAnonKey, // Necessário para o Gateway validar o JWT
-                            'Authorization': `Bearer ${supabaseAnonKey}` // O JWT propriamente dito
-                        },
-                        body: JSON.stringify(payload)
+                    console.log('Invocando checkout seguro via SDK oficial...');
+                    
+                    // Usando o SDK oficial que lida melhor com o JWT
+                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
+                        body: { 
+                            action: 'create-checkout-session',
+                            lead_id: currentLeadId,
+                            price_id: selectedPlanPriceId,
+                            success_url: window.location.origin + '/funil-conversao.html?status=success',
+                            cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
+                        }
                     });
 
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        const errorMsg = errorData.message || errorData.error || `Erro ${response.status}`;
-                        throw new Error(`Servidor Supabase (JWT): ${errorMsg}`);
-                    }
+                    if (error) throw error;
 
-                    const result = await response.json();
-                    
-                    if (result.url) {
-                        console.log('URL de Checkout recebida! Redirecionando...');
-                        window.location.href = result.url;
+                    if (data?.url) {
+                        window.location.href = data.url;
                     } else {
-                        throw new Error('O Stripe não retornou um link de pagamento. Verifique os logs da função no Supabase.');
+                        throw new Error('O Stripe não retornou um link de pagamento.');
                     }
 
                 } catch (err) {
-                    console.error('ERRO CRÍTICO NO CHECKOUT:', err);
-                    alert('Erro ao processar pagamento: ' + err.message);
+                    console.error('ERRO JWT/CHECKOUT:', err);
+                    alert('Erro ao processar pagamento: ' + (err.message || 'Falha na autenticação JWT. Verifique se a Anon Key está correta.'));
                     btnStep5.textContent = 'Confirmar adesão';
                     btnStep5.disabled = false;
                 }
