@@ -1121,25 +1121,14 @@
 </div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  import { supabase } from './supabaseClient.js'
   import { loadStripe } from 'https://cdn.jsdelivr.net/npm/@stripe/stripe-js/+esm'
-
-  // Initialize Supabase
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-  // Fallback if env vars are missing
-  const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && !supabaseUrl.includes('YOUR_SUPABASE_URL');
-  
-  let supabase = null;
-  if (isSupabaseConfigured) {
-      supabase = createClient(supabaseUrl, supabaseAnonKey)
-  }
 
   // Initialize Stripe (Production Key)
   const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_live_51T4kqUEGWHer1k6eO5Cd78vy9ybpe6OyJPoxrtktomzhu1RQvdoFlPkrLfxMKYoBk2CdmgkI3WRrKZ6vh8XgqQ2h00efKSW7Mn'); 
 
   let currentLeadId = null
-  let selectedPlanPriceId = null;
+  let selectedPlanPriceId = 'price_1QxyAtUEGWHer1k6eYvVrPk'; // Default 24 meses
 
   // Force navigate function
   const forceNavigate = (screenId) => {
@@ -1210,55 +1199,37 @@
         const nameInput = document.querySelector('#screen-step1 input[type="text"]');
         const emailInput = document.querySelector('#screen-step1 input[type="email"]');
         
-        // Basic validation - just check if inputs exist
         if (!nameInput || !emailInput) {
-            console.error('Inputs not found');
-            forceNavigate('step2'); // Fallback
+            forceNavigate('step2');
             return;
         }
 
         const name = nameInput.value;
         const email = emailInput.value;
-        // Optional fields
         const phoneInput = document.querySelector('#screen-step1 input[type="tel"]');
         const countryInput = document.querySelector('#screen-step1 select');
         const phone = phoneInput ? phoneInput.value : '';
         const country = countryInput ? countryInput.value : '';
 
-        // Allow empty for testing if needed, or enforce
-        if (!name) {
-          alert('Por favor, preencha o Nome.');
+        if (!name || !email) {
+          alert('Por favor, preencha Nome e Email.');
           return;
         }
 
         newBtn.textContent = 'A guardar...';
         
-        if (isSupabaseConfigured && supabase) {
-            try {
-              console.log('Tentando inserir lead:', { name, email, whatsapp: phone, country, status: 'started' });
-              const { data, error } = await supabase
-                .from('leads')
-                .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
-                .select()
+        try {
+          const { data, error } = await supabase
+            .from('leads')
+            .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
+            .select()
 
-              if (error) {
-                  console.error('Erro de inserção no Supabase:', error.message, error.details);
-                  throw error;
-              }
-
-              if (data && data.length > 0) {
-                 currentLeadId = data[0].id
-                 console.log('Lead salvo com sucesso! ID:', currentLeadId);
-              }
-            } catch (error) {
-              console.error('Falha crítica na comunicação com Supabase:', error);
-              alert('Aviso: Os dados não foram salvos no banco, mas você pode continuar o teste visual.');
-            }
-        } else {
-            console.warn('Supabase não configurado ou chaves inválidas (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).');
+          if (error) throw error;
+          if (data && data.length > 0) currentLeadId = data[0].id;
+        } catch (error) {
+          console.error('Erro Supabase:', error);
         }
         
-        // ALWAYS Navigate
         newBtn.textContent = 'Continuar';
         forceNavigate('step2');
       });
@@ -1271,40 +1242,35 @@
       
       newBtn2.addEventListener('click', async (e) => {
         e.preventDefault();
-        console.log('Step 2 clicked');
         
-        // Get values safely
-        const prodEl = document.querySelector('.product-card.selected h4');
         const durEl = document.querySelector('.dur-card.selected .dur-months');
         const durationText = durEl ? durEl.textContent.trim() : '24';
         
-        const product = prodEl ? prodEl.textContent.trim() : 'iPhone 17 Pro Max 256GB';
+        const product = 'iPhone 17 Pro Max 256GB';
         const duration = durationText + ' meses';
         const plan = `${product} - ${duration}`;
 
-        // Update Summary values dynamically
         const summaryPrice = document.getElementById('summary-price');
         const summaryTotal = document.getElementById('summary-total');
+        
         if (durationText === '12') {
             if(summaryPrice) summaryPrice.textContent = '€149,00/mês';
             if(summaryTotal) summaryTotal.textContent = '€1.788,00';
-            selectedPlanPriceId = 'price_1Qxy9ZUEGWHer1k6eIdkhNm'; // ID do plano de 12 meses
+            selectedPlanPriceId = 'price_1Qxy9ZUEGWHer1k6eIdkhNm';
         } else {
-            selectedPlanPriceId = 'price_1QxyAtUEGWHer1k6eYvVrPk'; // ID do plano de 24 meses
+            selectedPlanPriceId = 'price_1QxyAtUEGWHer1k6eYvVrPk';
             if(summaryPrice) summaryPrice.textContent = '€75,00/mês';
             if(summaryTotal) summaryTotal.textContent = '€1.800,00';
         }
 
         newBtn2.textContent = 'A guardar...';
 
-        if (isSupabaseConfigured && supabase && currentLeadId) {
+        if (currentLeadId) {
             try {
-                const { error } = await supabase
+                await supabase
                   .from('leads')
                   .update({ plan, status: 'selected_plan' })
                   .eq('id', currentLeadId)
-                
-                if (error) throw error
             } catch (error) {
                 console.error('Error updating:', error);
             }
@@ -1315,10 +1281,9 @@
       });
     }
 
-    // Handle Payment Step (Step 5) - Added Logic for Stripe
+    // Handle Payment Step (Step 5)
     const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
     if (btnStep5) {
-        // Clone to remove old listeners
         const newBtn5 = btnStep5.cloneNode(true);
         btnStep5.parentNode.replaceChild(newBtn5, btnStep5);
 
@@ -1326,26 +1291,11 @@
             const selectedMethodEl = document.querySelector('.pay-method.selected h4');
             const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
             
-            console.log('Método selecionado:', selectedMethodText);
-
-            // Se for Cartão ou Débito Direto, usamos o Stripe
             if (selectedMethodText.includes('Cartão') || selectedMethodText.includes('Débito Direto')) {
                 newBtn5.textContent = 'A processar pagamento...';
                 newBtn5.disabled = true;
                 
                 try {
-                    if (!isSupabaseConfigured || !supabase) {
-                        throw new Error('Supabase não está configurado corretamente.');
-                    }
-
-                    if (!currentLeadId) {
-                        // Se por algum motivo o ID do lead não estiver aqui, tentamos prosseguir ou avisar
-                        console.warn('Lead ID ausente no momento do checkout.');
-                    }
-
-                    // Chamar a Edge Function do Supabase para criar a sessão do Stripe
-                    console.log('Chamando stripe-payments para:', { lead_id: currentLeadId, price_id: selectedPlanPriceId });
-                    
                     const { data, error } = await supabase.functions.invoke('stripe-payments', {
                         body: { 
                             action: 'create-checkout-session',
@@ -1360,24 +1310,20 @@
                     if (error) throw error;
 
                     if (data && data.url) {
-                        // Redirecionar para a página de Checkout do Stripe (Hosted)
                         window.location.href = data.url;
                     } else if (data && data.sessionId) {
-                        // Fallback para sessionId se a URL não vier
                         const stripe = await stripePromise;
                         await stripe.redirectToCheckout({ sessionId: data.sessionId });
                     } else {
                         throw new Error('Não foi possível gerar o link de pagamento.');
                     }
-
                 } catch (err) {
                     console.error('Erro no Checkout Stripe:', err);
-                    alert('Erro ao iniciar o checkout: ' + (err.message || 'Tente novamente mais tarde.'));
+                    alert('Erro ao iniciar o checkout: ' + (err.message || 'Tente novamente.'));
                     newBtn5.textContent = 'Confirmar adesão';
                     newBtn5.disabled = false;
                 }
             } else {
-                // Para métodos manuais (MB Way, Transferência), vai direto para o sucesso
                 forceNavigate('success');
             }
         });
