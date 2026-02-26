@@ -1,4 +1,3 @@
-
 // Logic for Spanish Funnel
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -80,6 +79,21 @@ window.processKYC = async () => {
         alert('Error en la subida.');
         btn.innerText = 'Subir y Continuar';
     }
+}
+
+// File drop zone logic
+const dropZone = document.getElementById('drop-zone-es');
+const fileInput = document.getElementById('kyc-file-es');
+const fileNameDisplay = document.getElementById('file-name-display-es');
+
+if (dropZone) {
+    dropZone.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => {
+        if (e.target.files.length > 0) {
+            fileNameDisplay.innerText = `Arquivo selecionado: ${e.target.files[0].name}`;
+            fileNameDisplay.classList.remove('hidden');
+        }
+    };
 }
 
 window.payWithStripe = async () => {
