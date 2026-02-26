@@ -112,6 +112,10 @@ body {
 }
 
 .header__inner { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+.header__right {
+  display: flex;
+  align-items: center;
+}
 .logo { display: flex; align-items: center; text-decoration: none; }
 .logo__img-official { height: 160px; width: auto; object-fit: contain; }
 .brightness-invert { filter: brightness(0) invert(1); }
@@ -690,6 +694,29 @@ body {
 /* WHATSAPP */
 .whatsapp-float { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #25D366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 1000; text-decoration: none; }
 .whatsapp-float svg { width: 32px; height: 32px; }
+
+/* ── LANGUAGE SELECTOR ── */
+.lang-selector {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.lang-selector a {
+  opacity: 0.5;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.lang-selector a:hover, .lang-selector a.active {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.lang-selector img {
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
 /* ── WHATSAPP FLOAT PREMIUM ── */
 .wa-float-official {

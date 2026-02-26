@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserva de Posición | WEKOTA</title>
+  
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-S285WX7BLZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-S285WX7BLZ');
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-funnel">
+
+  <header class="header-funnel">
+    <div class="container funnel-header-inner">
+      <a href="./es.html" class="logo-funnel">
+        <img src="images/logo-oficial.png" alt="WEKOTA Logo" class="logo__img-funnel">
+      </a>
+      <div class="header-right-funnel">
+        <div class="lang-selector-funnel">
+           <a href="funil-conversao.html" title="Português"><img src="https://flagcdn.com/w20/pt.png" width="20" alt="PT"></a>
+           <a href="funil-conversao-es.html" class="active" title="Español"><img src="https://flagcdn.com/w20/es.png" width="20" alt="ES"></a>
+        </div>
+        <div class="secure-badge">
+          <i data-lucide="shield-check" class="icon-sm"></i>
+          <span>Ambiente Seguro</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="funnel-container">
+    <div class="stepper">
+      <div class="step active" id="step-1-indicator"><span>1</span><label>Plan</label></div>
+      <div class="step" id="step-2-indicator"><span>2</span><label>Datos</label></div>
+      <div class="step" id="step-3-indicator"><span>3</span><label>KYC</label></div>
+      <div class="step" id="step-4-indicator"><span>4</span><label>Pago</label></div>
+    </div>
+
+    <!-- STEP 1: PLAN SELECTION -->
+    <div id="step-1" class="funnel-card">
+      <h2 class="funnel-title">Elige tu plan</h2>
+      <p class="funnel-subtitle">Define el tiempo de tu grupo y el valor de las cuotas.</p>
+      
+      <div class="plans-grid-funnel">
+        <label class="plan-option">
+          <input type="radio" name="plan" value="12" checked>
+          <div class="plan-inner">
+            <div class="plan-info">
+              <span class="plan-duration">12 meses</span>
+              <span class="plan-price">149,00€/mes</span>
+            </div>
+            <i data-lucide="check-circle-2" class="check-icon"></i>
+          </div>
+        </label>
+        <label class="plan-option">
+          <input type="radio" name="plan" value="24">
+          <div class="plan-inner">
+            <div class="plan-info">
+              <span class="plan-duration">24 meses</span>
+              <span class="plan-price">75,00€/mes</span>
+            </div>
+            <i data-lucide="check-circle-2" class="check-icon"></i>
+          </div>
+        </label>
+      </div>
+
+      <div class="current-position-alert mt-32">
+        <i data-lucide="info" class="text-navy"></i>
+        <span>Tu posición estimada en el grupo será: <strong id="dynamic-pos-es">--</strong></span>
+      </div>
+
+      <button onclick="goToStep(2)" class="btn btn--primary btn--full mt-32">Continuar <i data-lucide="arrow-right"></i></button>
+    </div>
+
+    <!-- STEP 2: PERSONAL DATA -->
+    <div id="step-2" class="funnel-card hidden">
+      <h2 class="funnel-title">Tus Datos</h2>
+      <p class="funnel-subtitle">Información necesaria para el contrato europeo.</p>
+      
+      <form id="lead-form-es" class="funnel-form">
+        <div class="form-group">
+          <label>Nombre Completo</label>
+          <input type="text" id="fullname" placeholder="Como consta en el documento" required>
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="email" placeholder="principal@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>WhatsApp</label>
+          <input type="tel" id="whatsapp" placeholder="+34 ..." required>
+        </div>
+        <div class="form-group">
+          <label>NIF / NIE / Documento de Identidad</label>
+          <input type="text" id="nif" placeholder="Documento válido en Europa" required>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full mt-16">Validar Datos <i data-lucide="arrow-right"></i></button>
+      </form>
+      <button onclick="goToStep(1)" class="btn btn--text btn--full mt-16">Volver</button>
+    </div>
+
+    <!-- STEP 3: KYC -->
+    <div id="step-3" class="funnel-card hidden">
+      <h2 class="funnel-title">Verificación KYC</h2>
+      <p class="funnel-subtitle">Sube una foto de tu documento de identidad para validar tu posición.</p>
+      
+      <div class="kyc-upload-box" id="drop-zone-es">
+        <i data-lucide="upload-cloud" class="upload-icon"></i>
+        <p>Arrastra o haz clic para subir</p>
+        <span class="file-hint">JPG, PNG o PDF (Máx 5MB)</span>
+        <input type="file" id="kyc-file-es" class="hidden-input" accept="image/*,.pdf">
+      </div>
+      <div id="file-name-display-es" class="file-name-info hidden"></div>
+
+      <button onclick="processKYC()" id="btn-kyc-es" class="btn btn--primary btn--full mt-32">Subir y Continuar</button>
+      <button onclick="goToStep(2)" class="btn btn--text btn--full mt-16">Volver</button>
+    </div>
+
+    <!-- STEP 4: PAYMENT -->
+    <div id="step-4" class="funnel-card hidden">
+      <h2 class="funnel-title">Finalizar Reserva</h2>
+      <p class="funnel-subtitle">Confirma tu entrada en el grupo con el pago de la primera cuota.</p>
+      
+      <div class="order-summary">
+        <div class="summary-line">
+          <span>iPhone 17 Pro Max</span>
+          <strong id="summary-price-es">149,00€</strong>
+        </div>
+        <div class="summary-line">
+          <span>Tasa de Reserva</span>
+          <span class="text-teal">GRATIS</span>
+        </div>
+        <hr>
+        <div class="summary-line total">
+          <span>Total hoy</span>
+          <strong id="summary-total-es">149,00€</strong>
+        </div>
+      </div>
+
+      <div class="payment-methods mt-32">
+        <button onclick="payWithStripe()" class="payment-btn stripe-btn">
+          <i data-lucide="credit-card"></i> Tarjeta de Crédito (Vía Stripe)
+        </button>
+        <button onclick="payWithTransfer()" class="payment-btn bank-btn">
+          <i data-lucide="landmark"></i> Transferencia Internacional
+        </button>
+      </div>
+
+      <p class="secure-info mt-24">
+        <i data-lucide="lock" class="icon-xs"></i> Pagos procesados en ambiente encriptado 256-bit.
+      </p>
+    </div>
+  </main>
+
+  <script src="funnel-es.js" type="module"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

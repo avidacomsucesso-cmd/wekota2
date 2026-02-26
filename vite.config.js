@@ -9,7 +9,9 @@ export default defineConfig({
         admin: './admin.html',
         adminv2: './admin-v2.html',
         privacidade: './politica-privacidade.html',
-        termos: './termos-condicoes.html'
+        termos: './termos-condicoes.html',
+        home_es: './es.html',
+        funil_es: './funil-conversao-es.html'
       }
     }
   },
