@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reserva de Posición | WEKOTA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WEKOTA — Flujo de Conversión (Prototipo)</title>
   
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-S285WX7BLZ"></script>
@@ -11,158 +11,1552 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
+
     gtag('config', 'G-S285WX7BLZ');
   </script>
 
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0F2B3C;
+      --navy-deep: #091D2A;
+      --navy-mid: #0E2435;
+      --teal: #4ECBA5;
+      --teal-hover: #3DB893;
+      --teal-light: #6EDBB8;
+      --teal-glow: rgba(78, 203, 165, 0.10);
+      --teal-glow-strong: rgba(78, 203, 165, 0.18);
+      --teal-border: rgba(78, 203, 165, 0.25);
+      --slate: #8FA3B0;
+      --white: #FFFFFF;
+      --text: #C8D6DE;
+      --text-bright: #E8EFF3;
+      --red: #E74C3C;
+      --red-soft: rgba(231, 76, 60, 0.1);
+      --gold: #F4D03F;
+      --divider: rgba(255,255,255,0.06);
+      --card-bg: rgba(255,255,255,0.035);
+      --card-border: rgba(255,255,255,0.08);
+      --card-hover: rgba(255,255,255,0.06);
+      --input-bg: rgba(255,255,255,0.05);
+      --input-border: rgba(255,255,255,0.12);
+      --input-focus: rgba(78, 203, 165, 0.4);
+      --whatsapp: #25D366;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy-deep);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── PROTOTYPE BANNER ── */
+    .proto-banner {
+      background: linear-gradient(90deg, var(--teal), #3DB893);
+      color: var(--navy-deep);
+      text-align: center;
+      padding: 0.6rem 1rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    }
+
+    /* ── CONTAINER ── */
+    .funnel-wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 60px 20px 40px;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ── HEADER ── */
+    .funnel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 0 1.5rem;
+    }
+    .funnel-logo {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800; font-size: 1.2rem; color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .funnel-logo span { color: var(--teal); }
+    .funnel-close {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--slate);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .funnel-close:hover { background: var(--card-hover); color: var(--white); }
+
+    /* ── PROGRESS ── */
+    .progress-wrap {
+      margin-bottom: 2rem;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .progress-wrap.visible { opacity: 1; }
+    .progress-steps {
+      display: flex; gap: 6px; margin-bottom: 0.5rem;
+    }
+    .progress-dot {
+      flex: 1; height: 3px;
+      background: var(--divider);
+      border-radius: 3px;
+      transition: background 0.5s;
+    }
+    .progress-dot.active { background: var(--teal); }
+    .progress-dot.done { background: var(--teal); opacity: 0.5; }
+    .progress-label {
+      font-size: 0.72rem; color: var(--slate);
+      font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      display: none;
+      animation: screenIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+    .screen.active { display: block; }
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .screen-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.65rem; font-weight: 800;
+      color: var(--white); line-height: 1.2;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.6rem;
+    }
+    .screen-sub {
+      font-size: 0.95rem; color: var(--slate);
+      line-height: 1.6; margin-bottom: 1.75rem;
+    }
+    .screen-sub strong { color: var(--text-bright); font-weight: 600; }
+
+    /* ── SPLIT CTA (Step 0) ── */
+    .split-choices {
+      display: flex; flex-direction: column; gap: 12px;
+      margin-top: 1.5rem;
+    }
+    .split-btn {
+      position: relative;
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.35rem 1.5rem;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none; text-align: left;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .split-btn-primary {
+      background: linear-gradient(135deg, var(--teal), #3DB893);
+      color: var(--navy-deep);
+      box-shadow: 0 8px 32px rgba(78, 203, 165, 0.25);
+    }
+    .split-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(78, 203, 165, 0.35);
+    }
+    .split-btn-secondary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+    }
+    .split-btn-secondary:hover {
+      background: var(--card-hover);
+      border-color: var(--teal-border);
+    }
+    .split-icon {
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 14px;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .split-btn-primary .split-icon {
+      background: rgba(15, 43, 60, 0.15);
+    }
+    .split-btn-secondary .split-icon {
+      background: var(--teal-glow);
+    }
+    .split-text h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.05rem; font-weight: 700;
+      margin-bottom: 0.15rem;
+    }
+    .split-btn-primary .split-text h3 { color: var(--navy-deep); }
+    .split-btn-secondary .split-text h3 { color: var(--white); }
+    .split-text p {
+      font-size: 0.82rem; opacity: 0.8;
+      line-height: 1.4;
+    }
+    .split-badge {
+      position: absolute; top: -8px; right: 16px;
+      background: var(--navy-deep);
+      color: var(--teal);
+      font-size: 0.65rem; font-weight: 700;
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--teal-border);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--slate);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 0.45rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 12px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      transition: all 0.25s;
+      outline: none;
+    }
+    .form-input::placeholder { color: rgba(143, 163, 176, 0.5); }
+    .form-input:focus {
+      border-color: var(--teal);
+      background: rgba(78, 203, 165, 0.05);
+      box-shadow: 0 0 0 3px var(--input-focus);
+    }
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .form-select {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      border-radius: 12px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238FA3B0' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+    .form-select option { background: var(--navy); color: var(--white); }
+
+    /* ── PRODUCT CARDS ── */
+    .product-cards {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .product-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .product-card:hover { background: var(--card-hover); }
+    .product-card.selected {
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+    .product-card .pc-radio {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--input-border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s;
+    }
+    .product-card.selected .pc-radio {
+      border-color: var(--teal);
+      background: var(--teal);
+    }
+    .product-card.selected .pc-radio::after {
+      content: '✓'; color: var(--navy-deep);
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .pc-info h4 {
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--white); margin-bottom: 0.15rem;
+    }
+    .pc-info p {
+      font-size: 0.8rem; color: var(--slate);
+    }
+    .pc-info .pc-price {
+      color: var(--teal); font-weight: 700;
+    }
+    .pc-badge {
+      margin-left: auto;
+      background: var(--teal-glow);
+      border: 1px solid var(--teal-border);
+      color: var(--teal);
+      font-size: 0.65rem; font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    /* ── DURATION CARDS ── */
+    .duration-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .dur-card {
+      padding: 1.25rem;
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-align: center;
+      position: relative;
+    }
+    .dur-card:hover { background: var(--card-hover); }
+    .dur-card.selected {
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+    .dur-card .dur-months {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 2rem; font-weight: 800;
+      color: var(--white);
+    }
+    .dur-card .dur-label {
+      font-size: 0.78rem; color: var(--slate);
+      font-weight: 500; margin-bottom: 0.6rem;
+    }
+    .dur-card .dur-price {
+      font-size: 1rem; font-weight: 700;
+      color: var(--teal);
+    }
+    .dur-card .dur-price-label {
+      font-size: 0.72rem; color: var(--slate);
+    }
+    .dur-card .dur-upgrade {
+      margin-top: 0.6rem;
+      font-size: 0.68rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .dur-badge {
+      position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+      background: var(--teal);
+      color: var(--navy-deep);
+      font-size: 0.6rem; font-weight: 800;
+      padding: 0.2rem 0.7rem;
+      border-radius: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ── KYC UPLOAD ── */
+    .upload-zone {
+      border: 2px dashed var(--input-border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 1rem;
+    }
+    .upload-zone:hover {
+      border-color: var(--teal-border);
+      background: var(--teal-glow);
+    }
+    .upload-zone.uploaded {
+      border-color: var(--teal);
+      border-style: solid;
+      background: var(--teal-glow);
+    }
+    .upload-icon {
+      font-size: 2rem; margin-bottom: 0.5rem;
+    }
+    .upload-zone h4 {
+      font-size: 0.92rem; font-weight: 700;
+      color: var(--white); margin-bottom: 0.25rem;
+    }
+    .upload-zone p {
+      font-size: 0.8rem; color: var(--slate);
+    }
+
+    /* ── POSITION REVEAL ── */
+    .reveal-container {
+      text-align: center;
+      padding: 2rem 0;
+    }
+    .reveal-ring {
+      width: 160px; height: 160px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      border: 3px solid var(--teal-border);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      animation: ringPulse 2s ease-in-out infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(78,203,165,0.3); }
+      50% { box-shadow: 0 0 0 20px rgba(78,203,165,0); }
+    }
+    .reveal-number {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 4rem; font-weight: 800;
+      color: var(--teal);
+      animation: numberReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      animation-delay: 0.5s;
+      opacity: 0;
+    }
+    @keyframes numberReveal {
+      from { opacity: 0; transform: scale(0.3); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .reveal-label {
+      font-size: 0.82rem; color: var(--slate);
+      font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .reveal-meaning {
+      font-size: 1.1rem; color: var(--white);
+      font-weight: 600; margin-bottom: 0.3rem;
+    }
+    .reveal-detail {
+      font-size: 0.88rem; color: var(--slate);
+    }
+
+    /* ── CONTRACT SUMMARY ── */
+    .contract-summary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .cs-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--divider);
+    }
+    .cs-row:last-child { border-bottom: none; }
+    .cs-label { font-size: 0.85rem; color: var(--slate); }
+    .cs-value { font-size: 0.9rem; color: var(--white); font-weight: 600; }
+    .cs-value.highlight-val { color: var(--teal); font-size: 1.05rem; }
+
+    /* ── PAYMENT METHODS ── */
+    .pay-methods {
+      display: flex; flex-direction: column; gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .pay-method {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .pay-method:hover { background: var(--card-hover); }
+    .pay-method.selected {
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+    .pay-icon {
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--input-bg);
+      border-radius: 10px;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .pay-method.selected .pay-icon {
+      background: var(--teal-glow-strong);
+    }
+    .pay-info h4 {
+      font-size: 0.92rem; font-weight: 700; color: var(--white);
+    }
+    .pay-info p {
+      font-size: 0.75rem; color: var(--slate);
+    }
+    .pay-rec {
+      margin-left: auto;
+      font-size: 0.65rem; font-weight: 700;
+      color: var(--teal);
+      background: var(--teal-glow);
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── BANK DETAILS (TRANSFER) ── */
+    .bank-details-box {
+      display: none;
+      margin-top: 1rem;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--teal-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      animation: fadeIn 0.3s ease;
+      text-align: center;
+    }
+    .bank-details-box.active { display: block; }
+    
+    .btn-wa-transfer {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: #25D366;
+      color: white;
+      font-weight: 700;
+      padding: 1rem;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+      border: none;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .btn-wa-transfer:hover {
+      background: #22c35e;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, var(--teal), #3DB893);
+      color: var(--navy-deep);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      border: none; border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 6px 24px rgba(78, 203, 165, 0.2);
+      letter-spacing: -0.01em;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 36px rgba(78, 203, 165, 0.3);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      width: 100%;
+      padding: 0.85rem 1.5rem;
+      background: transparent;
+      color: var(--slate);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 600;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-top: 0.6rem;
+    }
+    .btn-secondary:hover { border-color: var(--teal-border); color: var(--teal); }
+
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      display: flex; gap: 1.25rem; justify-content: center;
+      margin: 2rem 0 1rem;
+      flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; color: var(--slate);
+      font-weight: 500;
+    }
+    .trust-icon { color: var(--teal); font-size: 0.85rem; }
+
+    /* ── WHATSAPP FLOAT ── */
+    .wa-float {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #25D366;
+      color: white;
+      padding: 1rem;
+      border-radius: 9999px;
+      box-shadow: 0 10px 25px -5px rgba(37, 211, 102, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+      border: none;
+      cursor: pointer;
+    }
+    .wa-float:hover {
+      background: #22c35e;
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 20px 25px -5px rgba(37, 211, 102, 0.4);
+    }
+    .wa-float .wa-text {
+      max-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: max-width 0.5s ease;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .wa-float:hover .wa-text {
+      max-width: 200px;
+    }
+    .wa-icon {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── DOUBT SCREEN ── */
+    .doubt-options {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: 1.5rem;
+    }
+    .doubt-btn {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.15rem 1.35rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+    }
+    .doubt-btn:hover {
+      background: var(--card-hover);
+      border-color: var(--teal-border);
+    }
+    .doubt-btn.wa {
+      background: rgba(37, 211, 102, 0.08);
+      border-color: rgba(37, 211, 102, 0.2);
+    }
+    .doubt-btn.wa:hover {
+      background: rgba(37, 211, 102, 0.14);
+    }
+    .doubt-icon {
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .doubt-btn.wa .doubt-icon { background: rgba(37,211,102,0.15); }
+    .doubt-btn .doubt-icon { background: var(--teal-glow); }
+    .doubt-text h4 { font-size: 0.95rem; font-weight: 700; color: var(--white); }
+    .doubt-text p { font-size: 0.8rem; color: var(--slate); }
+
+    /* ── FAQ QUICK ── */
+    .faq-quick {
+      margin-top: 2rem;
+    }
+    .faq-quick h3 {
+      font-size: 0.78rem; font-weight: 700;
+      color: var(--slate); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 0.8rem;
+    }
+    .faq-item {
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--divider);
+      cursor: pointer;
+    }
+    .faq-q {
+      font-size: 0.92rem; color: var(--white);
+      font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .faq-q span { color: var(--teal); transition: transform 0.3s; font-size: 1.1rem; }
+    .faq-item.open .faq-q span { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s;
+      font-size: 0.85rem; color: var(--slate);
+      line-height: 1.6;
+    }
+    .faq-item.open .faq-a {
+      max-height: 200px;
+      padding-top: 0.6rem;
+    }
+
+    /* ── SUCCESS ── */
+    .success-icon {
+      width: 80px; height: 80px;
+      margin: 0 auto 1.5rem;
+      background: var(--teal-glow-strong);
+      border: 2px solid var(--teal-border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      animation: successPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes successPop {
+      from { transform: scale(0); }
+      to { transform: scale(1); }
+    }
+    .success-confetti {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      animation: confetti 0.6s ease both;
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+    @keyframes confetti {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── INLINE NOTICE ── */
+    .inline-notice {
+      display: flex; align-items: flex-start; gap: 0.65rem;
+      padding: 0.85rem 1rem;
+      background: var(--teal-glow);
+      border: 1px solid var(--teal-border);
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-size: 0.82rem; color: var(--teal-light);
+    }
+    .inline-notice .n-icon { flex-shrink: 0; font-size: 1rem; }
+
+    /* ── CHECKBOX ── */
+    .check-row {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      margin: 1rem 0;
+      cursor: pointer;
+    }
+    .check-box {
+      width: 22px; height: 22px; flex-shrink: 0;
+      border: 2px solid var(--input-border);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      margin-top: 0.1rem;
+    }
+    .check-row.checked .check-box {
+      background: var(--teal); border-color: var(--teal);
+    }
+    .check-row.checked .check-box::after {
+      content: '✓'; color: var(--navy-deep);
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .check-text {
+      font-size: 0.85rem; color: var(--text); line-height: 1.5;
+    }
+    .check-text a { color: var(--teal); text-decoration: none; }
+
+    /* ── UTIL ── */
+    .mt-1 { margin-top: 1rem; }
+    .mt-2 { margin-top: 2rem; }
+    .text-center { text-align: center; }
+    .text-sm { font-size: 0.82rem; }
+    .text-xs { font-size: 0.72rem; }
+    .text-slate { color: var(--slate); }
+    .text-teal { color: var(--teal); }
+  </style>
 </head>
-<body class="bg-funnel">
+<body>
 
-  <header class="header-funnel">
-    <div class="container funnel-header-inner">
-      <a href="./es.html" class="logo-funnel">
-        <img src="images/logo-oficial.png" alt="WEKOTA Logo" class="logo__img-funnel">
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/34634773958" target="_blank" class="wa-float group">
+  <span class="wa-text">Hablar por WhatsApp</span>
+  <div class="wa-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.634 1.437h.005c6.558 0 11.894-5.335 11.897-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </div>
+</a>
+
+<div class="funnel-wrap">
+
+  <!-- Header -->
+  <div class="funnel-header">
+    <div class="funnel-logo">WEKO<span>TA</span></div>
+    <div class="funnel-close" onclick="goTo('split')">✕</div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-steps" id="progressSteps">
+      <div class="progress-dot" data-step="1"></div>
+      <div class="progress-dot" data-step="2"></div>
+      <div class="progress-dot" data-step="3"></div>
+      <div class="progress-dot" data-step="4"></div>
+      <div class="progress-dot" data-step="5"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">Paso 1 de 5</div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SCREEN 0: SPLIT — COMPRAR OU PERGUNTAR -->
+  <!-- ============================================ -->
+  <div class="screen active" id="screen-split">
+    <div class="screen-title">¿Listo para asegurar tu iPhone 17 Pro Max?</div>
+    <div class="screen-sub">Únete a un grupo, paga cuotas fijas, recibe tu producto. <strong>Sin banco, sin intereses, sin sorpresas.</strong></div>
+
+    <div class="split-choices">
+      <button class="split-btn split-btn-primary" onclick="goTo('step1')">
+        <span class="split-badge">🔥 4 posiciones restantes</span>
+        <div class="split-icon">🚀</div>
+        <div class="split-text">
+          <h3>Quiero asegurar el mío</h3>
+          <p>Inscripción rápida en 3 minutos. Sin compromiso hasta confirmar.</p>
+        </div>
+      </button>
+
+      <button class="split-btn split-btn-secondary" onclick="goTo('doubt')">
+        <div class="split-icon">💬</div>
+        <div class="split-text">
+          <h3>Tengo dudas primero</h3>
+          <p>Habla con nuestro equipo o ve las preguntas frecuentes.</p>
+        </div>
+      </button>
+    </div>
+
+    <div class="trust-bar">
+      <div class="trust-item"><span class="trust-icon">🔒</span> Pagos seguros (EMI UE)</div>
+      <div class="trust-item"><span class="trust-icon">🇪🇺</span> Empresa europea</div>
+      <div class="trust-item"><span class="trust-icon">✓</span> 14 días para desistir</div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SCREEN DOUBT: DÚVIDAS -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-doubt">
+    <div class="screen-title">Sin presión. Estamos aquí para ayudar.</div>
+    <div class="screen-sub">Elige el canal que prefieras. Respondemos en minutos, no en días.</div>
+
+    <div class="doubt-options">
+      <a class="doubt-btn wa" href="https://wa.me/34634773958" target="_blank">
+        <div class="doubt-icon">💬</div>
+        <div class="doubt-text">
+          <h4>WhatsApp</h4>
+          <p>Respuesta en menos de 15 minutos · Lun-Vie 9h-20h</p>
+        </div>
       </a>
-      <div class="header-right-funnel">
-        <div class="lang-selector">
-           <a href="funil-conversao.html" title="Português"><img src="https://flagcdn.com/w20/pt.png" width="20" alt="PT"></a>
-           <a href="funil-conversao-es.html" class="active" title="Español"><img src="https://flagcdn.com/w20/es.png" width="20" alt="ES"></a>
+      <a class="doubt-btn" href="#">
+        <div class="doubt-icon">📧</div>
+        <div class="doubt-text">
+          <h4>Email</h4>
+          <p>contato@wekota.eu · Respuesta en hasta 24 horas</p>
         </div>
-        <div class="secure-badge">
-          <i data-lucide="shield-check" class="icon-sm"></i>
-          <span>Ambiente Seguro</span>
+      </a>
+      <a class="doubt-btn" href="#">
+        <div class="doubt-icon">📄</div>
+        <div class="doubt-text">
+          <h4>Condiciones del Programa</h4>
+          <p>Todo sobre cómo funciona, precio y derechos</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="faq-quick">
+      <h3>Preguntas rápidas</h3>
+
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">¿Necesito NIF o cuenta bancaria portuguesa? <span>+</span></div>
+        <div class="faq-a">No. Basta tener pasaporte válido y residir en Portugal o España. Aceptamos transferencia internacional, tarjeta, MB Way, Bizum y débito directo SEPA.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">¿Es seguro? ¿Y si alguien no paga? <span>+</span></div>
+        <div class="faq-a">Los pagos son custodiados por una Institución de Moneda Electrónica licenciada en la UE — tu dinero nunca pasa por WEKOTA. Tenemos un Fondo de Reserva que cubre retrasos de otros miembros sin afectar tu entrega.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">¿Cuándo recibo mi producto? <span>+</span></div>
+        <div class="faq-a">En el mes correspondiente a tu posición en el grupo. WEKOTA te asigna una posición y te informa antes de pagar — si no estás de acuerdo, puedes rechazar sin costo.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">¿Puedo desistir después de unirme? <span>+</span></div>
+        <div class="faq-a">Sí. Tienes 14 días para desistir sin motivo y sin costo, garantizado por la ley europea. Después de ese plazo, puedes salir del grupo con reembolso proporcional.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">¿Cuál es el costo total? <span>+</span></div>
+        <div class="faq-a">El precio del producto + 25% de tasa de servicio, divididos en cuotas fijas. Cero sorpresas. Ves el valor exacto de la cuota antes de firmar.</div>
+      </div>
+    </div>
+
+    <button class="btn-primary mt-2" onclick="goTo('split')">← Volver y unirse ahora</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 1: DADOS BÁSICOS -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step1">
+    <div class="screen-title">Vamos a empezar 👋</div>
+    <div class="screen-sub">Solo necesitamos lo esencial. <strong>Tarda menos de 1 minuto.</strong></div>
+
+    <div class="form-group">
+      <label class="form-label">Nombre completo</label>
+      <input class="form-input" type="text" placeholder="Como está en tu pasaporte" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" placeholder="tu@email.com" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Móvil</label>
+        <input class="form-input" type="tel" placeholder="+34 600 000 000" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">País de residencia</label>
+        <select class="form-select">
+          <option value="">Seleccionar</option>
+          <option value="pt">🇵🇹 Portugal</option>
+          <option value="es">🇪🇸 España</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="inline-notice">
+      <span class="n-icon">🔒</span>
+      <span>Tus datos están protegidos por el RGPD. Nunca compartimos información con terceros para marketing.</span>
+    </div>
+
+    <button class="btn-primary" id="btn-step1">Continuar</button>
+    <button class="btn-secondary" onclick="goTo('split')">← Volver</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 2: PRODUTO + DURAÇÃO -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step2">
+    <div class="screen-title">¿Qué quieres adquirir?</div>
+    <div class="screen-sub">Elige el producto y la duración del grupo.</div>
+
+    <label class="form-label">Producto</label>
+    <div class="product-cards">
+      <div class="product-card selected">
+        <div class="pc-radio"></div>
+        <div class="pc-info">
+          <h4>iPhone 17 Pro Max 256GB</h4>
+          <p>Color Naranja — <span class="pc-price">Desde €75/mes</span></p>
+        </div>
+        <div class="pc-badge">Popular</div>
+      </div>
+    </div>
+
+    <label class="form-label">Duración del grupo</label>
+    <div class="duration-cards">
+      <div class="dur-card" onclick="selectDur(this)">
+        <div class="dur-months">12</div>
+        <div class="dur-label">meses</div>
+        <div class="dur-price">€149/mes</div>
+        <div class="dur-price-label">Recibe más rápido</div>
+      </div>
+      <div class="dur-card selected" onclick="selectDur(this)">
+        <div class="dur-badge">Más elegido</div>
+        <div class="dur-months">24</div>
+        <div class="dur-label">meses</div>
+        <div class="dur-price">€75/mes</div>
+        <div class="dur-price-label">Cuota más baja</div>
+        <div class="dur-upgrade">⭐ Recibe siempre el modelo más reciente</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-step2">Continuar</button>
+    <button class="btn-secondary" onclick="goTo('step1')">← Volver</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 3: KYC — VERIFICAÇÃO DE IDENTIDADE -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step3">
+    <div class="screen-title">Verificación de identidad</div>
+    <div class="screen-sub">Para seguridad de todos los miembros del grupo. <strong>Rápido y confidencial.</strong></div>
+
+    <input type="file" id="passport-upload" class="hidden" accept="image/*,.pdf" onchange="handleFileSelect(this, 'passport')">
+    <div class="upload-zone" onclick="document.getElementById('passport-upload').click()">
+      <div class="upload-icon" id="passport-icon">🛂</div>
+      <h4 id="passport-title">Fotografía del pasaporte</h4>
+      <p id="passport-status">Página con la foto. Aceptado: JPG, PNG o PDF.</p>
+    </div>
+
+    <input type="file" id="selfie-upload" class="hidden" accept="image/*" onchange="handleFileSelect(this, 'selfie')">
+    <div class="upload-zone" onclick="document.getElementById('selfie-upload').click()">
+      <div class="upload-icon" id="selfie-icon">🤳</div>
+      <h4 id="selfie-title">Selfie de verificación</h4>
+      <p id="selfie-status">Tómate una selfie sosteniendo el pasaporte.</p>
+    </div>
+
+    <div class="inline-notice">
+      <span class="n-icon">🔒</span>
+      <span>Los documentos se almacenan de forma encriptada para verificación interna y nunca se comparten.</span>
+    </div>
+
+    <button class="btn-primary" id="btn-step3">Verificar y continuar</button>
+    <button class="btn-secondary" onclick="goTo('step2')">← Volver</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 4: POSIÇÃO REVELADA + CONTRATO -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step4">
+    <div class="screen-title text-center">Tu posición en el grupo</div>
+
+    <div class="reveal-container">
+      <div class="reveal-label">Posición asignada</div>
+      <div class="reveal-ring">
+        <div class="reveal-number" id="revealNum">7</div>
+      </div>
+      <div class="reveal-meaning">Recibes tu iPhone en el mes 7</div>
+      <div class="reveal-detail">Grupo de 24 meses · iPhone 17 Pro Max 256GB</div>
+    </div>
+
+    <div class="contract-summary">
+      <div class="cs-row">
+        <span class="cs-label">Producto</span>
+        <span class="cs-value">iPhone 17 Pro Max 256GB</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Grupo</span>
+        <span class="cs-value">24 meses · 24 miembros</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Tu posición</span>
+        <span class="cs-value highlight-val">Posición 7 (mes 7)</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Cuota mensual</span>
+        <span class="cs-value highlight-val" id="summary-price">€75,00/mes</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Total</span>
+        <span class="cs-value" id="summary-total">€1.800,00</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Incluye tasa de servicio</span>
+        <span class="cs-value">25%</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Garantía del producto</span>
+        <span class="cs-value">Modelo más reciente en la entrega ⭐</span>
+      </div>
+    </div>
+
+    <div class="check-row" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">He leído y acepto los <a href="/condicoes">Términos y Condiciones Generales</a> y la <a href="/privacidade">Política de Privacidad</a>.</div>
+    </div>
+
+    <div class="check-row" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <div class="check-text">Comprendo que la propiedad del producto se transfiere a mí después del pago de la última cuota.</div>
+    </div>
+
+    <button class="btn-primary mt-1" onclick="goTo('step5')">Aceptar posición y continuar</button>
+    <button class="btn-secondary" onclick="goTo('split')">Rechazar posición</button>
+    <p class="text-xs text-slate text-center mt-1">Si rechazas, puedes volver más tarde sin compromiso.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STEP 5: PAGAMENTO -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-step5">
+    <div class="screen-title">Configura el pago</div>
+    <div class="screen-sub">Elige cómo quieres pagar las cuotas mensuales. <strong>La primera cuota se cobra cuando el grupo inicie.</strong></div>
+
+    <label class="form-label">Método de pago</label>
+    <div class="pay-methods">
+      <div class="pay-method selected" onclick="selectPay(this, 'card')">
+        <div class="pay-icon">💳</div>
+        <div class="pay-info">
+          <h4>Tarjeta de débito/crédito</h4>
+          <p>Visa o Mastercard. Cobro automático mensual.</p>
+        </div>
+        <span class="pay-rec">Recomendado</span>
+      </div>
+      <div class="pay-method" onclick="selectPay(this, 'transfer')">
+        <div class="pay-icon">🌍</div>
+        <div class="pay-info">
+          <h4>Transferencia internacional</h4>
+          <p>Wise, Revolut o transferencia SEPA manual.</p>
         </div>
       </div>
     </div>
-  </header>
 
-  <main class="funnel-container">
-    <div class="stepper">
-      <div class="step active" id="step-1-indicator"><span>1</span><label>Plan</label></div>
-      <div class="step" id="step-2-indicator"><span>2</span><label>Datos</label></div>
-      <div class="step" id="step-3-indicator"><span>3</span><label>KYC</label></div>
-      <div class="step" id="step-4-indicator"><span>4</span><label>Pago</label></div>
-    </div>
-
-    <!-- STEP 1: PLAN SELECTION -->
-    <div id="step-1" class="funnel-card">
-      <h2 class="funnel-title">Elige tu plan</h2>
-      <p class="funnel-subtitle">Define el tiempo de tu grupo y el valor de las cuotas.</p>
+    <!-- Bank Details for Transfer -->
+    <div id="bankDetails" class="bank-details-box">
+      <p class="text-sm text-slate mb-4">Para garantizar la seguridad de la transacción, los datos bancarios son proporcionados directamente por nuestro equipo de soporte.</p>
       
-      <div class="plans-grid-funnel">
-        <label class="plan-option">
-          <input type="radio" name="plan" value="12" checked>
-          <div class="plan-inner">
-            <div class="plan-info">
-              <span class="plan-duration">12 meses</span>
-              <span class="plan-price">149,00€/mes</span>
-            </div>
-            <i data-lucide="check-circle-2" class="check-icon"></i>
-          </div>
-        </label>
-        <label class="plan-option">
-          <input type="radio" name="plan" value="24">
-          <div class="plan-inner">
-            <div class="plan-info">
-              <span class="plan-duration">24 meses</span>
-              <span class="plan-price">75,00€/mes</span>
-            </div>
-            <i data-lucide="check-circle-2" class="check-icon"></i>
-          </div>
-        </label>
-      </div>
-
-      <div class="current-position-alert mt-32">
-        <i data-lucide="info" class="text-navy"></i>
-        <span>Tu posición estimada en el grupo será: <strong id="dynamic-pos-es">--</strong></span>
-      </div>
-
-      <button onclick="goToStep(2)" class="btn btn--primary btn--full mt-32">Continuar <i data-lucide="arrow-right"></i></button>
+      <a href="https://wa.me/34634773958?text=Hola%2C%20quisiera%20solicitar%20los%20datos%20bancarios%20para%20finalizar%20mi%20adhesi%C3%B3n%20WEKOTA." target="_blank" class="btn-wa-transfer">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.634 1.437h.005c6.558 0 11.894-5.335 11.897-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Solicite los datos bancarios del país correspondiente
+      </a>
     </div>
 
-    <!-- STEP 2: PERSONAL DATA -->
-    <div id="step-2" class="funnel-card hidden">
-      <h2 class="funnel-title">Tus Datos</h2>
-      <p class="funnel-subtitle">Información necesaria para el contrato europeo.</p>
-      
-      <form id="lead-form-es" class="funnel-form">
-        <div class="form-group">
-          <label>Nombre Completo</label>
-          <input type="text" id="fullname" placeholder="Como consta en el documento" required>
-        </div>
-        <div class="form-group">
-          <label>E-mail</label>
-          <input type="email" id="email" placeholder="principal@email.com" required>
-        </div>
-        <div class="form-group">
-          <label>WhatsApp</label>
-          <input type="tel" id="whatsapp" placeholder="+34 ..." required>
-        </div>
-        <div class="form-group">
-          <label>NIF / NIE / Documento de Identidad</label>
-          <input type="text" id="nif" placeholder="Documento válido en Europa" required>
-        </div>
-        <button type="submit" class="btn btn--primary btn--full mt-16">Validar Datos <i data-lucide="arrow-right"></i></button>
-      </form>
-      <button onclick="goToStep(1)" class="btn btn--text btn--full mt-16">Volver</button>
+    <div class="inline-notice">
+      <span class="n-icon">🔒</span>
+      <span>Los pagos vía tarjeta son procesados de forma segura por Stripe. Para transferencias, tu plaza está garantizada después de la validación con el equipo.</span>
     </div>
 
-    <!-- STEP 3: KYC -->
-    <div id="step-3" class="funnel-card hidden">
-      <h2 class="funnel-title">Verificación KYC</h2>
-      <p class="funnel-subtitle">Sube una foto de tu documento de identidad para validar tu posición.</p>
-      
-      <div class="kyc-upload-box" id="drop-zone-es">
-        <i data-lucide="upload-cloud" class="upload-icon"></i>
-        <p>Arrastra o haz clic para subir</p>
-        <span class="file-hint">JPG, PNG o PDF (Máx 5MB)</span>
-        <input type="file" id="kyc-file-es" class="hidden-input" accept="image/*,.pdf">
-      </div>
-      <div id="file-name-display-es" class="file-name-info hidden"></div>
+    <button class="btn-primary" id="btn-final-pay">Confirmar adhesión</button>
+    <button class="btn-secondary" onclick="goTo('step4')">← Volver</button>
+  </div>
 
-      <button onclick="processKYC()" id="btn-kyc-es" class="btn btn--primary btn--full mt-32">Subir y Continuar</button>
-      <button onclick="goToStep(2)" class="btn btn--text btn--full mt-16">Volver</button>
+  <!-- ============================================ -->
+  <!-- SUCCESS -->
+  <!-- ============================================ -->
+  <div class="screen" id="screen-success">
+    <div class="success-confetti">🎉</div>
+    <div class="success-icon">✓</div>
+    <div class="screen-title text-center">¡Bienvenido al grupo!</div>
+    <div class="screen-sub text-center">Tu inscripción está confirmada. Ahora solo espera a que el grupo se complete para que el ciclo comience.</div>
+
+    <div class="contract-summary">
+      <div class="cs-row">
+        <span class="cs-label">Producto</span>
+        <span class="cs-value">iPhone 17 Pro Max 256GB</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Tu posición</span>
+        <span class="cs-value highlight-val">Posición 7 de 24</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Prestación</span>
+        <span class="cs-value highlight-val">€75,00/mes</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Estado del grupo</span>
+        <span class="cs-value">18 de 24 posiciones completadas</span>
+      </div>
+      <div class="cs-row">
+        <span class="cs-label">Próximo paso</span>
+        <span class="cs-value">Notificamos cuando el grupo inicie</span>
+      </div>
     </div>
 
-    <!-- STEP 4: PAYMENT -->
-    <div id="step-4" class="funnel-card hidden">
-      <h2 class="funnel-title">Finalizar Reserva</h2>
-      <p class="funnel-subtitle">Confirma tu entrada en el grupo con el pago de la primera cuota.</p>
-      
-      <div class="order-summary">
-        <div class="summary-line">
-          <span>iPhone 17 Pro Max</span>
-          <strong id="summary-price-es">149,00€</strong>
-        </div>
-        <div class="summary-line">
-          <span>Tasa de Reserva</span>
-          <span class="text-teal">GRATIS</span>
-        </div>
-        <hr>
-        <div class="summary-line total">
-          <span>Total hoy</span>
-          <strong id="summary-total-es">149,00€</strong>
-        </div>
-      </div>
-
-      <div class="payment-methods mt-32">
-        <button onclick="payWithStripe()" class="payment-btn stripe-btn">
-          <i data-lucide="credit-card"></i> Tarjeta de Crédito (Vía Stripe)
-        </button>
-        <button onclick="payWithTransfer()" class="payment-btn bank-btn">
-          <i data-lucide="landmark"></i> Transferencia Internacional
-        </button>
-      </div>
-
-      <p class="secure-info mt-24">
-        <i data-lucide="lock" class="icon-xs"></i> Pagos procesados en ambiente encriptado 256-bit.
-      </p>
+    <div class="inline-notice">
+      <span class="n-icon">📧</span>
+      <span>Enviamos el contrato firmado y el resumen de la adhesión a tu correo electrónico. Guárdalo para referencia.</span>
     </div>
-  </main>
 
-  <script src="funnel-es.js" type="module"></script>
-  <script>lucide.createIcons();</script>
+    <button class="btn-primary" onclick="goTo('split')">← Volver al inicio</button>
+
+    <div class="trust-bar">
+      <div class="trust-item"><span class="trust-icon">📱</span> Sigue por WhatsApp</div>
+      <div class="trust-item"><span class="trust-icon">📧</span> Notificaciones por correo</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Fallback global functions to ensure UI works even if module fails
+  window.goTo = function(screenId) {
+    console.log('Global goTo called:', screenId);
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+    });
+    const target = document.getElementById('screen-' + screenId);
+    if(target) {
+        target.style.display = 'block';
+        target.classList.add('active');
+        window.scrollTo(0,0);
+    }
+  };
+  window.selectDur = function(el) {
+    document.querySelectorAll('.dur-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  };
+  window.selectPay = function(el, type) {
+    document.querySelectorAll('.pay-method').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    
+    const bankDetails = document.getElementById('bankDetails');
+    if (type === 'transfer') {
+      bankDetails.classList.add('active');
+    } else {
+      bankDetails.classList.remove('active');
+    }
+  };
+  window.copyText = function(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const originalText = btn.textContent;
+      btn.textContent = '¡Copiado!';
+      btn.style.background = 'var(--teal)';
+      btn.style.color = 'var(--navy-deep)';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = 'var(--teal-glow)';
+        btn.style.color = 'var(--teal)';
+      }, 2000);
+    });
+  };
+
+  // Logic for file upload handling
+  window.filesToUpload = {};
+  window.handleFileSelect = function(input, type) {
+    if (input.files && input.files[0]) {
+      window.filesToUpload[type] = input.files[0];
+      const zone = input.nextElementSibling;
+      if (zone && zone.classList.contains('upload-zone')) {
+        zone.classList.add('uploaded');
+        const h4 = zone.querySelector('h4');
+        const p = zone.querySelector('p');
+        if (h4) h4.textContent = '✓ Documento cargado';
+        if (p) p.textContent = 'Toque para reemplazar';
+      }
+    }
+  };
+
+  window.simulateUpload = function(el) {
+    el.classList.toggle('uploaded');
+    if (el.classList.contains('uploaded')) {
+      el.querySelector('h4').textContent = '✓ Documento cargado';
+      el.querySelector('p').textContent = 'Toque para reemplazar';
+    }
+  };
+  window.toggleCheck = function(el) {
+    el.classList.toggle('checked');
+  };
+  window.toggleFaq = function(el) {
+    el.classList.toggle('open');
+  };
+</script>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+  import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
+
+  const supabaseUrl = 'https://eczsqgtewtpcscsyvljy.supabase.co';
+  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjUxNTAsImV4cCI6MjA1NjA4MTI1MH0.HTXvOSk4Gjbg85YPfmWB59wKD943-wyjFd-iWeF9BUk'; 
+  
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+  let currentLeadId = null
+  let selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap'; 
+  let assignedPosition = 0; // Nova variável para armazenar a posição vinda do admin
+
+  // Nova Função: Obter Posição do Admin
+  async function fetchAssignedPosition(months) {
+    try {
+        const { data } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single();
+        if (data) {
+            return months === '12' ? data.next_position_12_months : data.next_position_24_months;
+        }
+    } catch (e) { console.error('Erro ao buscar posição:', e); }
+    return months === '12' ? 7 : 15; // Fallback
+  }
+
+  const forceNavigate = (screenId) => {
+    console.log('Module forceNavigate:', screenId);
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+    });
+    
+    const target = document.getElementById('screen-' + screenId);
+    if (target) {
+        target.style.display = 'block';
+        target.classList.add('active');
+        target.style.animation = 'none';
+        target.offsetHeight; 
+        target.style.animation = 'screenIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both';
+    }
+    
+    const pw = document.getElementById('progressWrap');
+    if (screenId.startsWith('step')) {
+        pw.classList.add('visible');
+        const stepNum = parseInt(screenId.replace('step', ''));
+        document.querySelectorAll('.progress-dot').forEach(d => {
+            const s = parseInt(d.dataset.step);
+            d.className = 'progress-dot';
+            if (s < stepNum) d.classList.add('done');
+            if (s === stepNum) d.classList.add('active');
+        });
+        const labels = {
+            1: 'Datos personales',
+            2: 'Producto y duración',
+            3: 'Verificación de identidad',
+            4: 'Posición y contrato',
+            5: 'Pago'
+        };
+        const labelEl = document.getElementById('progressLabel');
+        if(labelEl) labelEl.textContent = `Paso ${stepNum} de 5 — ${labels[stepNum]}`;
+    } else {
+        if(pw) pw.classList.remove('visible');
+    }
+    window.scrollTo(0, 0);
+  };
+
+  window.goTo = forceNavigate;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initial setup if needed
+    
+    const btnStep1 = document.getElementById('btn-step1');
+    if (btnStep1) {
+      btnStep1.onclick = async (e) => {
+        e.preventDefault();
+        console.log('Step 1 Logic');
+        
+        const nameInput = document.querySelector('#screen-step1 input[type="text"]');
+        const emailInput = document.querySelector('#screen-step1 input[type="email"]');
+        
+        if (!nameInput || !emailInput) {
+            forceNavigate('step2');
+            return;
+        }
+
+        const name = nameInput.value;
+        const email = emailInput.value;
+        const phone = document.querySelector('#screen-step1 input[type="tel"]')?.value || '';
+        const country = document.querySelector('#screen-step1 select')?.value || '';
+
+        if (!name || !email) {
+          alert('Por favor, completa Nombre y Email.');
+          return;
+        }
+
+        btnStep1.textContent = 'Guardando...';
+        
+        if (supabase) {
+            try {
+              const { data, error } = await supabase
+                .from('leads')
+                .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
+                .select()
+              if (data && data.length > 0) currentLeadId = data[0].id;
+            } catch (error) {
+              console.error('Erro Supabase:', error);
+            }
+        }
+        
+        btnStep1.textContent = 'Continuar';
+        forceNavigate('step2');
+      };
+    }
+
+    const btnStep2 = document.getElementById('btn-step2');
+    if (btnStep2) {
+      btnStep2.onclick = async (e) => {
+        e.preventDefault();
+        const durEl = document.querySelector('.dur-card.selected .dur-months');
+        const durationText = durEl ? durEl.textContent.trim() : '24';
+        
+        // 1. Buscar a posição configurada no ADMIN antes de avançar
+        assignedPosition = await fetchAssignedPosition(durationText);
+
+        const summaryPrice = document.getElementById('summary-price');
+        const summaryTotal = document.getElementById('summary-total');
+        
+        if (durationText === '12') {
+            if(summaryPrice) summaryPrice.textContent = '€149,00/mes';
+            if(summaryTotal) summaryTotal.textContent = '€1.788,00';
+            selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5';
+        } else {
+            selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap';
+            if(summaryPrice) summaryPrice.textContent = '€75,00/mes';
+            if(summaryTotal) summaryTotal.textContent = '€1.800,00';
+        }
+
+        if (supabase && currentLeadId) {
+            try {
+                await supabase.from('leads').update({ 
+                    plan: `iPhone 17 Pro Max - ${durationText} meses`, 
+                    status: 'selected_plan',
+                    assigned_position: assignedPosition // SALVA A POSIÇÃO NO LEAD
+                }).eq('id', currentLeadId);
+            } catch (e) {}
+        }
+        forceNavigate('step3');
+      };
+    }
+
+    const btnStep3 = document.getElementById('btn-step3');
+    if (btnStep3) {
+      btnStep3.onclick = async (e) => {
+        e.preventDefault();
+        
+        if (!window.filesToUpload.passport || !window.filesToUpload.selfie) {
+          alert('Por favor, anexa ambos documentos (Pasaporte y Selfie) para continuar.');
+          return;
+        }
+
+        btnStep3.textContent = 'Enviando documentos...';
+        btnStep3.disabled = true;
+
+        try {
+          if (!supabase) throw new Error('Supabase no disponible.');
+          if (!currentLeadId) throw new Error('Lead ID no encontrado. Vuelve al inicio.');
+
+          // 1. Upload Passport
+          const passportPath = `${currentLeadId}/passport_${Date.now()}_${window.filesToUpload.passport.name}`;
+          const { error: pError } = await supabase.storage
+            .from('kyc-documents')
+            .upload(passportPath, window.filesToUpload.passport);
+          if (pError) throw pError;
+
+          // 2. Upload Selfie
+          const selfiePath = `${currentLeadId}/selfie_${Date.now()}_${window.filesToUpload.selfie.name}`;
+          const { error: sError } = await supabase.storage
+            .from('kyc-documents')
+            .upload(selfiePath, window.filesToUpload.selfie);
+          if (sError) throw sError;
+
+          // 3. Update Lead Status and paths
+          await supabase.from('leads').update({ 
+            status: 'kyc_submitted',
+            passport_url: passportPath,
+            selfie_url: selfiePath
+          }).eq('id', currentLeadId);
+
+          // 4. Send email notification via Edge Function (Optional but recommended)
+          await supabase.functions.invoke('send-kyc-notification', {
+            body: { 
+              lead_id: currentLeadId,
+              email: 'wekotavip@gmail.com',
+              passport_path: passportPath,
+              selfie_path: selfiePath
+            }
+          });
+
+          forceNavigate('step4');
+        } catch (err) {
+          console.error('Erro no KYC:', err);
+          alert('Error al enviar documentos: ' + err.message + '. Asegúrese de que el Bucket "kyc-documents" existe en su Supabase.');
+          btnStep3.textContent = 'Verificar y continuar';
+          btnStep3.disabled = false;
+        }
+      };
+    }
+
+    const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+    if (btnStep5) {
+        btnStep5.onclick = async () => {
+            const selectedMethodEl = document.querySelector('.pay-method.selected h4');
+            const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
+            
+            if (selectedMethodText.includes('Tarjeta')) {
+                btnStep5.textContent = 'Redireccionando...';
+                btnStep5.disabled = true;
+                
+                try {
+                    if (!supabase) throw new Error('Supabase no disponible.');
+                    
+                    console.log('Invocando checkout seguro via SDK oficial...');
+                    
+                    // Usando o SDK oficial que lida melhor com o JWT
+                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
+                        body: { 
+                            action: 'create-checkout-session',
+                            lead_id: currentLeadId,
+                            price_id: selectedPlanPriceId,
+                            success_url: window.location.origin + '/funil-conversao-es.html?status=success',
+                            cancel_url: window.location.origin + '/funil-conversao-es.html?status=cancel'
+                        }
+                    });
+
+                    if (error) {
+                        // Tentar extrair a mensagem de erro real do corpo da resposta
+                        const details = error.context ? await error.context.json().catch(() => ({})) : {};
+                        throw new Error(details.error || error.message || 'Error en Edge Function');
+                    }
+
+                    if (data?.url) {
+                        window.location.href = data.url;
+                    } else {
+                        throw new Error('Stripe no devolvió un enlace de pago.');
+                    }
+
+                } catch (err) {
+                    console.error('ERRO JWT/CHECKOUT:', err);
+                    alert('Error al procesar pago: ' + (err.message || 'Falla en la autenticación JWT. Verifique si la Anon Key es correcta.'));
+                    btnStep5.textContent = 'Confirmar adhesión';
+                    btnStep5.disabled = false;
+                }
+            } else {
+                // Para Transferência, vai direto para o sucesso
+                forceNavigate('success');
+            }
+        };
+    }
+
+    const btnFinalPay = document.getElementById('btn-final-pay');
+    if (btnFinalPay) {
+        btnFinalPay.onclick = async () => {
+            const selectedMethodEl = document.querySelector('.pay-method.selected h4');
+            const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
+            
+            if (selectedMethodText.includes('Tarjeta')) {
+                btnFinalPay.textContent = 'Redireccionando...';
+                btnFinalPay.disabled = true;
+                
+                try {
+                    if (!supabase) throw new Error('Supabase no disponible.');
+                    
+                    const payload = {
+                        action: 'create-checkout-session',
+                        lead_id: currentLeadId,
+                        price_id: selectedPlanPriceId,
+                        success_url: window.location.origin + '/funil-conversao-es.html?status=success',
+                        cancel_url: window.location.origin + '/funil-conversao-es.html?status=cancel'
+                    };
+
+                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
+                        body: payload
+                    });
+
+                    if (error) throw error;
+                    if (data?.url) {
+                        window.location.href = data.url;
+                    } else {
+                        throw new Error('Función no devolvió URL.');
+                    }
+                } catch (err) {
+                    alert('Error en checkout: ' + err.message);
+                    btnFinalPay.textContent = 'Confirmar adhesión';
+                    btnFinalPay.disabled = false;
+                }
+            } else {
+                // Para Transferência, finaliza direto
+                forceNavigate('success');
+            }
+        };
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('status') === 'success') forceNavigate('success');
+  });
+</script>
+
 </body>
 </html>
