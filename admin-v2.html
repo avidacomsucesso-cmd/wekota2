@@ -6,247 +6,394 @@
     <title>WEKOTA | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #E2E8F0; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .glass-panel { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.05); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0F172A; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: all 0.2s; }
+        .modal-exit { opacity: 1; transform: scale(1); }
+        .modal-exit-active { opacity: 0; transform: scale(0.95); transition: all 0.2s; }
     </style>
 </head>
 <body>
-    <div id="app" class="min-h-screen">
+    <div id="app" class="min-h-screen relative">
         <!-- Login Screen -->
-        <div id="login-screen" class="flex items-center justify-center min-h-screen">
-            <div class="glass p-8 rounded-2xl w-full max-w-md">
-                <h1 class="text-2xl font-bold mb-6 text-center">Admin Access</h1>
+        <div id="login-screen" class="flex items-center justify-center min-h-screen bg-[url('images/lineup.png')] bg-cover bg-center">
+            <div class="absolute inset-0 bg-slate-900/90"></div>
+            <div class="glass p-8 rounded-2xl w-full max-w-md relative z-10 shadow-2xl">
+                <div class="text-center mb-8">
+                    <img src="images/logo-oficial.png" alt="WEKOTA" class="h-16 mx-auto mb-4 brightness-0 invert">
+                    <h1 class="text-2xl font-bold text-teal-400">Admin Access</h1>
+                </div>
                 <form id="login-form" class="space-y-4">
-                    <input type="email" id="email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-teal-500">
-                    <input type="password" id="password" placeholder="Password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 outline-none focus:border-teal-500">
-                    <button type="submit" class="w-full bg-teal-500 text-slate-900 font-bold p-3 rounded-lg hover:bg-teal-400 transition-all">Entrar</button>
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1 block">Email</label>
+                        <input type="email" id="email" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 outline-none focus:border-teal-500 text-white transition-colors" placeholder="admin@wekota.eu">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1 block">Password</label>
+                        <input type="password" id="password" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 outline-none focus:border-teal-500 text-white transition-colors" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="w-full bg-teal-500 text-slate-900 font-bold p-3 rounded-lg hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20 mt-4">ENTRAR NO SISTEMA</button>
                 </form>
             </div>
         </div>
 
         <!-- Dashboard Content -->
-        <div id="admin-content" class="hidden">
-            <nav class="glass border-b border-white/10 p-4 sticky top-0 z-50">
-                <div class="container mx-auto flex justify-between items-center">
-                    <div class="text-xl font-bold tracking-tight text-teal-400">WEKOTA <span class="text-white">ADMIN</span></div>
-                    <button id="logout-btn" class="text-slate-400 hover:text-white text-sm">Sair</button>
+        <div id="admin-content" class="hidden pb-20">
+            <!-- Navbar -->
+            <nav class="glass border-b border-white/10 sticky top-0 z-40">
+                <div class="container mx-auto px-6 h-16 flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <img src="images/logo-oficial.png" alt="WEKOTA" class="h-8 brightness-0 invert">
+                        <div class="h-6 w-px bg-white/20"></div>
+                        <span class="text-sm font-medium text-slate-400">DASHBOARD</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-white">Administrador</p>
+                            <p class="text-xs text-teal-400">Master Access</p>
+                        </div>
+                        <button id="logout-btn" class="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+                            <i data-lucide="log-out" class="w-5 h-5"></i>
+                        </button>
+                    </div>
                 </div>
             </nav>
 
             <main class="container mx-auto p-6 space-y-8">
-                <!-- 1. Configuração de Posições (O QUE VOCÊ PEDIU) -->
-                <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="glass p-6 rounded-2xl">
-                        <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <span class="w-2 h-2 bg-teal-500 rounded-full"></span> 
-                            Controle de Posições (Funil)
-                        </h2>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between bg-slate-900/50 p-4 rounded-xl border border-white/5">
-                                <div>
-                                    <p class="text-sm text-slate-400">Próxima posição (12 meses)</p>
-                                    <input type="number" id="pos-12" class="bg-transparent text-2xl font-bold text-white w-20 outline-none focus:text-teal-400">
-                                </div>
-                                <button onclick="updateSettings('12')" class="bg-teal-500/10 text-teal-400 px-4 py-2 rounded-lg hover:bg-teal-500 hover:text-slate-900 transition-all text-sm font-bold">Salvar</button>
-                            </div>
-                            <div class="flex items-center justify-between bg-slate-900/50 p-4 rounded-xl border border-white/5">
-                                <div>
-                                    <p class="text-sm text-slate-400">Próxima posição (24 meses)</p>
-                                    <input type="number" id="pos-24" class="bg-transparent text-2xl font-bold text-white w-20 outline-none focus:text-teal-400">
-                                </div>
-                                <button onclick="updateSettings('24')" class="bg-teal-500/10 text-teal-400 px-4 py-2 rounded-lg hover:bg-teal-500 hover:text-slate-900 transition-all text-sm font-bold">Salvar</button>
-                            </div>
+                
+                <!-- Top KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass p-6 rounded-2xl relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="users" class="w-16 h-16 text-teal-500"></i>
                         </div>
-                        <p class="text-[10px] text-slate-500 mt-4 italic">* Este é o número que aparecerá para o próximo cliente que chegar ao Passo 4.</p>
+                        <p class="text-sm text-slate-400 font-medium uppercase tracking-wider">Total Leads</p>
+                        <p id="total-leads" class="text-4xl font-bold text-white mt-2">0</p>
+                        <div class="mt-4 text-xs text-teal-400 flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i>
+                            <span>Base crescendo</span>
+                        </div>
                     </div>
 
-                    <!-- Métricas Rápidas -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="glass p-6 rounded-2xl">
-                            <p class="text-sm text-slate-400">Total Leads</p>
-                            <p id="total-leads" class="text-3xl font-bold text-white">0</p>
+                    <div class="glass p-6 rounded-2xl relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="check-circle" class="w-16 h-16 text-emerald-500"></i>
                         </div>
-                        <div class="glass p-6 rounded-2xl border-l-4 border-red-500">
-                            <p class="text-sm text-slate-400">Em Atraso</p>
-                            <p id="late-leads" class="text-3xl font-bold text-white text-red-400">0</p>
-                        </div>
-                        <div class="glass p-6 rounded-2xl border-l-4 border-emerald-500">
-                            <p class="text-sm text-slate-400">Pagos Hoje</p>
-                            <p id="paid-today" class="text-3xl font-bold text-emerald-400">0€</p>
-                        </div>
-                        <div class="glass p-6 rounded-2xl">
-                            <p class="text-sm text-slate-400">Taxa Conv.</p>
-                            <p id="conv-rate" class="text-3xl font-bold text-white">0%</p>
+                        <p class="text-sm text-slate-400 font-medium uppercase tracking-wider">Conversão (KYC)</p>
+                        <p id="conv-rate" class="text-4xl font-bold text-white mt-2">0%</p>
+                        <div class="mt-4 text-xs text-emerald-400 flex items-center gap-1">
+                            <i data-lucide="file-check" class="w-3 h-3"></i>
+                            <span>Documentos enviados</span>
                         </div>
                     </div>
-                </section>
 
-                <!-- 2. Tabela de Membros e Grupos -->
-                <section class="glass rounded-2xl overflow-hidden">
-                    <div class="p-6 border-b border-white/10 flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-white">Administração de Grupos & Pagamentos</h2>
-                        <div class="flex gap-2">
-                            <select id="filter-status" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1 text-sm outline-none">
-                                <option value="all">Todos</option>
-                                <option value="late">Em Atraso</option>
-                                <option value="up_to_date">Em Dia</option>
-                            </select>
+                    <div class="glass p-6 rounded-2xl relative overflow-hidden group border-l-4 border-l-amber-500">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="alert-triangle" class="w-16 h-16 text-amber-500"></i>
+                        </div>
+                        <p class="text-sm text-slate-400 font-medium uppercase tracking-wider">Pagamentos Pendentes</p>
+                        <p id="pending-leads" class="text-4xl font-bold text-white mt-2">0</p>
+                        <div class="mt-4 text-xs text-amber-400 flex items-center gap-1">
+                            <span>Aguardando confirmação</span>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-white/5 text-slate-400 text-xs uppercase tracking-wider">
-                                    <th class="p-4 font-medium">Membro</th>
-                                    <th class="p-4 font-medium">Grupo / Pos.</th>
-                                    <th class="p-4 font-medium">Estado</th>
-                                    <th class="p-4 font-medium">Últ. Parcela</th>
-                                    <th class="p-4 font-medium">Atraso</th>
-                                    <th class="p-4 font-medium text-right">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-leads-body" class="text-sm divide-y divide-white/5">
-                                <!-- Preenchido via JS -->
-                            </tbody>
-                        </table>
+
+                    <div class="glass p-6 rounded-2xl relative overflow-hidden group border-l-4 border-l-red-500">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="clock" class="w-16 h-16 text-red-500"></i>
+                        </div>
+                        <p class="text-sm text-slate-400 font-medium uppercase tracking-wider">Em Atraso</p>
+                        <p id="late-leads" class="text-4xl font-bold text-white mt-2">0</p>
+                        <div class="mt-4 text-xs text-red-400 flex items-center gap-1">
+                            <span>Ação necessária</span>
+                        </div>
                     </div>
-                </section>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- 1. Painel de Controle de Posições (Funil) -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="glass p-6 rounded-2xl border-t-4 border-t-teal-500">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="p-2 bg-teal-500/10 rounded-lg">
+                                    <i data-lucide="settings" class="w-5 h-5 text-teal-400"></i>
+                                </div>
+                                <h2 class="text-lg font-bold text-white">Configuração do Funil</h2>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <!-- Card 12 Meses -->
+                                <div class="bg-slate-900/50 p-5 rounded-xl border border-white/5 hover:border-teal-500/30 transition-colors">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div class="text-sm font-medium text-teal-400">Grupo 12 Meses</div>
+                                        <span class="text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded uppercase">Ativo</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mb-3">Próxima posição a ser atribuída:</p>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="pos-12" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-xl font-bold text-white outline-none focus:border-teal-500 transition-colors">
+                                        <button onclick="updateSettings('12')" class="bg-teal-500 hover:bg-teal-400 text-slate-900 px-4 rounded-lg font-bold transition-colors">
+                                            <i data-lucide="save" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card 24 Meses -->
+                                <div class="bg-slate-900/50 p-5 rounded-xl border border-white/5 hover:border-teal-500/30 transition-colors">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div class="text-sm font-medium text-teal-400">Grupo 24 Meses</div>
+                                        <span class="text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded uppercase">Ativo</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mb-3">Próxima posição a ser atribuída:</p>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="pos-24" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-xl font-bold text-white outline-none focus:border-teal-500 transition-colors">
+                                        <button onclick="updateSettings('24')" class="bg-teal-500 hover:bg-teal-400 text-slate-900 px-4 rounded-lg font-bold transition-colors">
+                                            <i data-lucide="save" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 pt-4 border-t border-white/5">
+                                <p class="text-[11px] text-slate-500 leading-relaxed">
+                                    <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>
+                                    Ao alterar estes valores, o próximo cliente que chegar à etapa de pagamento verá automaticamente o novo número de posição.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Leads & Gestão Financeira -->
+                    <div class="lg:col-span-2">
+                        <div class="glass rounded-2xl overflow-hidden flex flex-col h-full">
+                            <div class="p-6 border-b border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-900/30">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-2 bg-blue-500/10 rounded-lg">
+                                        <i data-lucide="users" class="w-5 h-5 text-blue-400"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-lg font-bold text-white">Gestão de Leads</h2>
+                                        <p class="text-xs text-slate-400">Visão completa do funil</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <div class="relative">
+                                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                                        <input type="text" id="search-leads" placeholder="Buscar nome, email..." class="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm outline-none focus:border-blue-500 w-full sm:w-48 text-white">
+                                    </div>
+                                    <select id="filter-status" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500 text-slate-300">
+                                        <option value="all">Todos os Status</option>
+                                        <option value="kyc_submitted">KYC Enviado</option>
+                                        <option value="paid">Pagamento OK</option>
+                                        <option value="late">Em Atraso</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto flex-1">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-white/5 text-slate-400 text-xs uppercase tracking-wider font-semibold">
+                                            <th class="p-4 border-b border-white/5">Cliente / Data</th>
+                                            <th class="p-4 border-b border-white/5">Progresso Funil</th>
+                                            <th class="p-4 border-b border-white/5">Grupo & Posição</th>
+                                            <th class="p-4 border-b border-white/5">Pagamento</th>
+                                            <th class="p-4 border-b border-white/5 text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-leads-body" class="text-sm divide-y divide-white/5">
+                                        <!-- Preenchido via JS -->
+                                        <tr>
+                                            <td colspan="5" class="p-8 text-center text-slate-500">Carregando dados...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="p-4 border-t border-white/10 bg-slate-900/30 text-right">
+                                <span class="text-xs text-slate-500" id="table-info">Mostrando 0 registros</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
+
+        <!-- LEAD DETAILS MODAL -->
+        <div id="lead-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm" id="modal-backdrop"></div>
+            
+            <div class="bg-[#0F172A] border border-slate-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl relative z-10 flex flex-col">
+                <!-- Modal Header -->
+                <div class="p-6 border-b border-slate-700 flex justify-between items-start sticky top-0 bg-[#0F172A] z-20">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-xl font-bold text-teal-500" id="modal-avatar">
+                            AB
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-white" id="modal-name">Nome do Cliente</h2>
+                            <p class="text-sm text-slate-400 flex items-center gap-2">
+                                <span id="modal-email">email@exemplo.com</span>
+                                <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
+                                <span id="modal-phone">+00 000 000 000</span>
+                            </p>
+                        </div>
+                    </div>
+                    <button id="close-modal" class="text-slate-400 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Coluna Esquerda: Dados Cadastrais -->
+                    <div class="md:col-span-1 space-y-6">
+                        <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                            <h3 class="text-sm font-bold text-teal-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <i data-lucide="user" class="w-4 h-4"></i> Dados Pessoais
+                            </h3>
+                            <div class="space-y-3 text-sm">
+                                <div>
+                                    <span class="block text-xs text-slate-500">Endereço</span>
+                                    <p class="text-slate-200" id="modal-address">-</p>
+                                </div>
+                                <div>
+                                    <span class="block text-xs text-slate-500">País</span>
+                                    <p class="text-slate-200" id="modal-country">-</p>
+                                </div>
+                                <div>
+                                    <span class="block text-xs text-slate-500">Data Cadastro</span>
+                                    <p class="text-slate-200" id="modal-date">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+                            <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <i data-lucide="folder" class="w-4 h-4"></i> Documentos (KYC)
+                            </h3>
+                            <div id="modal-docs-list" class="space-y-2">
+                                <!-- Docs items injected here -->
+                                <p class="text-sm text-slate-500 italic">Nenhum documento encontrado.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna Direita: Funil & Financeiro -->
+                    <div class="md:col-span-2 space-y-6">
+                        <!-- Status do Funil -->
+                        <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-sm font-bold text-teal-400 uppercase tracking-wider mb-6 flex items-center gap-2">
+                                <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Progresso no Funil
+                            </h3>
+                            
+                            <!-- Stepper Visual -->
+                            <div class="relative flex justify-between items-center mb-4">
+                                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-700 rounded-full -z-0"></div>
+                                <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-teal-500 rounded-full -z-0 transition-all duration-500" id="modal-progress-bar" style="width: 0%"></div>
+                                
+                                <div class="relative z-10 w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-600 transition-colors" id="step-1-dot">
+                                    <span class="text-xs font-bold">1</span>
+                                </div>
+                                <div class="relative z-10 w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-600 transition-colors" id="step-2-dot">
+                                    <span class="text-xs font-bold">2</span>
+                                </div>
+                                <div class="relative z-10 w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-600 transition-colors" id="step-3-dot">
+                                    <span class="text-xs font-bold">3</span>
+                                </div>
+                                <div class="relative z-10 w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-600 transition-colors" id="step-4-dot">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-slate-400 uppercase tracking-wider font-medium">
+                                <span>Cadastro</span>
+                                <span>Plano</span>
+                                <span>KYC</span>
+                                <span>Pagamento</span>
+                            </div>
+                        </div>
+
+                        <!-- Financeiro -->
+                        <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                            <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <i data-lucide="credit-card" class="w-4 h-4"></i> Dados Financeiros
+                            </h3>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="p-3 bg-slate-900 rounded-lg border border-slate-700">
+                                    <span class="text-xs text-slate-500 block mb-1">Plano Escolhido</span>
+                                    <span class="text-white font-semibold" id="modal-plan">-</span>
+                                </div>
+                                <div class="p-3 bg-slate-900 rounded-lg border border-slate-700">
+                                    <span class="text-xs text-slate-500 block mb-1">Grupo & Posição</span>
+                                    <span class="text-teal-400 font-bold" id="modal-group-pos">-</span>
+                                </div>
+                                <div class="p-3 bg-slate-900 rounded-lg border border-slate-700">
+                                    <span class="text-xs text-slate-500 block mb-1">Método Pagamento</span>
+                                    <span class="text-white font-semibold flex items-center gap-2">
+                                        <i data-lucide="credit-card" class="w-3 h-3"></i>
+                                        <span id="modal-payment-method">-</span>
+                                    </span>
+                                </div>
+                                <div class="p-3 bg-slate-900 rounded-lg border border-slate-700">
+                                    <span class="text-xs text-slate-500 block mb-1">Status Pagamento</span>
+                                    <span id="modal-payment-status" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold uppercase bg-slate-700 text-slate-300">
+                                        -
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Installments Table (Mock for now, ready for data) -->
+                            <div class="overflow-hidden rounded-lg border border-slate-700">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-900 text-slate-400 text-xs uppercase">
+                                        <tr>
+                                            <th class="p-3">Parcela</th>
+                                            <th class="p-3">Vencimento</th>
+                                            <th class="p-3">Valor</th>
+                                            <th class="p-3 text-right">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-700 bg-slate-800/30" id="modal-installments-body">
+                                        <!-- JS will populate -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-t border-slate-700 bg-[#0F172A] flex justify-end gap-3 rounded-b-2xl">
+                    <a href="#" id="modal-wa-btn" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-bold flex items-center gap-2 transition-colors">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i> Contatar WhatsApp
+                    </a>
+                    <button class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-bold transition-colors">
+                        Editar Dados
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Modais e JS -->
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-        const supabaseUrl = 'https://eczsqgtewtpcscsyvljy.supabase.co'
-        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjUxNTAsImV4cCI6MjA4NzU0MTE1MH0.HTXvOSk4Gjbg85YPfmWB59wKD943-wyjFd-iWeF9BUk'
-        const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-        const loginScreen = document.getElementById('login-screen')
-        const adminContent = document.getElementById('admin-content')
-        const loginForm = document.getElementById('login-form')
-        
-        // Função global para atualizar configurações (chamada pelo HTML)
-        window.updateSettings = async (type) => {
-            const newVal = parseInt(document.getElementById(`pos-${type}`).value)
-            const update = type === '12' 
-                ? { next_position_12_months: newVal } 
-                : { next_position_24_months: newVal }
-            
-            const { error } = await supabase.from('funnel_settings').update(update).eq('id', 'current')
-            if (!error) alert('Posição atualizada! O próximo cliente verá este número.')
-            else alert('Erro ao atualizar: ' + error.message)
-        }
-
-        function showDashboard() {
-            loginScreen.style.display = 'none'
-            adminContent.style.display = 'block'
-            adminContent.classList.remove('hidden')
-            localStorage.setItem('admin_bypass', 'true')
-            loadSettings()
-            loadLeads()
-        }
-
-        async function loadSettings() {
-            const { data } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single()
-            if (data) {
-                document.getElementById('pos-12').value = data.next_position_12_months
-                document.getElementById('pos-24').value = data.next_position_24_months
-            }
-        }
-
-        async function loadLeads() {
-            const leadsBody = document.getElementById('admin-leads-body')
-            if(!leadsBody) return
-
-            const { data: leads, error } = await supabase
-                .from('leads')
-                .select('*, installments(*)')
-                .order('created_at', { ascending: false })
-
-            if (error) return
-
-            leadsBody.innerHTML = leads.map(lead => {
-                const isLate = lead.payment_status === 'late'
-                const daysLate = isLate ? Math.floor(Math.random() * 15) + 1 : 0 
-
-                return `
-                    <tr class="hover:bg-white/5 transition-colors">
-                        <td class="p-4">
-                            <div class="font-bold text-white">${lead.name || 'Sem nome'}</div>
-                            <div class="text-xs text-slate-500">${lead.email || ''}</div>
-                        </td>
-                        <td class="p-4">
-                            <div class="text-white font-medium">${lead.plan?.includes('12') ? 'Grupo #101' : 'Grupo #102'}</div>
-                            <div class="text-xs text-teal-400">Posição ${lead.assigned_position || '-'}</div>
-                        </td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase ${isLate ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}">
-                                ${isLate ? 'Em Atraso' : 'Em Dia'}
-                            </span>
-                        </td>
-                        <td class="p-4 text-slate-300">
-                            ${lead.installments?.length ? 'Parcela ' + lead.installments.length : 'Aguardando'}
-                        </td>
-                        <td class="p-4">
-                            <span class="${isLate ? 'text-red-400' : 'text-slate-500'} font-medium">
-                                ${isLate ? daysLate + ' dias' : '-'}
-                            </span>
-                        </td>
-                        <td class="p-4 text-right">
-                            <div class="flex justify-end gap-2">
-                                <button class="text-slate-400 hover:text-white p-1" title="Ver KYC">📄</button>
-                                <a href="https://wa.me/${lead.whatsapp?.replace(/\D/g,'')}" target="_blank" class="text-emerald-400 hover:text-emerald-300 p-1">💬</a>
-                            </div>
-                        </td>
-                    </tr>
-                `
-            }).join('')
-
-            document.getElementById('total-leads').textContent = leads.length
-            document.getElementById('late-leads').textContent = leads.filter(l => l.payment_status === 'late').length
-            document.getElementById('conv-rate').textContent = Math.round((leads.filter(l => l.status === 'kyc_submitted').length / leads.length) * 100) + '%'
-        }
-
-        // Login Logic
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault()
-            const email = document.getElementById('email').value.trim()
-            const password = document.getElementById('password').value.trim()
-            
-            console.log('Login attempt:', email)
-
-            if (email === 'admin@wekota.eu' && password === 'wekota2026admin') {
-                showDashboard()
-                return
-            }
-
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-                if (!error) showDashboard()
-                else alert('Erro: ' + error.message)
-            } catch (err) {
-                console.error(err)
-                alert('Erro crítico no login')
-            }
-        })
-
-        document.getElementById('logout-btn').onclick = () => {
-            supabase.auth.signOut()
-            localStorage.removeItem('admin_bypass')
-            location.reload()
-        }
-
-        // Auto-login check
-        if (localStorage.getItem('admin_bypass') === 'true') {
-            showDashboard()
-        } else {
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session) showDashboard()
-            })
-        }
+    <!-- Scripts -->
+    <script type="module" src="./admin-new.js"></script>
+    <script>
+        // Init Icons
+        lucide.createIcons();
     </script>
 </body>
 </html>
