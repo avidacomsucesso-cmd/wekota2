@@ -1296,12 +1296,30 @@
 
   async function fetchAssignedPosition(months) {
     try {
-        const { data } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single();
-        if (data) {
-            return months === '12' ? data.next_position_12_months : data.next_position_24_months;
-        }
-    } catch (e) { console.error('Erro ao buscar posição:', e); }
-    return months === '12' ? 7 : 15;
+        const column = months === '12' ? 'next_position_12_months' : 'next_position_24_months';
+        
+        // 1. Get current value
+        const { data, error } = await supabase
+            .from('funnel_settings')
+            .select(column)
+            .eq('id', 'current')
+            .single();
+            
+        if (error) throw error;
+        
+        const currentPos = data[column];
+        
+        // 2. Increment value in DB for the next person
+        await supabase
+            .from('funnel_settings')
+            .update({ [column]: currentPos + 1 })
+            .eq('id', 'current');
+            
+        return currentPos;
+    } catch (e) { 
+        console.error('Erro ao buscar/incrementar posição:', e); 
+        return months === '12' ? 7 : 15; // Fallback
+    }
   }
 
   const forceNavigate = (screenId) => {
@@ -1433,8 +1451,22 @@
         const durEl = document.querySelector('.dur-card.selected .dur-months');
         const durationText = durEl ? durEl.textContent.trim() : '24';
         
-        // 1. Buscar a posição configurada no ADMIN antes de avançar
+        btnStep2.textContent = 'A processar...';
+        btnStep2.disabled = true;
+
+        // 1. Buscar e incrementar a posição configurada no ADMIN
         assignedPosition = await fetchAssignedPosition(durationText);
+
+        // Update UI displays
+        const revealNum = document.getElementById('revealNum');
+        if(revealNum) revealNum.textContent = assignedPosition;
+        
+        const posLabels = document.querySelectorAll('.cs-value.highlight-val');
+        posLabels.forEach(el => {
+            if(el.textContent.includes('Posição')) {
+                el.textContent = `Posição ${assignedPosition} (mês ${assignedPosition})`;
+            }
+        });
 
         const summaryPrice = document.getElementById('summary-price');
         const summaryTotal = document.getElementById('summary-total');

@@ -8,13 +8,28 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 let currentLeadId = null;
 let currentPos = 0;
 
-async function updateDynamicPos() {
-    const months = document.querySelector('input[name="plan"]:checked').value;
-    const { data } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single();
-    if (data) {
-        currentPos = months === '12' ? data.next_position_12_months : data.next_position_24_months;
-        document.getElementById('dynamic-pos-es').innerText = currentPos;
+async function fetchAndIncrementPos() {
+    try {
+        const months = document.querySelector('input[name="plan"]:checked').value;
+        const column = months === '12' ? 'next_position_12_months' : 'next_position_24_months';
+        
+        const { data, error } = await supabase.from('funnel_settings').select(column).eq('id', 'current').single();
+        if (error) throw error;
+        
+        const pos = data[column];
+        
+        // Increment for next
+        await supabase.from('funnel_settings').update({ [column]: pos + 1 }).eq('id', 'current');
+        
+        return pos;
+    } catch (e) {
+        console.error(e);
+        return 10;
     }
+}
+
+async function updateDynamicPos() {
+    // This is just for preview/display if needed, but the actual assignment happens on submit
 }
 
 window.goToStep = (step) => {
@@ -40,6 +55,10 @@ document.getElementById('lead-form-es').addEventListener('submit', async (e) => 
     e.preventDefault();
     const btn = e.target.querySelector('button');
     btn.innerText = 'Guardando...';
+    btn.disabled = true;
+    
+    // Fetch and increment right when creating the lead
+    currentPos = await fetchAndIncrementPos();
     
     const leadData = {
         name: document.getElementById('fullname').value,
