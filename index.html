@@ -164,6 +164,52 @@
         </div>
       </section>
 
+      <!-- SEÇÃO DE MÉTRICAS & PROVA SOCIAL (Restaurada) -->
+      <section class="section-padding bg-white">
+        <div class="container">
+          <div class="metrics-grid">
+            <div class="metric-item-premium"><span class="metric-value">12</span><span class="metric-label">Posições p/ Grupo</span></div>
+            <div class="metric-item-premium"><span class="metric-value">0%</span><span class="metric-label">Taxa de Juros</span></div>
+            <div class="metric-item-premium"><span class="metric-value">100%</span><span class="metric-label">Garantia Contratual</span></div>
+          </div>
+
+          <div class="text-center mb-60">
+            <h2 class="section-title">O que dizem nossos membros</h2>
+          </div>
+          <div class="carousel-container-testimonials">
+            <div class="testimonial-track" id="testimonial-track">
+              <div class="testimonial-slide">
+                <div class="testimonial-card-premium">
+                  <div class="rating-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+                  <p class="testimonial-text">"A transparência do processo me surpreendeu. Recebi meu iPhone exatamente no mês previsto no contrato europeu."</p>
+                  <div class="testimonial-author">
+                    <div class="author-avatar">RD</div>
+                    <div class="author-info"><h4>Ricardo D.</h4><p>Lisboa, PT</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO FAQ (Restaurada) -->
+      <section class="section-padding bg-light" id="faq">
+        <div class="container">
+          <div class="text-center mb-60"><h2 class="section-title">Perguntas Frequentes</h2></div>
+          <div class="faq-wrapper">
+            <div class="faq-item">
+              <button class="faq-question">Como funciona a ordem de entrega? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+              <div class="faq-answer"><p>A ordem é definida no momento da assinatura do contrato coletivo, seguindo critérios objetivos de adesão ao grupo.</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question">É um financiamento bancário? <i data-lucide="chevron-down" class="faq-icon"></i></button>
+              <div class="faq-answer"><p>Não. É um modelo de aquisição coletiva direta, sem juros bancários e sem necessidade de aprovação de crédito tradicional.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <footer class="footer bg-navy">
         <div class="container footer__grid">
           <div class="footer__col"><a href="#" class="logo mb-24"><img src="/images/logo-oficial.png" alt="WEKOTA Logo" class="logo__img-official brightness-invert"></a><p class="footer__desc">Plataforma europeia estruturada de aquisição coletiva.</p></div>
@@ -174,10 +220,24 @@
     </main>
   </div>
 
-  <script src="main.js"></script>
+  <!-- WHATSAPP FLOAT (Restaurado) -->
+  <a href="https://wa.me/351912345678" class="wa-float-official" target="_blank">
+    <div class="wa-icon-official"><i data-lucide="message-circle"></i></div>
+    <span class="wa-text-official">Falar com Consultor</span>
+  </a>
+
+  <script src="/main.js"></script>
   <script>
     // Inicialização manual dos scripts da home após o carregamento inicial
     if (window.lucide) window.lucide.createIcons();
+    
+    // FAQ Logic
+    document.querySelectorAll('.faq-question').forEach(button => {
+      button.addEventListener('click', () => {
+        const item = button.parentElement;
+        item.classList.toggle('active');
+      });
+    });
     
     // Countdown
     function startCountdown() {
