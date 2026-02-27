@@ -112,12 +112,21 @@ window.updateSettings = async (type) => {
 
 async function loadLeads() {
     try {
+        console.log('Buscando leads no banco de dados...');
         const { data, error } = await supabase
             .from('leads')
             .select('*')
             .order('created_at', { ascending: false })
 
-        if (error) throw error;
+        if (error) {
+            console.error('Erro retornado pelo Supabase:', error);
+            throw error;
+        }
+
+        console.log('Total de leads encontrados:', data.length);
+        if (data.length > 0) {
+            console.log('Primeiro lead:', data[0]);
+        }
 
         allLeads = data || []
         updateStats(allLeads)
