@@ -134,8 +134,4 @@ window.payWithStripe = async () => {
     else alert('Error al iniciar pago.');
 }
 
-window.payWithTransfer = () => {
-    window.location.href = `https://wa.me/34634773958?text=Hola%2C%20quiero%20pagar%20mi%20reserva%20por%20transferencia.%20Mi%20ID%3A%20${currentLeadId}`;
-}
-
 updateDynamicPos();
