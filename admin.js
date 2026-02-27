@@ -1,10 +1,7 @@
 import { supabase } from './supabaseClient.js'
 
 // DOM Elements
-const loginScreen = document.getElementById('login-screen')
 const adminContent = document.getElementById('admin-content')
-const loginForm = document.getElementById('login-form')
-const loginBtnManual = document.getElementById('login-btn-manual')
 const leadsBody = document.getElementById('admin-leads-body')
 const searchInput = document.getElementById('search-leads')
 const filterStatus = document.getElementById('filter-status')
@@ -15,87 +12,59 @@ const closeModalBtn = document.getElementById('close-modal')
 // Global state for leads
 let allLeads = []
 
-// --- AUTHENTICATION ---
-
-const handleAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session) {
-        showDashboard()
-        return
-    }
-
-    if (window.location.hash) {
-        const { data, error } = await supabase.auth.getSession()
-        if (data?.session) {
-            window.history.replaceState(null, null, window.location.pathname)
-            showDashboard()
-        }
-    }
-}
-
-handleAuth()
-
-loginForm?.addEventListener('submit', (e) => e.preventDefault());
-
-if (loginBtnManual) {
-    loginBtnManual.addEventListener('click', async () => {
-        const email = document.getElementById('email').value.trim()
-        const password = document.getElementById('password').value.trim()
-        
-        console.log('Botão de login clicado:', email);
-
-        if (email.toLowerCase() === 'admin@wekota.eu' && password === 'wekota2026admin') {
-            console.log('✅ Acesso Master liberado.');
-            localStorage.setItem('admin_bypass', 'true');
-            showDashboard();
-            return;
-        }
-
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-            if (!error) showDashboard()
-            else alert('Erro: ' + error.message)
-        } catch (err) {
-            console.error(err);
-            alert('Falha na conexão com Supabase. Tente novamente.');
-        }
-    });
-}
-
-document.getElementById('logout-btn').onclick = () => {
-    supabase.auth.signOut()
-    localStorage.removeItem('admin_bypass')
-    location.reload()
-}
-
-if (localStorage.getItem('admin_bypass') === 'true') {
-    showDashboard();
-}
+// --- INITIALIZATION ---
 
 function showDashboard() {
-    loginScreen.style.display = 'none';
-    adminContent.classList.remove('hidden');
-    adminContent.style.display = 'block';
+    console.log('Exibindo dashboard diretamente...');
+    if (adminContent) {
+        adminContent.style.display = 'block';
+        adminContent.classList.remove('hidden');
+    }
     
-    loadSettings();
-    loadLeads();
+    // Load data with error safety
+    loadSettings().catch(e => console.error('Failed to load settings:', e));
+    loadLeads().catch(e => console.error('Failed to load leads:', e));
     
-    // Start Icon refresh in case they didn't load
-    if(window.lucide) window.lucide.createIcons();
+    // Refresh icons
+    if(window.lucide) {
+        try {
+            window.lucide.createIcons();
+        } catch (e) { console.warn('Lucide icons failed to init', e); }
+    }
+}
+
+// Start immediately
+showDashboard();
+
+// Logout btn just reloads (for now)
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+    logoutBtn.onclick = () => {
+        location.reload();
+    };
 }
 
 // --- FUNNEL SETTINGS ---
 
 async function loadSettings() {
-    const { data } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single()
-    if (data) {
-        document.getElementById('pos-12').value = data.next_position_12_months
-        document.getElementById('pos-24').value = data.next_position_24_months
+    try {
+        const { data, error } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single()
+        if (error) throw error;
+        
+        if (data) {
+            const pos12 = document.getElementById('pos-12');
+            const pos24 = document.getElementById('pos-24');
+            if (pos12) pos12.value = data.next_position_12_months;
+            if (pos24) pos24.value = data.next_position_24_months;
+        }
+    } catch (e) {
+        console.error('Error loading settings:', e);
     }
 }
 
 window.updateSettings = async (type) => {
-    const newVal = parseInt(document.getElementById(`pos-${type}`).value)
+    const input = document.getElementById(`pos-${type}`);
+    const newVal = parseInt(input.value)
     if(isNaN(newVal)) return alert('Por favor insira um número válido');
 
     const update = type === '12' 
@@ -106,11 +75,11 @@ window.updateSettings = async (type) => {
     
     if (!error) {
         const btn = document.querySelector(`button[onclick="updateSettings('${type}')"]`);
-        const originalText = btn.innerHTML;
+        const originalHTML = btn.innerHTML;
         btn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i>';
         if(window.lucide) window.lucide.createIcons();
         setTimeout(() => { 
-            btn.innerHTML = originalText;
+            btn.innerHTML = originalHTML;
             if(window.lucide) window.lucide.createIcons();
         }, 2000);
     } else {
@@ -121,56 +90,58 @@ window.updateSettings = async (type) => {
 // --- LEADS MANAGEMENT ---
 
 async function loadLeads() {
-    // Select leads and join with installments if possible, otherwise just leads
-    // Note: If installments table is empty or relation issues exist, this might return null for that field
-    const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false })
+    try {
+        const { data, error } = await supabase
+            .from('leads')
+            .select('*')
+            .order('created_at', { ascending: false })
 
-    if (error) {
+        if (error) throw error;
+
+        allLeads = data || []
+        updateStats(allLeads)
+        renderLeadsTable(allLeads)
+    } catch (error) {
         console.error('Error loading leads:', error)
-        leadsBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">Erro ao carregar leads: ${error.message}</td></tr>`
-        return
+        if (leadsBody) {
+            leadsBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">Erro ao carregar leads da base de dados.</td></tr>`
+        }
     }
-
-    allLeads = data || []
-    updateStats(allLeads)
-    renderLeadsTable(allLeads)
 }
 
 function updateStats(leads) {
-    document.getElementById('total-leads').textContent = leads.length
+    const totalEl = document.getElementById('total-leads');
+    const convEl = document.getElementById('conv-rate');
+    const pendEl = document.getElementById('pending-leads');
+    const lateEl = document.getElementById('late-leads');
+
+    if(totalEl) totalEl.textContent = leads.length
     
-    // Calculate simple conversion rate (those who reached 'kyc_submitted' or 'paid' / total)
     const converted = leads.filter(l => ['kyc_submitted', 'paid', 'approved'].includes(l.status)).length
     const rate = leads.length > 0 ? Math.round((converted / leads.length) * 100) : 0
-    document.getElementById('conv-rate').textContent = `${rate}%`
+    if(convEl) convEl.textContent = `${rate}%`
 
-    // Pending Payments (status = 'kyc_submitted' but not 'paid')
-    // Or users who are at step 3/4 but haven't paid
-    const pending = leads.filter(l => l.status === 'kyc_submitted').length
-    document.getElementById('pending-leads').textContent = pending
+    const pending = leads.filter(l => l.status === 'kyc_submitted' && l.payment_status !== 'paid').length
+    if(pendEl) pendEl.textContent = pending
 
-    // Late payments (mock logic for now based on 'payment_status')
     const late = leads.filter(l => l.payment_status === 'late').length
-    document.getElementById('late-leads').textContent = late
+    if(lateEl) lateEl.textContent = late
 }
 
 function renderLeadsTable(leads) {
+    if (!leadsBody) return;
+    
     if (leads.length === 0) {
         leadsBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Nenhum lead encontrado.</td></tr>`
-        document.getElementById('table-info').textContent = 'Mostrando 0 registros'
+        const info = document.getElementById('table-info');
+        if(info) info.textContent = 'Mostrando 0 registros'
         return
     }
 
     leadsBody.innerHTML = leads.map(lead => {
-        // Safe accessors
         const name = lead.name || 'Visitante (Sem Nome)'
-        const email = lead.email || 'Email não informado'
         const date = new Date(lead.created_at).toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' })
         
-        // Progress Logic
         let step = '1. Cadastro'
         let stepColor = 'text-slate-400'
         let progressWidth = '25%'
@@ -179,14 +150,12 @@ function renderLeadsTable(leads) {
         if (lead.status === 'kyc_submitted') { step = '3. KYC Enviado'; stepColor = 'text-amber-400'; progressWidth = '75%'; }
         if (lead.status === 'paid' || lead.payment_status === 'paid') { step = '4. Ativo / Pago'; stepColor = 'text-emerald-400'; progressWidth = '100%'; }
 
-        // Group Logic
         let groupName = '-'
         let position = lead.assigned_position || 'N/A'
         if (lead.plan) {
             groupName = lead.plan.includes('12') ? 'Grupo 12M' : 'Grupo 24M'
         }
 
-        // Status Badge Logic
         let statusBadge = `<span class="px-2 py-1 rounded text-xs font-bold bg-slate-700 text-slate-400">Incompleto</span>`
         if (lead.status === 'kyc_submitted') statusBadge = `<span class="px-2 py-1 rounded text-xs font-bold bg-amber-500/20 text-amber-400">KYC Pendente</span>`
         if (lead.payment_status === 'paid') statusBadge = `<span class="px-2 py-1 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400">Pago</span>`
@@ -233,15 +202,16 @@ function renderLeadsTable(leads) {
         `
     }).join('')
 
-    document.getElementById('table-info').textContent = `Mostrando ${leads.length} registros`
+    const info = document.getElementById('table-info');
+    if(info) info.textContent = `Mostrando ${leads.length} registros`
     if(window.lucide) window.lucide.createIcons()
 }
 
 // --- SEARCH & FILTER ---
 
 function filterLeads() {
-    const term = searchInput.value.toLowerCase()
-    const status = filterStatus.value
+    const term = searchInput ? searchInput.value.toLowerCase() : ""
+    const status = filterStatus ? filterStatus.value : "all"
 
     const filtered = allLeads.filter(lead => {
         const matchesTerm = (lead.name || '').toLowerCase().includes(term) || 
@@ -258,8 +228,8 @@ function filterLeads() {
     renderLeadsTable(filtered)
 }
 
-searchInput.addEventListener('input', filterLeads)
-filterStatus.addEventListener('change', filterLeads)
+if(searchInput) searchInput.addEventListener('input', filterLeads)
+if(filterStatus) filterStatus.addEventListener('change', filterLeads)
 
 // --- MODAL LOGIC ---
 
@@ -271,17 +241,14 @@ window.openLeadModal = (leadId) => {
     document.getElementById('modal-name').textContent = lead.name || 'Sem Nome'
     document.getElementById('modal-email').textContent = lead.email || '-'
     document.getElementById('modal-phone').textContent = lead.whatsapp || '-'
-    document.getElementById('modal-avatar').textContent = (lead.name || '?').charAt(0).toUpperCase()
     
     document.getElementById('modal-address').textContent = lead.address || 'Não informado'
     document.getElementById('modal-country').textContent = lead.country || 'Não informado'
     document.getElementById('modal-date').textContent = new Date(lead.created_at).toLocaleString()
 
-    // Documents
     const docsList = document.getElementById('modal-docs-list')
     docsList.innerHTML = ''
     
-    // Parse documents if string, or use if array
     let docs = []
     try {
         if (typeof lead.kyc_documents === 'string') {
@@ -293,15 +260,13 @@ window.openLeadModal = (leadId) => {
 
     if (docs && docs.length > 0) {
         docs.forEach(doc => {
-            // If it's a supabase storage path, construct URL. 
-            // Assuming simplified object { name: '...', path: '...' } or just strings
             const fileName = doc.name || doc.path || 'Documento'
-            
-            // Generate public URL if path exists
             let fileUrl = '#'
             if (doc.path) {
-                const { data } = supabase.storage.from('kyc-documents').getPublicUrl(doc.path)
-                fileUrl = data.publicUrl
+                try {
+                    const { data } = supabase.storage.from('kyc-documents').getPublicUrl(doc.path)
+                    fileUrl = data.publicUrl
+                } catch (e) { console.error(e) }
             }
 
             docsList.innerHTML += `
@@ -322,41 +287,6 @@ window.openLeadModal = (leadId) => {
         docsList.innerHTML = '<p class="text-sm text-slate-500 italic">Nenhum documento encontrado.</p>'
     }
 
-    // Funnel Progress Visuals
-    const progressMap = {
-        'initial': 25,
-        'plan_selected': 50,
-        'kyc_submitted': 75,
-        'approved': 85,
-        'paid': 100
-    }
-    
-    let currentStatus = 'initial'
-    if (lead.plan) currentStatus = 'plan_selected'
-    if (lead.status === 'kyc_submitted') currentStatus = 'kyc_submitted'
-    if (lead.payment_status === 'paid') currentStatus = 'paid'
-
-    const pct = progressMap[currentStatus] || 25
-    document.getElementById('modal-progress-bar').style.width = `${pct}%`
-    
-    // Color dots based on progress
-    const setDot = (id, active) => {
-        const el = document.getElementById(id)
-        if(active) {
-            el.classList.remove('bg-slate-700', 'border-slate-600')
-            el.classList.add('bg-teal-500', 'border-teal-400', 'text-slate-900')
-        } else {
-            el.classList.add('bg-slate-700', 'border-slate-600')
-            el.classList.remove('bg-teal-500', 'border-teal-400', 'text-slate-900')
-        }
-    }
-    
-    setDot('step-1-dot', true) // Always active (registration)
-    setDot('step-2-dot', pct >= 50)
-    setDot('step-3-dot', pct >= 75)
-    setDot('step-4-dot', pct >= 100)
-
-    // Finance Data
     document.getElementById('modal-plan').textContent = lead.plan || 'Não selecionado'
     document.getElementById('modal-group-pos').textContent = lead.assigned_position ? `Pos #${lead.assigned_position}` : '-'
     document.getElementById('modal-payment-method').textContent = lead.payment_method || '-'
@@ -368,21 +298,19 @@ window.openLeadModal = (leadId) => {
         lead.payment_status === 'late' ? 'bg-red-500/20 text-red-400' : 'bg-slate-700 text-slate-300'
     }`
 
-    // Whatsapp Button
     if (lead.whatsapp) {
-        document.getElementById('modal-wa-btn').href = `https://wa.me/${lead.whatsapp.replace(/\D/g,'')}`
+        const waBtn = document.getElementById('modal-wa-btn');
+        if(waBtn) waBtn.href = `https://wa.me/${lead.whatsapp.replace(/\D/g,'')}`
     }
 
-    // Show Modal
-    modal.classList.remove('hidden')
+    if(modal) modal.classList.remove('hidden')
     if(window.lucide) window.lucide.createIcons()
 }
 
-// Close Modal
 const closeModal = () => {
-    modal.classList.add('hidden')
+    if(modal) modal.classList.add('hidden')
 }
 
-closeModalBtn.addEventListener('click', closeModal)
-modalBackdrop.addEventListener('click', closeModal)
+if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal)
+if(modalBackdrop) modalBackdrop.addEventListener('click', closeModal)
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal() })
