@@ -1319,6 +1319,13 @@
   window.goTo = forceNavigate;
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Tentar recuperar ID do localStorage se a página foi recarregada
+    const savedLeadId = localStorage.getItem('wekotaleadId');
+    if (savedLeadId) {
+        currentLeadId = savedLeadId;
+        console.log('Lead ID recuperado do localStorage:', currentLeadId);
+    }
+    
     // Initial setup if needed
     
     const btnStep1 = document.getElementById('btn-step1');

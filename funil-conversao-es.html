@@ -1354,11 +1354,18 @@
                 .from('leads')
                 .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
                 .select()
+              
+              if (error) {
+                console.error('Error detallado de Supabase:', error);
+                alert('Error al guardar datos: ' + error.message);
+                btnStep1.textContent = 'Intentar de nuevo';
+                return;
+              }
+
               if (data && data.length > 0) {
                 currentLeadId = data[0].id;
                 console.log('Lead creado con éxito. ID:', currentLeadId);
-              } else if (error) {
-                console.error('Error al crear lead en Supabase:', error);
+                localStorage.setItem('wekotaleadId', currentLeadId);
               }
             } catch (error) {
               console.error('Error inesperado en Supabase:', error);
