@@ -3,9 +3,6 @@
   Mantém a URL fixa em www.wekota.eu enquanto navega entre conteúdos.
 */
 
-// Importa o CSS para o Vite processar
-import './style.css';
-
 const APP_CONTAINER_ID = 'spa-root';
 
 // Mapeamento de rotas internas (opcional, mas ajuda na organização)

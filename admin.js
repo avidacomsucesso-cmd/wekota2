@@ -30,40 +30,28 @@ let currentFactorId = null;
 
 // Check if already logged in with sufficient level
 async function checkSession() {
-    try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+        // Check Assurance Level (AAL)
+        const { data: { level } } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
         
-        if (error) throw error;
-
-        if (session) {
-            // Check Assurance Level (AAL)
-            const { data: { level } } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-            
-            if (level === 'aal2') {
-                showDashboard();
-            } else {
-                // Se estiver logado (AAL1) mas falta MFA
-                const { data, error } = await supabase.auth.mfa.listFactors();
-                if (error) {
-                    console.warn('Erro ao listar fatores, talvez MFA não habilitado no projeto.', error);
-                    // Fallback: se der erro ao listar, assume que não tem MFA e deixa entrar (AAL1)
-                    // Isso evita bloquear o admin se o MFA não estiver configurado no backend
-                    showDashboard(); 
-                    return;
-                }
-
-                if (data && data.totp.length > 0) {
-                    showStep('mfa');
-                    currentFactorId = data.totp[0].id;
-                } else {
-                    startMfaEnrollment();
-                }
-            }
+        // Se já tiver AAL2 (MFA verificado) ou se só tivermos configurado OTP por enquanto
+        if (level === 'aal2') {
+            showDashboard();
         } else {
-            showStep('email');
+            // Se estiver logado (AAL1) mas falta MFA, verificar se tem fatores cadastrados
+            const { data, error } = await supabase.auth.mfa.listFactors();
+            if (data && data.totp.length > 0) {
+                // Tem MFA configurado mas não validou nesta sessão -> Ir para passo MFA
+                showStep('mfa');
+                currentFactorId = data.totp[0].id;
+            } else {
+                // Não tem MFA configurado -> Iniciar setup
+                startMfaEnrollment();
+            }
         }
-    } catch (err) {
-        console.error('Erro na sessão:', err);
+    } else {
         showStep('email');
     }
 }
@@ -188,21 +176,9 @@ function showStep(stepId) {
     [stepEmail, stepOtp, stepMfa, stepLoading].forEach(el => el.classList.add('hidden'));
     
     if (stepId === 'email') stepEmail.classList.remove('hidden');
-    if (stepId === 'otp') {
-        stepOtp.classList.remove('hidden');
-        // Focar no input
-        setTimeout(() => otpInput.focus(), 100);
-    }
-    if (stepId === 'mfa') {
-        stepMfa.classList.remove('hidden');
-        setTimeout(() => mfaInput.focus(), 100);
-    }
+    if (stepId === 'otp') stepOtp.classList.remove('hidden');
+    if (stepId === 'mfa') stepMfa.classList.remove('hidden');
     if (stepId === 'loading') stepLoading.classList.remove('hidden');
-}
-
-window.resetLogin = async () => {
-    await supabase.auth.signOut();
-    location.reload();
 }
 
 function setLoading(isLoading) {
