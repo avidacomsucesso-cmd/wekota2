@@ -4,14 +4,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: './index.html',
-        funil: './funil-conversao.html',
-        admin: './admin.html',
-        adminv2: './admin-v2.html',
-        privacidade: './politica-privacidade.html',
-        termos: './termos-condicoes.html',
-        home_es: './es.html',
-        funil_es: './funil-conversao-es.html'
+        main: 'index.html',
+        es: 'es.html',
+        admin: 'admin.html',
+        funil: 'funil-conversao.html',
+        funil_es: 'funil-conversao-es.html',
+        termos: 'termos-condicoes.html',
+        privacidade: 'politica-privacidade.html'
       }
     }
   },

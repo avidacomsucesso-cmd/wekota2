@@ -1,6 +1,9 @@
 import { supabase } from './supabaseClient.js'
 
 // DOM Elements
+const loginScreen = document.getElementById('login-screen')
+const loginForm = document.getElementById('login-form')
+const loginError = document.getElementById('login-error')
 const adminContent = document.getElementById('admin-content')
 const leadsBody = document.getElementById('admin-leads-body')
 const searchInput = document.getElementById('search-leads')
@@ -8,14 +11,32 @@ const filterStatus = document.getElementById('filter-status')
 const modal = document.getElementById('lead-modal')
 const modalBackdrop = document.getElementById('modal-backdrop')
 const closeModalBtn = document.getElementById('close-modal')
+const logoutBtn = document.getElementById('logout-btn')
 
 // Global state for leads
 let allLeads = []
 
-// --- INITIALIZATION ---
+// --- AUTHENTICATION ---
+
+async function checkSession() {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (session && !error) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
+}
+
+function showLogin() {
+    if (loginScreen) loginScreen.classList.remove('hidden');
+    if (adminContent) adminContent.classList.add('hidden');
+    if (window.lucide) window.lucide.createIcons();
+}
 
 function showDashboard() {
-    console.log('Exibindo dashboard diretamente...');
+    console.log('Sessão ativa, exibindo dashboard...');
+    if (loginScreen) loginScreen.classList.add('hidden');
     if (adminContent) {
         adminContent.style.display = 'block';
         adminContent.classList.remove('hidden');
@@ -36,10 +57,55 @@ function showDashboard() {
     }
 }
 
-// Start immediately
-showDashboard();
+// Handle Login Form
+if (loginForm) {
+    loginForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const submitBtn = document.getElementById('login-submit-btn');
+        
+        if (loginError) loginError.classList.add('hidden');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Verificando...';
+        }
 
-// Real-time subscription
+        try {
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) throw error;
+            
+            showDashboard();
+        } catch (error) {
+            console.error('Erro no login:', error.message);
+            if (loginError) {
+                loginError.textContent = 'E-mail ou senha incorretos.';
+                loginError.classList.remove('hidden');
+            }
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Entrar no Dashboard</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
+                if (window.lucide) window.lucide.createIcons();
+            }
+        }
+    };
+}
+
+// Logout logic
+if (logoutBtn) {
+    logoutBtn.onclick = async () => {
+        await supabase.auth.signOut();
+        location.reload();
+    };
+}
+
+// Start by checking session
+checkSession();
+
+// --- REAL-TIME & DATA LOADING ---
+
 function subscribeToLeads() {
     console.log('Iniciando escuta em tempo real para leads...');
     
@@ -51,21 +117,10 @@ function subscribeToLeads() {
             table: 'leads' 
         }, (payload) => {
             console.log('Mudança detectada no banco de dados:', payload.eventType);
-            // Refresh the whole table and stats to ensure accuracy
             loadLeads();
         })
         .subscribe();
 }
-
-// Logout btn just reloads (for now)
-const logoutBtn = document.getElementById('logout-btn');
-if (logoutBtn) {
-    logoutBtn.onclick = () => {
-        location.reload();
-    };
-}
-
-// --- FUNNEL SETTINGS ---
 
 async function loadSettings() {
     try {
@@ -108,8 +163,6 @@ window.updateSettings = async (type) => {
     }
 }
 
-// --- LEADS MANAGEMENT ---
-
 async function loadLeads() {
     try {
         console.log('Buscando leads no banco de dados...');
@@ -118,15 +171,7 @@ async function loadLeads() {
             .select('*')
             .order('created_at', { ascending: false })
 
-        if (error) {
-            console.error('Erro retornado pelo Supabase:', error);
-            throw error;
-        }
-
-        console.log('Total de leads encontrados:', data.length);
-        if (data.length > 0) {
-            console.log('Primeiro lead:', data[0]);
-        }
+        if (error) throw error;
 
         allLeads = data || []
         updateStats(allLeads)
@@ -134,7 +179,7 @@ async function loadLeads() {
     } catch (error) {
         console.error('Error loading leads:', error)
         if (leadsBody) {
-            leadsBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">Erro ao carregar leads da base de dados.</td></tr>`
+            leadsBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">Erro ao carregar leads. Verifique as permissões do banco.</td></tr>`
         }
     }
 }

@@ -13,5 +13,8 @@
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.97.0"
+    },
+    "engines": {
+        "node": ">=18"
     }
 }
