@@ -4,6 +4,7 @@ import { supabase } from './supabaseClient.js'
 const loginScreen = document.getElementById('login-screen')
 const adminContent = document.getElementById('admin-content')
 const loginForm = document.getElementById('login-form')
+const loginBtnManual = document.getElementById('login-btn-manual')
 const leadsBody = document.getElementById('admin-leads-body')
 const searchInput = document.getElementById('search-leads')
 const filterStatus = document.getElementById('filter-status')
@@ -34,31 +35,32 @@ const handleAuth = async () => {
 
 handleAuth()
 
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault()
-    const email = document.getElementById('email').value.trim()
-    const password = document.getElementById('password').value.trim()
-    
-    console.log('Tentativa de login:', email);
+loginForm?.addEventListener('submit', (e) => e.preventDefault());
 
-    // Emergency Bypass
-    if (email.toLowerCase() === 'admin@wekota.eu' && password === 'wekota2026admin') {
-        console.log('Bypass detectado! Forçando entrada...');
-        localStorage.setItem('admin_bypass', 'true');
-        showDashboard();
-        return;
-    }
+if (loginBtnManual) {
+    loginBtnManual.addEventListener('click', async () => {
+        const email = document.getElementById('email').value.trim()
+        const password = document.getElementById('password').value.trim()
+        
+        console.log('Botão de login clicado:', email);
 
-    try {
-        console.log('Tentando login via Supabase...');
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-        if (!error) showDashboard()
-        else alert('Erro no login: ' + error.message)
-    } catch (err) {
-        console.error('Erro crítico:', err);
-        alert('Erro de conexão')
-    }
-})
+        if (email.toLowerCase() === 'admin@wekota.eu' && password === 'wekota2026admin') {
+            console.log('✅ Acesso Master liberado.');
+            localStorage.setItem('admin_bypass', 'true');
+            showDashboard();
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+            if (!error) showDashboard()
+            else alert('Erro: ' + error.message)
+        } catch (err) {
+            console.error(err);
+            alert('Falha na conexão com Supabase. Tente novamente.');
+        }
+    });
+}
 
 document.getElementById('logout-btn').onclick = () => {
     supabase.auth.signOut()
