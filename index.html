@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="WEKOTA – Plataforma europeia estruturada de aquisição coletiva para o iPhone 17 Pro Max.">
+  <meta name="description"
+    content="WEKOTA – Plataforma europeia estruturada de aquisição coletiva para o iPhone 17 Pro Max.">
   <title>WEKOTA | iPhone 17 Pro Max</title>
   
   <!-- Google tag (gtag.js) -->
@@ -13,6 +14,7 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
+
     gtag('config', 'G-S285WX7BLZ');
   </script>
 
@@ -25,180 +27,652 @@
 
 <body>
 
-  <!-- SPA ROOT: Todo o conteúdo será carregado aqui dinamicamente -->
-  <div id="spa-root">
-    
-    <!-- CONTEÚDO INICIAL (HOME) -->
-    <header class="header">
-      <div class="container header__inner">
-        <a href="/" class="logo">
-          <img src="images/logo-oficial.png" alt="WEKOTA Logo" class="logo__img-official">
-        </a>
-        <div class="header__right">
-          <div class="lang-selector">
-            <a href="index.html" class="active" title="Português"><img src="https://flagcdn.com/w20/pt.png" width="20" alt="PT"></a>
-            <a href="es.html" title="Español"><img src="https://flagcdn.com/w20/es.png" width="20" alt="ES"></a>
-          </div>
-          <a href="funil-conversao.html" class="btn btn--outline-navy">Entrar na Lista</a>
+  <!-- 1️⃣ HEADER -->
+  <header class="header">
+    <div class="container header__inner">
+      <a href="./" class="logo">
+        <img src="images/logo-oficial.png" alt="WEKOTA Logo" class="logo__img-official">
+      </a>
+      <div class="header__right">
+        <div class="lang-selector">
+          <a href="index.html" class="active" title="Português"><img src="https://flagcdn.com/w20/pt.png" width="20" alt="PT"></a>
+          <a href="es.html" title="Español"><img src="https://flagcdn.com/w20/es.png" width="20" alt="ES"></a>
+        </div>
+        <a href="./funil-conversao.html" class="btn btn--outline-navy">Entrar na Lista</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1️⃣ HERO (Desejo + Autoridade) -->
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <h1 class="hero__headline">Tenha o iPhone 17 Pro Max na Europa.</h1>
+          <p class="hero__subheadline">Junte-se a um grupo. Pague parcelas fixas. Receba o seu iPhone.</p>
+          <p class="hero__mini-text">Sem banco, sem juros, sem surpresas.</p>
+          <a href="./funil-conversao.html" class="btn btn--primary btn--lg">Quero minha posição</a>
+        </div>
+        <div class="hero__visual">
+          <img src="images/hero-split.png" alt="iPhone 17 Pro Max" class="hero__img">
         </div>
       </div>
-    </header>
+    </section>
 
-    <main>
-      <section class="hero">
-        <div class="container hero__inner">
-          <div class="hero__content">
-            <h1 class="hero__headline">Tenha o iPhone 17 Pro Max na Europa.</h1>
-            <p class="hero__subheadline">Junte-se a um grupo. Pague parcelas fixas. Receba o seu iPhone.</p>
-            <p class="hero__mini-text">Sem banco, sem juros, sem surpresas.</p>
-            <a href="funil-conversao.html" class="btn btn--primary btn--lg">Quero minha posição</a>
+    <!-- 2️⃣ BLOCO DE AUTORIDADE -->
+    <section class="section-padding bg-white" id="autoridade">
+      <div class="container">
+        <div class="authority-grid">
+          <div class="authority-header">
+            <h2 class="section-title">Estrutura no lugar da burocracia.</h2>
+            <p class="section-desc">A WEKOTA organiza o acesso à tecnologia premium por meio de um modelo coletivo previsível, contratual e transparente.</p>
           </div>
-          <div class="hero__visual">
-            <img src="images/hero-split.png" alt="iPhone 17 Pro Max" class="hero__img">
-          </div>
-        </div>
-      </section>
-
-      <!-- Seções Originais Mantidas -->
-      <section class="section-padding bg-white" id="autoridade">
-        <div class="container">
-          <div class="authority-grid">
-            <div class="authority-header">
-              <h2 class="section-title">Estrutura no lugar da burocracia.</h2>
-              <p class="section-desc">A WEKOTA organiza o acesso à tecnologia premium por meio de um modelo coletivo previsível, contratual e transparente.</p>
+          <div class="authority-bullets">
+            <div class="bullet-item">
+              <span class="bullet-dot"></span>
+              <strong>Valor total definido desde o início</strong>
             </div>
-            <div class="authority-bullets">
-              <div class="bullet-item"><span class="bullet-dot"></span><strong>Valor total definido desde o início</strong></div>
-              <div class="bullet-item"><span class="bullet-dot"></span><strong>Ordem de entrega contratual</strong></div>
-              <div class="bullet-item"><span class="bullet-dot"></span><strong>Operação sob jurisdição europeia</strong></div>
-              <div class="bullet-item"><span class="bullet-dot"></span><strong>Mensalidades fixas</strong></div>
+            <div class="bullet-item">
+              <span class="bullet-dot"></span>
+              <strong>Ordem de entrega contratual</strong>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-dot"></span>
+              <strong>Operação sob jurisdição europeia</strong>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-dot"></span>
+              <strong>Mensalidades fixas</strong>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="section-padding bg-light" id="como-funciona">
-        <div class="container">
-          <div class="text-center mb-80"><h2 class="section-title">Como funciona</h2></div>
-          <div class="steps-grid">
-            <div class="step-card"><div class="step-icon-wrap"><i data-lucide="user-plus" class="step-icon"></i><span class="step-number-bg">01</span></div><h3 class="step-title">Reserva de posição</h3></div>
-            <div class="step-card"><div class="step-icon-wrap"><i data-lucide="file-check" class="step-icon"></i><span class="step-number-bg">02</span></div><h3 class="step-title">Formalização contratual europeia</h3></div>
-            <div class="step-card"><div class="step-icon-wrap"><i data-lucide="credit-card" class="step-icon"></i><span class="step-number-bg">03</span></div><h3 class="step-title">Pagamento mensal fixo</h3></div>
-            <div class="step-card"><div class="step-icon-wrap"><i data-lucide="package" class="step-icon"></i><span class="step-number-bg">04</span></div><h3 class="step-title">Entrega conforme ordem contratual</h3></div>
+    <!-- 3️⃣ COMO FUNCIONA (4 PASSOS) -->
+    <section class="section-padding bg-light" id="como-funciona">
+      <div class="container">
+        <div class="text-center mb-80">
+          <h2 class="section-title">Como funciona</h2>
+        </div>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-icon-wrap">
+              <i data-lucide="user-plus" class="step-icon"></i>
+              <span class="step-number-bg">01</span>
+            </div>
+            <h3 class="step-title">Reserva de posição</h3>
+          </div>
+          <div class="step-card">
+            <div class="step-icon-wrap">
+              <i data-lucide="file-check" class="step-icon"></i>
+              <span class="step-number-bg">02</span>
+            </div>
+            <h3 class="step-title">Formalização contratual europeia</h3>
+          </div>
+          <div class="step-card">
+            <div class="step-icon-wrap">
+              <i data-lucide="credit-card" class="step-icon"></i>
+              <span class="step-number-bg">03</span>
+            </div>
+            <h3 class="step-title">Pagamento mensal fixo</h3>
+          </div>
+          <div class="step-card">
+            <div class="step-icon-wrap">
+              <i data-lucide="package" class="step-icon"></i>
+              <span class="step-number-bg">04</span>
+            </div>
+            <h3 class="step-title">Entrega conforme ordem contratual</h3>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="section-padding bg-white" id="produto">
-        <div class="container">
-          <div class="text-center mb-60"><h2 class="section-title">iPhone 17 Pro Max 256GB — <span class="text-teal">Todas as Cores</span></h2></div>
-          <div class="product-carousel-wrapper">
-            <div class="product-carousel-track">
-              <div class="product-slide"><img src="images/product-orange.png" alt="iPhone 17 Pro Max" class="product-img-premium"></div>
-              <div class="product-slide"><img src="images/product-info.jpg" alt="iPhone 17 Pro Max Info" class="product-img-premium"></div>
-              <div class="product-slide"><img src="images/product-cable.png" alt="iPhone 17 Pro Max Cable" class="product-img-premium"></div>
-              <div class="product-slide"><img src="images/hero-split.png" alt="iPhone 17 Pro Max Detalhe" class="product-img-premium"></div>
-              <div class="product-slide"><img src="images/lineup.png" alt="iPhone 17 Pro Max Lineup" class="product-img-premium"></div>
+    <!-- 4️⃣ SEÇÃO PRODUTO (CARROSSEL) -->
+    <section class="section-padding bg-white" id="produto">
+      <div class="container">
+        <div class="text-center mb-60">
+          <h2 class="section-title">iPhone 17 Pro Max 256GB — <span class="text-teal">Todas as Cores</span></h2>
+        </div>
+        <div class="product-carousel-wrapper">
+          <div class="product-carousel-track">
+            <div class="product-slide">
+              <img src="images/product-orange.png" alt="iPhone 17 Pro Max" class="product-img-premium">
             </div>
-            <div class="carousel-nav">
-              <button class="nav-btn prev"><i data-lucide="chevron-left"></i></button>
-              <button class="nav-btn next"><i data-lucide="chevron-right"></i></button>
+            <div class="product-slide">
+              <img src="images/product-info.jpg" alt="iPhone 17 Pro Max Info" class="product-img-premium">
+            </div>
+            <div class="product-slide">
+              <img src="images/product-cable.png" alt="iPhone 17 Pro Max Cable" class="product-img-premium">
+            </div>
+            <div class="product-slide">
+              <img src="images/hero-split.png" alt="iPhone 17 Pro Max Detalhe" class="product-img-premium">
+            </div>
+             <div class="product-slide">
+              <img src="images/lineup.png" alt="iPhone 17 Pro Max Lineup" class="product-img-premium">
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <button class="nav-btn prev"><i data-lucide="chevron-left"></i></button>
+            <button class="nav-btn next"><i data-lucide="chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4.1️⃣ SEÇÃO ESCASSEZ (URGENCY) -->
+    <section class="urgency-banner section-padding" style="background: linear-gradient(rgba(22, 62, 99, 0.95), rgba(22, 62, 99, 0.95)), url('images/hero-split.png') center/cover fixed;">
+      <div class="container text-center text-white">
+        <div class="status-badge-premium mb-32">
+          <span class="status-dot-pulse"></span> INSCRIÇÕES ABERTAS PARA O GRUPO
+        </div>
+        
+        <h2 class="urgency-title mb-32">Posições limitadas <br> <span class="text-teal">disponíveis.</span></h2>
+        <p class="section-desc text-white-60 mb-48 mx-auto" style="line-height: 1.8;">O grupo abrirá apenas quando os primeiros <strong>12 participantes qualificados</strong> confirmarem a sua posição.</p>
+        
+        <div class="positions-status mb-60">
+          <div class="dots-row">
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos filled"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+            <span class="dot-pos"></span>
+          </div>
+          <p class="dots-label mt-24">6 de 12 posições confirmadas — 6 restantes</p>
+        </div>
+
+        <div class="countdown-wrapper mb-60">
+          <p class="countdown-header mb-16"><i data-lucide="clock" class="icon-sm"></i> A JANELA DE INSCRIÇÃO FECHA EM</p>
+          <div class="countdown-grid">
+            <div class="timer-unit">
+              <span id="days">06</span>
+              <label>DIAS</label>
+            </div>
+            <span class="timer-sep">:</span>
+            <div class="timer-unit">
+              <span id="hours">03</span>
+              <label>HORAS</label>
+            </div>
+            <span class="timer-sep">:</span>
+            <div class="timer-unit">
+              <span id="minutes">47</span>
+              <label>MIN</label>
+            </div>
+            <span class="timer-sep">:</span>
+            <div class="timer-unit">
+              <span id="seconds">00</span>
+              <label>SEG</label>
             </div>
           </div>
         </div>
-      </section>
 
-      <section class="urgency-banner section-padding" style="background: linear-gradient(rgba(22, 62, 99, 0.95), rgba(22, 62, 99, 0.95)), url('images/hero-split.png') center/cover fixed;">
-        <div class="container text-center text-white">
-          <div class="status-badge-premium mb-32"><span class="status-dot-pulse"></span> INSCRIÇÕES ABERTAS PARA O GRUPO</div>
-          <h2 class="urgency-title mb-32">Posições limitadas <br> <span class="text-teal">disponíveis.</span></h2>
-          <p class="section-desc text-white-60 mb-48 mx-auto">O grupo abrirá apenas quando os primeiros <strong>12 participantes qualificados</strong> confirmarem a sua posição.</p>
-          <div class="positions-status mb-60">
-            <div class="dots-row">
-              <span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span>
-              <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
-            </div>
-            <p class="dots-label mt-24">6 de 12 posições confirmadas — 6 restantes</p>
-          </div>
-          <div class="countdown-wrapper mb-60">
-            <p class="countdown-header mb-16"><i data-lucide="clock" class="icon-sm"></i> A JANELA DE INSCRIÇÃO FECHA EM</p>
-            <div class="countdown-grid">
-              <div class="timer-unit"><span id="days">06</span><label>DIAS</label></div><span class="timer-sep">:</span>
-              <div class="timer-unit"><span id="hours">03</span><label>HORAS</label></div><span class="timer-sep">:</span>
-              <div class="timer-unit"><span id="minutes">47</span><label>MIN</label></div><span class="timer-sep">:</span>
-              <div class="timer-unit"><span id="seconds">00</span><label>SEG</label></div>
-            </div>
-          </div>
-          <a href="funil-conversao.html" class="btn btn--primary btn--lg mb-24">Reservar Minha Posição <i data-lucide="arrow-right" class="ml-8"></i></a>
+        <a href="./funil-conversao.html" class="btn btn--primary btn--lg mb-24">
+          Reservar Minha Posição <i data-lucide="arrow-right" class="ml-8"></i>
+        </a>
+        
+        <p class="disclaimer-text text-white-60">
+          Inicie agora a sua reserva de posição. <br>
+          Sem compromisso nesta fase.
+        </p>
+      </div>
+    </section>
+
+    <!-- 5️⃣ ESTRUTURA DE PAGAMENTO -->
+    <section class="section-padding bg-light" id="pagamento">
+      <div class="container">
+        <div class="text-center mb-60">
+          <h2 class="section-title">Estrutura de Pagamento</h2>
         </div>
-      </section>
-
-      <section class="section-padding bg-light" id="pagamento">
-        <div class="container">
-          <div class="text-center mb-60"><h2 class="section-title">Estrutura de Pagamento</h2></div>
-          <div class="payment-flex">
-            <div class="payment-card-premium featured-plan">
-              <div class="card-header-finance">
-                <span class="finance-tag">GRUPO #101</span>
-                <h3 class="duration-title">12 meses</h3>
-                <div class="installment-price mt-24"><span class="price-value">149,00€</span><span class="price-label">/ mensalidade fixa</span></div>
+        <div class="payment-flex">
+          <!-- Opção 01 -->
+          <div class="payment-card-premium featured-plan">
+            <div class="card-header-finance">
+              <span class="finance-tag">GRUPO #101</span>
+              <h3 class="duration-title">12 meses</h3>
+              <p class="duration-subtitle">duração do grupo</p>
+              <div class="installment-price mt-24">
+                <span class="price-value">149,00€</span>
+                <span class="price-label">/ mensalidade fixa</span>
               </div>
-              <div class="card-body-finance">
-                <ul class="finance-list"><li><i data-lucide="check" class="finance-check"></i> Mensalidades fixas</li><li><i data-lucide="check" class="finance-check"></i> Isento de juros</li></ul>
-                <a href="funil-conversao.html" class="btn btn--primary btn--full">Reservar Agora</a>
+            </div>
+            <div class="card-body-finance">
+              <ul class="finance-list">
+                <li><i data-lucide="check" class="finance-check"></i> Mensalidades fixas</li>
+                <li><i data-lucide="check" class="finance-check"></i> Isento de juros</li>
+                <li><i data-lucide="check" class="finance-check"></i> Zero taxas ocultas</li>
+              </ul>
+              <a href="./funil-conversao.html" class="btn btn--primary btn--full">Reservar Agora</a>
+            </div>
+          </div>
+          <!-- Opção 02 -->
+          <div class="payment-card-premium featured-plan">
+            <div class="card-header-finance">
+              <div class="badge-upgrade">GARANTIA DE UPGRADE</div>
+              <span class="finance-tag">GRUPO #102</span>
+              <h3 class="duration-title">24 meses</h3>
+              <p class="duration-subtitle">duração do grupo</p>
+              <div class="installment-price mt-24">
+                <span class="price-value">75,00€</span>
+                <span class="price-label">/ mensalidade fixa</span>
               </div>
             </div>
-            <div class="payment-card-premium featured-plan">
-              <div class="card-header-finance">
-                <div class="badge-upgrade">GARANTIA DE UPGRADE</div>
-                <span class="finance-tag">GRUPO #102</span>
-                <h3 class="duration-title">24 meses</h3>
-                <div class="installment-price mt-24"><span class="price-value">75,00€</span><span class="price-label">/ mensalidade fixa</span></div>
+            <div class="card-body-finance">
+              <div class="upgrade-info mb-24">
+                <div class="badge-upgrade-inline">GARANTIA DE UPGRADE</div>
+                <div class="upgrade-text-wrap">
+                  <i data-lucide="sparkles" class="upgrade-icon"></i>
+                  <p>Todos os nossos planos recebem automaticamente <strong>upgrade para o último modelo</strong> de iPhone disponível.</p>
+                </div>
               </div>
-              <div class="card-body-finance">
-                <ul class="finance-list"><li><i data-lucide="check" class="finance-check"></i> Mensalidades fixas</li><li><i data-lucide="check" class="finance-check"></i> Isento de juros</li></ul>
-                <a href="funil-conversao.html" class="btn btn--primary btn--full">Reservar Agora</a>
+              <ul class="finance-list">
+                <li><i data-lucide="check" class="finance-check"></i> Mensalidades fixas</li>
+                <li><i data-lucide="check" class="finance-check"></i> Isento de juros</li>
+                <li><i data-lucide="check" class="finance-check"></i> Zero taxas ocultas</li>
+              </ul>
+              <a href="./funil-conversao.html" class="btn btn--primary btn--full">Reservar Agora</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6️⃣ PROVA SOCIAL + MÉTRICAS -->
+    <section class="section-padding" id="prova" style="background-color: var(--light-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+      <div class="container">
+        <div class="text-center mb-60">
+          <h2 class="section-title">Resultados que geram confiança.</h2>
+        </div>
+        
+        <div class="metrics-grid">
+          <div class="metric-item-premium">
+            <span class="metric-value">+150</span>
+            <span class="metric-label">Interessados</span>
+          </div>
+          <div class="metric-item-premium">
+            <span class="metric-value">30%</span>
+            <span class="metric-label">Qualificados</span>
+          </div>
+          <div class="metric-item-premium">
+            <span class="metric-value">10</span>
+            <span class="metric-label">Vagas Inaugurais</span>
+          </div>
+        </div>
+
+        <div class="carousel-container-testimonials">
+          <div class="testimonial-track">
+            <!-- Testimonial 1 (Updated) -->
+            <div class="testimonial-slide">
+              <div class="testimonial-card-premium">
+                <div class="rating-stars mb-24">
+                  <i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i>
+                </div>
+                <p class="testimonial-text">"Mudei-me para Portugal e não me qualifiquei para nada — sem plano de telemóvel, sem crédito em loja. A WEKOTA foi a primeira plataforma que não me pediu para provar o meu historial financeiro. O processo foi completamente claro desde o primeiro dia."</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">MS</div>
+                  <div class="author-info">
+                    <h4>Maria S.</h4>
+                    <p>Brasil ➔ Lisboa, Portugal</p>
+                    <span class="author-subtext">Designer UX, mudou-se há 9 meses</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Testimonial 2 (Updated) -->
+            <div class="testimonial-slide">
+              <div class="testimonial-card-premium">
+                <div class="rating-stars mb-24">
+                  <i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i>
+                </div>
+                <p class="testimonial-text">"As lojas tradicionais queriam uma pontuação de crédito que eu simplesmente ainda não tinha em Espanha. Com a WEKOTA entrei num grupo, assinei um contrato que realmente compreendi e soube exatamente quando receberia o meu dispositivo. Zero surpresas."</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">KA</div>
+                  <div class="author-info">
+                    <h4>Kwame A.</h4>
+                    <p>Gana ➔ Madrid, Espanha</p>
+                    <span class="author-subtext">Engenheiro de Software, 2 anos na Europa</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Testimonial 3 (Updated) -->
+            <div class="testimonial-slide">
+              <div class="testimonial-card-premium">
+                <div class="rating-stars mb-24">
+                  <i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star" class="star-icon"></i>
+                </div>
+                <p class="testimonial-text">"O que me convenceu foi a transparência. Vi o calendário de pagamentos completo, a minha posição no grupo e o prazo de entrega — tudo antes de comprometer um único euro. Este tipo de clareza é raro."</p>
+                <div class="testimonial-author">
+                  <div class="author-avatar">AP</div>
+                  <div class="author-info">
+                    <h4>Ana P.</h4>
+                    <p>Roménia ➔ Madrid, Espanha</p>
+                    <span class="author-subtext">Gestora de Marketing, primeira compra</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+
+        <div class="institutional-grid mt-80">
+          <div class="inst-item">
+            <i data-lucide="shield-check" class="inst-icon"></i>
+            <h4>Contrato europeu formal</h4>
+          </div>
+          <div class="inst-item">
+            <i data-lucide="user-check" class="inst-icon"></i>
+            <h4>Processo de qualificação</h4>
+          </div>
+          <div class="inst-item">
+            <i data-lucide="users" class="inst-icon"></i>
+            <h4>Modelo coletivo organizado</h4>
+          </div>
+          <div class="inst-item">
+            <i data-lucide="package-check" class="inst-icon"></i>
+            <h4>Entrega por ordem contratual</h4>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7️⃣ SEGURANÇA & ROBUSTEZ -->
+    <section class="section-padding bg-navy" id="seguranca">
+      <div class="container">
+        <div class="safety-grid">
+          <div class="safety-content">
+            <h2 class="section-title text-white">Por que confiar na WEKOTA?</h2>
+            <div class="safety-bullets">
+              <div class="safety-item">
+                <i data-lucide="landmark" class="safety-icon"></i>
+                <div>
+                  <h4>Operação sob jurisdição europeia</h4>
+                  <p>Segurança jurídica total para todos os participantes.</p>
+                </div>
+              </div>
+              <div class="safety-item">
+                <i data-lucide="file-text" class="safety-icon"></i>
+                <div>
+                  <h4>Estrutura contratual formal</h4>
+                  <p>Regras claras e direitos protegidos por lei.</p>
+                </div>
+              </div>
+              <div class="safety-item">
+                <i data-lucide="layers" class="safety-icon"></i>
+                <div>
+                  <h4>Modelo coletivo organizado</h4>
+                  <p>Previsibilidade máxima em cada etapa do ciclo.</p>
+                </div>
+              </div>
+              <div class="safety-item">
+                <i data-lucide="key" class="safety-icon"></i>
+                <div>
+                  <h4>Liberação total ao final do ciclo</h4>
+                  <p>Propriedade plena sem resíduos ou taxas finais.</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <footer class="footer bg-navy">
-        <div class="container footer__grid">
-          <div class="footer__col"><a href="#" class="logo mb-24"><img src="images/logo-oficial.png" alt="WEKOTA Logo" class="logo__img-official brightness-invert"></a><p class="footer__desc">Plataforma europeia estruturada de aquisição coletiva.</p></div>
-          <div class="footer__col"><h4 class="footer__title">Links</h4><ul class="footer__links"><li><a href="#como-funciona">Como funciona</a></li><li><a href="mailto:contato@wekota.eu">Contato</a></li></ul></div>
-          <div class="footer__col"><h4 class="footer__title">Legal</h4><ul class="footer__links"><li><a href="politica-privacidade.html">Política de Privacidade</a></li><li><a href="termos-condicoes.html">Termos e Condições</a></li></ul><p class="footer__copyright">© 2026 WEKOTA. Todos os direitos reservados.</p></div>
+    <!-- 7.5️⃣ FAQ SECTION -->
+    <section class="section-padding bg-white" id="faq">
+      <div class="container">
+        <div class="text-center mb-60">
+          <h2 class="section-title">Perguntas Frequentes</h2>
+          <p class="section-desc mx-auto mt-16">Esclareça as suas dúvidas sobre o modelo estruturado da WEKOTA.</p>
         </div>
-      </footer>
-    </main>
-  </div>
+        
+        <div class="faq-wrapper">
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>1. O que é exatamente um grupo de aquisição coletiva?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>É um grupo estruturado de participantes que reúnem as suas contribuições mensais para aceder a um produto em conjunto. Cada participante tem uma posição de entrega definida contratualmente — sabe exatamente quando receberá o seu dispositivo antes de aderir.</p>
+            </div>
+          </div>
 
-  <script src="main.js"></script>
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>2. Isto é um empréstimo ou um produto de financiamento?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Não. A WEKOTA não é uma instituição financeira e não oferece empréstimos nem financiamento. Operamos uma plataforma de acesso coletivo estruturado. Os seus pagamentos são contribuições para um fundo coletivo — sem juros, sem verificação de crédito, sem aprovação bancária.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>3. Como é determinada a minha posição de entrega?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>As posições são atribuídas por ordem de confirmação e conclusão do primeiro pagamento. Quanto mais cedo confirmar, melhor será a sua posição na fila de entrega. Todas as posições são definidas por contrato antes do início do grupo.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>4. O que acontece se precisar de sair do grupo?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Os nossos contratos incluem condições de saída e termos de reembolso claramente definidos. Tudo está documentado de forma transparente antes de se comprometer. A nossa equipa explicar-lhe-á os termos no WhatsApp antes de confirmar a sua posição.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>5. A WEKOTA é regulamentada?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>A WEKOTA opera como uma empresa com sede na Europa e cumpre as regulamentações da UE aplicáveis a plataformas comerciais coletivas. Pode consultar a nossa <a href="politica-privacidade.html" class="text-teal">Política de Privacidade</a> e os nossos <a href="termos-condicoes.html" class="text-teal">Termos e Condições</a> completos para total transparência.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>6. Como sei que o iPhone será efetivamente entregue?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Cada grupo é estruturado com compromissos de inventário pré-adquirido. O seu dispositivo é rastreado através da tecnologia de proteção de dispositivos da nossa plataforma, desde a aquisição até à entrega. Todos os termos — incluindo garantias de entrega — constam do seu contrato.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span>7. E se o iPhone 17 Pro Max ainda não foi lançado?</span>
+              <i data-lucide="chevron-down" class="faq-icon"></i>
+            </button>
+            <div class="faq-answer">
+              <p>O Grupo #101 destina-se ao posicionamento antecipado. Quando a Apple anunciar a disponibilidade oficial, a WEKOTA adquirirá e alocará dispositivos de acordo com a encomenda confirmada do grupo. Será informado do prazo de entrega esperado antes de se comprometer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8️⃣ CTA FINAL -->
+    <section class="section-padding bg-light" id="reservar">
+      <div class="container text-center">
+        <div class="escasset-badge">⏳ Vagas limitadas</div>
+        <h2 class="section-title mb-16">Posições limitadas disponíveis.</h2>
+        <p class="section-desc mb-48 mx-auto">O grupo abre com os primeiros 12 participantes qualificados.</p>
+
+        <div class="form-card-premium">
+          <div class="lead-form">
+            <div class="form-grid">
+              <input type="text" placeholder="Nome Completo" required class="form-input">
+              <input type="text" placeholder="WhatsApp (+ Código País)" required class="form-input">
+              <select class="form-input" required>
+                <option value="" disabled selected>País de Residência</option>
+                <option value="Portugal">Portugal</option>
+                <option value="Espanha">Espanha</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <a href="./funil-conversao.html" class="btn btn--primary btn--full btn--lg mt-24">RESERVAR MINHA POSIÇÃO</a>
+          </div>
+          <div class="counter-discreet">6 de 12 vagas confirmadas</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer bg-navy">
+    <div class="container footer__grid">
+      <div class="footer__col">
+        <a href="#" class="logo mb-24">
+          <img src="images/logo-oficial.png" alt="WEKOTA Logo" class="logo__img-official brightness-invert">
+        </a>
+        <p class="footer__desc">Plataforma europeia estruturada de aquisição coletiva.</p>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">Links</h4>
+        <ul class="footer__links">
+          <li><a href="#como-funciona">Como funciona</a></li>
+          <li><a href="#reservar">Lista prioritária</a></li>
+          <li><a href="mailto:contato@wekota.eu">Contato</a></li>
+          <li><a href="tel:+34634773958" style="color: var(--white-60); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; margin-top: 12px; text-decoration: none;">
+            <img src="https://flagcdn.com/w20/es.png" srcset="https://flagcdn.com/w40/es.png 2x" width="20" alt="Espanha">
+            +34 634 77 39 58
+          </a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4 class="footer__title">Legal</h4>
+        <p class="footer__legal-text">Operamos sob jurisdição europeia.</p>
+        <ul class="footer__links">
+          <li><a href="politica-privacidade.html">Política de Privacidade</a></li>
+          <li><a href="termos-condicoes.html">Termos e Condições</a></li>
+        </ul>
+        <p class="footer__copyright">© 2026 WEKOTA. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/34634773958" target="_blank" class="wa-float-official">
+    <span class="wa-text-official">Falar no WhatsApp</span>
+    <div class="wa-icon-official">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.634 1.437h.005c6.558 0 11.894-5.335 11.897-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </div>
+  </a>
+
   <script>
-    // Inicialização manual dos scripts da home após o carregamento inicial
-    if (window.lucide) window.lucide.createIcons();
-    
-    // Countdown
-    function startCountdown() {
-      const days = document.getElementById('days'), hours = document.getElementById('hours'), minutes = document.getElementById('minutes'), seconds = document.getElementById('seconds');
-      if (!days) return;
-      let d = 6, h = 3, m = 47, s = 0;
-      setInterval(() => {
-        s--; if(s<0){s=59; m--;} if(m<0){m=59; h--;} if(h<0){h=23; d--;}
-        days.innerText = String(d).padStart(2,'0'); hours.innerText = String(h).padStart(2,'0'); minutes.innerText = String(m).padStart(2,'0'); seconds.innerText = String(s).padStart(2,'0');
-      }, 1000);
+    lucide.createIcons();
+
+    // Product Carousel
+    const productTrack = document.querySelector('.product-carousel-track');
+    const slides = Array.from(productTrack.children);
+    const nextButton = document.querySelector('.nav-btn.next');
+    const prevButton = document.querySelector('.nav-btn.prev');
+    let currentIndex = 0;
+
+    function updateCarousel() {
+      productTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
     }
+
+    nextButton.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % slides.length;
+      updateCarousel();
+    });
+
+    prevButton.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      updateCarousel();
+    });
+
+    // Auto transition
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % slides.length;
+      updateCarousel();
+    }, 5000);
+
+    // Testimonial Carousel Logic
+    const testimonialTrack = document.querySelector('.testimonial-track');
+    const testimonialSlides = Array.from(testimonialTrack.children);
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    let tIndex = 0;
+
+    function updateTestimonials() {
+      testimonialTrack.style.transform = `translateX(-${tIndex * 100}%)`;
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === tIndex));
+    }
+
+    setInterval(() => {
+      tIndex = (tIndex + 1) % testimonialSlides.length;
+      updateTestimonials();
+    }, 6000);
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        tIndex = i;
+        updateTestimonials();
+      });
+    });
+
+    // URGENCY COUNTDOWN SCRIPT
+    function startCountdown() {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + 6);
+      targetDate.setHours(targetDate.getHours() + 3);
+      targetDate.setMinutes(targetDate.getMinutes() + 47);
+
+      function updateTimer() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById('days').innerText = String(d).padStart(2, '0');
+        document.getElementById('hours').innerText = String(h).padStart(2, '0');
+        document.getElementById('minutes').innerText = String(m).padStart(2, '0');
+        document.getElementById('seconds').innerText = String(s).padStart(2, '0');
+
+        if (distance < 0) {
+          clearInterval(timerInterval);
+          document.querySelector('.countdown-grid').innerHTML = "<h3 class='text-teal'>JANELA ENCERRADA</h3>";
+        }
+      }
+
+      updateTimer();
+      const timerInterval = setInterval(updateTimer, 1000);
+    }
+
     startCountdown();
 
-    // Carousel
-    const track = document.querySelector('.product-carousel-track');
-    const next = document.querySelector('.nav-btn.next'), prev = document.querySelector('.nav-btn.prev');
-    let idx = 0;
-    if(track && next) {
-      next.onclick = () => { idx = (idx+1)%5; track.style.transform = `translateX(-${idx*100}%)`; };
-      prev.onclick = () => { idx = (idx-1+5)%5; track.style.transform = `translateX(-${idx*100}%)`; };
-    }
+    // FAQ Accordion Logic
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      const question = item.querySelector('.faq-question');
+      question.addEventListener('click', () => {
+        const isOpen = item.classList.contains('active');
+        faqItems.forEach(i => i.classList.remove('active'));
+        if (!isOpen) item.classList.add('active');
+      });
+    });
   </script>
 </body>
 </html>
