@@ -21,9 +21,12 @@ function showDashboard() {
         adminContent.classList.remove('hidden');
     }
     
-    // Load data with error safety
+    // Load data initially
     loadSettings().catch(e => console.error('Failed to load settings:', e));
     loadLeads().catch(e => console.error('Failed to load leads:', e));
+    
+    // Subscribe to real-time changes
+    subscribeToLeads();
     
     // Refresh icons
     if(window.lucide) {
@@ -35,6 +38,24 @@ function showDashboard() {
 
 // Start immediately
 showDashboard();
+
+// Real-time subscription
+function subscribeToLeads() {
+    console.log('Iniciando escuta em tempo real para leads...');
+    
+    supabase
+        .channel('public:leads')
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'leads' 
+        }, (payload) => {
+            console.log('Mudança detectada no banco de dados:', payload.eventType);
+            // Refresh the whole table and stats to ensure accuracy
+            loadLeads();
+        })
+        .subscribe();
+}
 
 // Logout btn just reloads (for now)
 const logoutBtn = document.getElementById('logout-btn');
