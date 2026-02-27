@@ -1232,6 +1232,22 @@
   window.toggleFaq = function(el) {
     el.classList.toggle('open');
   };
+
+  // Logic for file upload handling
+  window.filesToUpload = {};
+  window.handleFileSelect = function(input, type) {
+    if (input.files && input.files[0]) {
+      window.filesToUpload[type] = input.files[0];
+      const zone = input.nextElementSibling;
+      if (zone && zone.classList.contains('upload-zone')) {
+        zone.classList.add('uploaded');
+        const h4 = zone.querySelector('h4');
+        const p = zone.querySelector('p');
+        if (h4) h4.textContent = '✓ Documento carregado';
+        if (p) p.textContent = 'Toque para substituir';
+      }
+    }
+  };
 </script>
 
 <script type="module">
@@ -1389,7 +1405,7 @@
       btnStep3.onclick = async (e) => {
         e.preventDefault();
         
-        if (!filesToUpload.passport || !filesToUpload.selfie) {
+        if (!window.filesToUpload.passport || !window.filesToUpload.selfie) {
           alert('Por favor, anexe ambos os documentos (Passaporte e Selfie) para continuar.');
           return;
         }
@@ -1402,17 +1418,17 @@
           if (!currentLeadId) throw new Error('Lead ID não encontrado. Volte ao início.');
 
           // 1. Upload Passport
-          const passportPath = `${currentLeadId}/passport_${Date.now()}_${filesToUpload.passport.name}`;
+          const passportPath = `${currentLeadId}/passport_${Date.now()}_${window.filesToUpload.passport.name}`;
           const { error: pError } = await supabase.storage
             .from('kyc-documents')
-            .upload(passportPath, filesToUpload.passport);
+            .upload(passportPath, window.filesToUpload.passport);
           if (pError) throw pError;
 
           // 2. Upload Selfie
-          const selfiePath = `${currentLeadId}/selfie_${Date.now()}_${filesToUpload.selfie.name}`;
+          const selfiePath = `${currentLeadId}/selfie_${Date.now()}_${window.filesToUpload.selfie.name}`;
           const { error: sError } = await supabase.storage
             .from('kyc-documents')
-            .upload(selfiePath, filesToUpload.selfie);
+            .upload(selfiePath, window.filesToUpload.selfie);
           if (sError) throw sError;
 
           // 3. Update Lead Status and paths
