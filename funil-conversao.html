@@ -1354,14 +1354,15 @@
         
         if (supabase) {
             try {
-              console.log('Tentando inserir lead (v2):', { name, email, phone, country });
+              console.log('Tentando inserir lead (v3 - ultra permissiva):', { name, email, phone, country });
               
-              // Simplificando o objeto de inserção para testar compatibilidade de schema
+              // Simplificando o objeto de inserção ao máximo
               const leadData = { 
                 name: name, 
                 email: email, 
                 whatsapp: phone, 
-                country: country
+                country: country || 'PT', // Valor padrão caso vazio
+                status: 'started' 
               };
 
               const { data, error } = await supabase
@@ -1372,25 +1373,29 @@
               if (error) {
                 console.error('Erro ao salvar dados no Supabase:', error);
                 
-                // Se o erro for PGRST204 (coluna não encontrada), vamos tentar sem a coluna 'name' como teste
-                if (error.code === 'PGRST204' || error.message.includes('name')) {
-                  console.warn('Tentando fallback sem a coluna name...');
-                  const { data: retryData, error: retryError } = await supabase
+                // Fallback para qualquer erro de coluna ou constraint
+                console.warn('Tentando fallback total devido ao erro:', error.code);
+                const fallbackData = { 
+                    email: email, 
+                    whatsapp: phone,
+                    status: 'started'
+                };
+                
+                const { data: retryData, error: retryError } = await supabase
                     .from('leads')
-                    .insert([{ email, whatsapp: phone, country }])
+                    .insert([fallbackData])
                     .select();
                   
-                  if (!retryError && retryData && retryData.length > 0) {
+                if (!retryError && retryData && retryData.length > 0) {
                     currentLeadId = retryData[0].id;
                     localStorage.setItem('wekotaleadId', currentLeadId);
                     btnStep1.textContent = 'Continuar';
                     btnStep1.disabled = false;
                     forceNavigate('step2');
                     return;
-                  }
                 }
 
-                alert('Erro ao salvar dados: ' + error.message + ' (Código: ' + error.code + ')');
+                alert('Erro crítico ao salvar dados: ' + (retryError?.message || error.message));
                 btnStep1.textContent = 'Continuar';
                 btnStep1.disabled = false;
                 return;

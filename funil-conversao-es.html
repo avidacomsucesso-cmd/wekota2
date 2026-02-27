@@ -1347,22 +1347,22 @@
         
         if (supabase) {
             try {
-              const leadData = { name, email, whatsapp: phone, country };
+              const leadData = { name, email, whatsapp: phone, country: country || 'ES', status: 'started' };
               const { data, error } = await supabase
                 .from('leads')
                 .insert([leadData])
                 .select();
 
               if (error) {
-                console.error('Error al salvar datos en Supabase:', error);
+                console.error('Error en Supabase:', error);
                 
-                if (error.code === 'PGRST204' || error.message.includes('name')) {
-                  const { data: retryData, error: retryError } = await supabase
+                const fallbackData = { email, whatsapp: phone, status: 'started' };
+                const { data: retryData, error: retryError } = await supabase
                     .from('leads')
-                    .insert([{ email, whatsapp: phone, country }])
+                    .insert([fallbackData])
                     .select();
                   
-                  if (!retryError && retryData && retryData.length > 0) {
+                if (!retryError && retryData && retryData.length > 0) {
                     currentLeadId = retryData[0].id;
                     localStorage.setItem('wekotaleadId', currentLeadId);
                     btnStep1.textContent = 'Continuar';
@@ -1370,9 +1370,8 @@
                     forceNavigate('step2');
                     return;
                   }
-                }
 
-                alert('Error al guardar datos: ' + error.message + ' (Código: ' + error.code + ')');
+                alert('Error crítico: ' + (retryError?.message || error.message));
                 btnStep1.textContent = 'Continuar';
                 btnStep1.disabled = false;
                 return;
