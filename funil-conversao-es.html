@@ -1354,9 +1354,14 @@
                 .from('leads')
                 .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
                 .select()
-              if (data && data.length > 0) currentLeadId = data[0].id;
+              if (data && data.length > 0) {
+                currentLeadId = data[0].id;
+                console.log('Lead creado con éxito. ID:', currentLeadId);
+              } else if (error) {
+                console.error('Error al crear lead en Supabase:', error);
+              }
             } catch (error) {
-              console.error('Erro Supabase:', error);
+              console.error('Error inesperado en Supabase:', error);
             }
         }
         
