@@ -1326,20 +1326,16 @@
     if (btnStep1) {
       btnStep1.onclick = async (e) => {
         e.preventDefault();
-        console.log('Step 1 Logic');
         
         const nameInput = document.querySelector('#screen-step1 input[type="text"]');
         const emailInput = document.querySelector('#screen-step1 input[type="email"]');
+        const phoneInput = document.querySelector('#screen-step1 input[type="tel"]');
+        const countryInput = document.querySelector('#screen-step1 select');
         
-        if (!nameInput || !emailInput) {
-            forceNavigate('step2');
-            return;
-        }
-
-        const name = nameInput.value;
-        const email = emailInput.value;
-        const phone = document.querySelector('#screen-step1 input[type="tel"]')?.value || '';
-        const country = document.querySelector('#screen-step1 select')?.value || '';
+        const name = nameInput?.value || '';
+        const email = emailInput?.value || '';
+        const phone = phoneInput?.value || '';
+        const country = countryInput?.value || '';
 
         if (!name || !email) {
           alert('Por favor, completa Nombre y Email.');
@@ -1347,18 +1343,20 @@
         }
 
         btnStep1.textContent = 'Guardando...';
+        btnStep1.disabled = true;
         
         if (supabase) {
             try {
               const { data, error } = await supabase
                 .from('leads')
                 .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
-                .select()
-              
+                .select();
+
               if (error) {
-                console.error('Error detallado de Supabase:', error);
-                alert('Error al guardar datos: ' + error.message);
-                btnStep1.textContent = 'Intentar de nuevo';
+                console.error('Error al salvar datos en Supabase:', error);
+                alert('Error al guardar datos: ' + error.message + ' (Código: ' + error.code + ')');
+                btnStep1.textContent = 'Continuar';
+                btnStep1.disabled = false;
                 return;
               }
 
@@ -1367,12 +1365,17 @@
                 console.log('Lead creado con éxito. ID:', currentLeadId);
                 localStorage.setItem('wekotaleadId', currentLeadId);
               }
-            } catch (error) {
-              console.error('Error inesperado en Supabase:', error);
+            } catch (err) {
+              console.error('Error inesperado:', err);
+              alert('Error inesperado: ' + err.message);
+              btnStep1.textContent = 'Continuar';
+              btnStep1.disabled = false;
+              return;
             }
         }
         
         btnStep1.textContent = 'Continuar';
+        btnStep1.disabled = false;
         forceNavigate('step2');
       };
     }

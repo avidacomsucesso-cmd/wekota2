@@ -1336,16 +1336,13 @@
         
         const nameInput = document.querySelector('#screen-step1 input[type="text"]');
         const emailInput = document.querySelector('#screen-step1 input[type="email"]');
+        const phoneInput = document.querySelector('#screen-step1 input[type="tel"]');
+        const countryInput = document.querySelector('#screen-step1 select');
         
-        if (!nameInput || !emailInput) {
-            forceNavigate('step2');
-            return;
-        }
-
-        const name = nameInput.value;
-        const email = emailInput.value;
-        const phone = document.querySelector('#screen-step1 input[type="tel"]')?.value || '';
-        const country = document.querySelector('#screen-step1 select')?.value || '';
+        const name = nameInput?.value || '';
+        const email = emailInput?.value || '';
+        const phone = phoneInput?.value || '';
+        const country = countryInput?.value || '';
 
         if (!name || !email) {
           alert('Por favor, preencha Nome e Email.');
@@ -1353,25 +1350,49 @@
         }
 
         btnStep1.textContent = 'A guardar...';
+        btnStep1.disabled = true;
         
         if (supabase) {
             try {
+              console.log('Tentando inserir lead:', { name, email, phone, country });
+              
               const { data, error } = await supabase
                 .from('leads')
-                .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
-                .select()
+                .insert([{ 
+                    name, 
+                    email, 
+                    whatsapp: phone, 
+                    country, 
+                    status: 'started' 
+                }])
+                .select();
+
+              if (error) {
+                console.error('Erro ao salvar dados no Supabase:', error);
+                alert('Erro ao salvar dados: ' + error.message + ' (Código: ' + error.code + ')');
+                btnStep1.textContent = 'Continuar';
+                btnStep1.disabled = false;
+                return;
+              }
+
               if (data && data.length > 0) {
                 currentLeadId = data[0].id;
                 console.log('Lead criado com sucesso. ID:', currentLeadId);
-              } else if (error) {
-                console.error('Erro ao criar lead no Supabase:', error);
+                localStorage.setItem('wekotaleadId', currentLeadId);
+              } else {
+                console.warn('Inserção concluída mas nenhum dado retornado.');
               }
-            } catch (error) {
-              console.error('Erro inesperado no Supabase:', error);
+            } catch (err) {
+              console.error('Erro inesperado no fluxo do Supabase:', err);
+              alert('Erro inesperado: ' + err.message);
+              btnStep1.textContent = 'Continuar';
+              btnStep1.disabled = false;
+              return;
             }
         }
         
         btnStep1.textContent = 'Continuar';
+        btnStep1.disabled = false;
         forceNavigate('step2');
       };
     }
