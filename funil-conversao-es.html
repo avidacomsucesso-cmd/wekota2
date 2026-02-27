@@ -1256,23 +1256,22 @@
   import { loadStripe } from 'https://esm.sh/@stripe/stripe-js@2'
 
   const supabaseUrl = 'https://eczsqgtewtpcscsyvljy.supabase.co';
-  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjUxNTAsImV4cCI6MjA4NzU0MTE1MH0.HTXvOSk4Gjbg85YPfmWB59wKD943-wyjFd-iWeF9BUk';
+  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjenNxZ3Rld3RwY3Njc3l2bGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NjUxNTAsImV4cCI6MjA4NzU0MTE1MH0.HTXvOSk4Gjbg85YPfmWB59wKD943-wyjFd-iWeF9BUk'; 
   
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-  let currentLeadId = null
+  let currentLeadId = null;
   let selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap'; 
-  let assignedPosition = 0; // Nova variável para armazenar a posição vinda do admin
+  let assignedPosition = 0;
 
-  // Nova Função: Obter Posição do Admin
   async function fetchAssignedPosition(months) {
     try {
         const { data } = await supabase.from('funnel_settings').select('*').eq('id', 'current').single();
         if (data) {
             return months === '12' ? data.next_position_12_months : data.next_position_24_months;
         }
-    } catch (e) { console.error('Erro ao buscar posição:', e); }
-    return months === '12' ? 7 : 15; // Fallback
+    } catch (e) { console.error('Error al buscar posición:', e); }
+    return months === '12' ? 7 : 15;
   }
 
   const forceNavigate = (screenId) => {
@@ -1320,22 +1319,18 @@
   window.goTo = forceNavigate;
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Initial setup if needed
-    
+    localStorage.removeItem('wekotaleadId');
+    currentLeadId = null;
+
     const btnStep1 = document.getElementById('btn-step1');
     if (btnStep1) {
       btnStep1.onclick = async (e) => {
         e.preventDefault();
         
-        const nameInput = document.querySelector('#screen-step1 input[type="text"]');
-        const emailInput = document.querySelector('#screen-step1 input[type="email"]');
-        const phoneInput = document.querySelector('#screen-step1 input[type="tel"]');
-        const countryInput = document.querySelector('#screen-step1 select');
-        
-        const name = nameInput?.value || '';
-        const email = emailInput?.value || '';
-        const phone = phoneInput?.value || '';
-        const country = countryInput?.value || '';
+        const name = document.querySelector('#screen-step1 input[type="text"]')?.value || '';
+        const email = document.querySelector('#screen-step1 input[type="email"]')?.value || '';
+        const phone = document.querySelector('#screen-step1 input[type="tel"]')?.value || '';
+        const country = document.querySelector('#screen-step1 select')?.value || '';
 
         if (!name || !email) {
           alert('Por favor, completa Nombre y Email.');
@@ -1345,55 +1340,27 @@
         btnStep1.textContent = 'Guardando...';
         btnStep1.disabled = true;
         
-        if (supabase) {
-            try {
-              const { data, error } = await supabase
+        try {
+            const { data, error } = await supabase
                 .from('leads')
                 .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
                 .select();
 
-              if (!error && data && data.length > 0) {
+            if (error) throw error;
+
+            if (data && data.length > 0) {
                 currentLeadId = data[0].id;
                 localStorage.setItem('wekotaleadId', currentLeadId);
-                btnStep1.textContent = 'Continuar';
-                btnStep1.disabled = false;
-                forceNavigate('step2');
-                return;
-              }
-
-              console.warn('Error en inserción completa, probando fallback ultra mínimo:', error);
-              
-              const { data: minData, error: minError } = await supabase
-                .from('leads')
-                .insert([{ email, whatsapp: phone }])
-                .select();
-
-              if (!minError && minData && minData.length > 0) {
-                currentLeadId = minData[0].id;
-                localStorage.setItem('wekotaleadId', currentLeadId);
-                btnStep1.textContent = 'Continuar';
-                btnStep1.disabled = false;
-                forceNavigate('step2');
-                return;
-              }
-
-              console.error('Falla total API Supabase:', minError);
-              alert('Aviso: Estamos experimentando inestabilidad técnica. Procederemos con su reserva, pero es posible que se le solicite el envío de documentos más adelante vía WhatsApp.');
-              
-              btnStep1.textContent = 'Continuar';
-              btnStep1.disabled = false;
-              forceNavigate('step2');
-
-            } catch (err) {
-              btnStep1.textContent = 'Continuar';
-              btnStep1.disabled = false;
-              forceNavigate('step2');
             }
+            
+            forceNavigate('step2');
+        } catch (err) {
+            console.error('Error Step 1:', err);
+            alert('Error al iniciar: ' + err.message);
+        } finally {
+            btnStep1.textContent = 'Continuar';
+            btnStep1.disabled = false;
         }
-        
-        btnStep1.textContent = 'Continuar';
-        btnStep1.disabled = false;
-        forceNavigate('step2');
       };
     }
 
@@ -1438,8 +1405,8 @@
       btnStep3.onclick = async (e) => {
         e.preventDefault();
         
-        if (!window.filesToUpload.passport || !window.filesToUpload.selfie) {
-          alert('Por favor, anexa ambos documentos (Pasaporte y Selfie) para continuar.');
+        if (!window.filesToUpload?.passport || !window.filesToUpload?.selfie) {
+          alert('Por favor, anexa ambos documentos para continuar.');
           return;
         }
 
@@ -1447,50 +1414,32 @@
         btnStep3.disabled = true;
 
         try {
-          if (!supabase) throw new Error('Supabase no disponible.');
-          
-          const uploadLeadId = currentLeadId || ('temp_' + Date.now());
+          if (!currentLeadId) throw new Error('Sesión perdida. Por favor, recargue la página.');
 
-          const passportPath = `${uploadLeadId}/passport_${Date.now()}_${window.filesToUpload.passport.name}`;
-          const { error: pError } = await supabase.storage
-            .from('kyc-documents')
-            .upload(passportPath, window.filesToUpload.passport, {
-              contentType: window.filesToUpload.passport.type,
-              upsert: true
-            });
+          // Upload Passport
+          const pFile = window.filesToUpload.passport;
+          const pPath = `${currentLeadId}/passport_${Date.now()}`;
+          const { error: pError } = await supabase.storage.from('kyc-documents').upload(pPath, pFile, { contentType: pFile.type });
           if (pError) throw pError;
 
-          const selfiePath = `${uploadLeadId}/selfie_${Date.now()}_${window.filesToUpload.selfie.name}`;
-          const { error: sError } = await supabase.storage
-            .from('kyc-documents')
-            .upload(selfiePath, window.filesToUpload.selfie, {
-              contentType: window.filesToUpload.selfie.type,
-              upsert: true
-            });
+          // Upload Selfie
+          const sFile = window.filesToUpload.selfie;
+          const sPath = `${currentLeadId}/selfie_${Date.now()}`;
+          const { error: sError } = await supabase.storage.from('kyc-documents').upload(sPath, sFile, { contentType: sFile.type });
           if (sError) throw sError;
 
-          if (currentLeadId && !currentLeadId.startsWith('temp_')) {
-            await supabase.from('leads').update({ 
-              status: 'kyc_submitted',
-              passport_url: passportPath,
-              selfie_url: selfiePath
-            }).eq('id', currentLeadId);
-          }
-
-          // 4. Send email notification via Edge Function (Optional but recommended)
-          await supabase.functions.invoke('send-kyc-notification', {
-            body: { 
-              lead_id: currentLeadId,
-              email: 'wekotavip@gmail.com',
-              passport_path: passportPath,
-              selfie_path: selfiePath
-            }
-          });
+          // Update Lead
+          await supabase.from('leads').update({ 
+            status: 'kyc_submitted',
+            passport_url: pPath,
+            selfie_url: sPath
+          }).eq('id', currentLeadId);
 
           forceNavigate('step4');
         } catch (err) {
-          console.error('Erro no KYC:', err);
-          alert('Error al enviar documentos: ' + err.message + '. Asegúrese de que el Bucket "kyc-documents" existe en su Supabase.');
+          console.error('Error KYC:', err);
+          alert('Error en el envío: ' + err.message);
+        } finally {
           btnStep3.textContent = 'Verificar y continuar';
           btnStep3.disabled = false;
         }
