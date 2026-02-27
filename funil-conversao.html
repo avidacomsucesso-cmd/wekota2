@@ -1248,6 +1248,37 @@
       }
     }
   };
+
+  // Report functionality for the owner
+  window.generateTodayReport = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    console.log('Consultando leads de hoje...');
+    const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .gte('created_at', today)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Erro:', error);
+        return 'Erro ao buscar dados.';
+    }
+    
+    if (!data || data.length === 0) return 'Nenhum lead hoje.';
+
+    let report = `--- RELATÓRIO DE LEADS HOJE (${data.length}) ---\n\n`;
+    data.forEach((l, i) => {
+        report += `${i+1}. ${l.name || 'Anônimo'} | ${l.status}\n`;
+        report += `   Email: ${l.email}\n`;
+        report += `   WhatsApp: ${l.whatsapp || 'N/A'}\n`;
+        report += `   Plano: ${l.plan || 'N/A'}\n`;
+        report += `   Documentos: ${l.passport_url ? 'Sim' : 'Não'}\n`;
+        report += `   Hora: ${new Date(l.created_at).toLocaleTimeString()}\n`;
+        report += `-----------------------------------\n`;
+    });
+    return report;
+  };
+
 </script>
 
 <script type="module">
@@ -1318,9 +1349,39 @@
   window.goTo = forceNavigate;
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Reset lead ID on new visit to ensure fresh start with the new table
+    // Reset lead ID on new visit
     localStorage.removeItem('wekotaleadId');
     currentLeadId = null;
+
+    // Report functionality for the owner
+    window.generateTodayReport = async () => {
+        const today = new Date().toISOString().split('T')[0];
+        console.log('Consultando leads de hoje...');
+        const { data, error } = await supabase
+            .from('leads')
+            .select('*')
+            .gte('created_at', today)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Erro:', error);
+            return 'Erro ao buscar dados.';
+        }
+        
+        if (!data || data.length === 0) return 'Nenhum lead hoje.';
+
+        let report = `--- RELATÓRIO DE LEADS HOJE (${data.length}) ---\n\n`;
+        data.forEach((l, i) => {
+            report += `${i+1}. ${l.name || 'Anônimo'} | ${l.status}\n`;
+            report += `   Email: ${l.email}\n`;
+            report += `   WhatsApp: ${l.whatsapp || 'N/A'}\n`;
+            report += `   Plano: ${l.plan || 'N/A'}\n`;
+            report += `   Documentos: ${l.passport_url ? 'Sim' : 'Não'}\n`;
+            report += `   Hora: ${new Date(l.created_at).toLocaleTimeString()}\n`;
+            report += `-----------------------------------\n`;
+        });
+        return report;
+    };
 
     const btnStep1 = document.getElementById('btn-step1');
     if (btnStep1) {
