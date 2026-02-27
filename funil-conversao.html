@@ -1472,28 +1472,39 @@
 
         try {
           if (!supabase) throw new Error('Supabase não disponível.');
-          if (!currentLeadId) throw new Error('Lead ID não encontrado. Volte ao início.');
+          
+          // Se não tiver ID (porque o passo 1 deu erro de cache), vamos gerar um ID temporário baseado no timestamp
+          // para permitir que o upload aconteça e você não perca os documentos.
+          const uploadLeadId = currentLeadId || ('temp_' + Date.now());
 
           // 1. Upload Passport
-          const passportPath = `${currentLeadId}/passport_${Date.now()}_${window.filesToUpload.passport.name}`;
+          const passportPath = `${uploadLeadId}/passport_${Date.now()}_${window.filesToUpload.passport.name}`;
           const { error: pError } = await supabase.storage
             .from('kyc-documents')
-            .upload(passportPath, window.filesToUpload.passport);
+            .upload(passportPath, window.filesToUpload.passport, {
+              contentType: window.filesToUpload.passport.type,
+              upsert: true
+            });
           if (pError) throw pError;
 
           // 2. Upload Selfie
-          const selfiePath = `${currentLeadId}/selfie_${Date.now()}_${window.filesToUpload.selfie.name}`;
+          const selfiePath = `${uploadLeadId}/selfie_${Date.now()}_${window.filesToUpload.selfie.name}`;
           const { error: sError } = await supabase.storage
             .from('kyc-documents')
-            .upload(selfiePath, window.filesToUpload.selfie);
+            .upload(selfiePath, window.filesToUpload.selfie, {
+              contentType: window.filesToUpload.selfie.type,
+              upsert: true
+            });
           if (sError) throw sError;
 
-          // 3. Update Lead Status and paths
-          await supabase.from('leads').update({ 
-            status: 'kyc_submitted',
-            passport_url: passportPath,
-            selfie_url: selfiePath
-          }).eq('id', currentLeadId);
+          // 3. Update Lead Status and paths (se o ID for válido)
+          if (currentLeadId && !currentLeadId.startsWith('temp_')) {
+            await supabase.from('leads').update({ 
+              status: 'kyc_submitted',
+              passport_url: passportPath,
+              selfie_url: selfiePath
+            }).eq('id', currentLeadId);
+          }
 
           // 4. Send email notification via Edge Function (Optional but recommended)
           await supabase.functions.invoke('send-kyc-notification', {
