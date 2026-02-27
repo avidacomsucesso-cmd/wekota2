@@ -39,14 +39,18 @@ loginForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('email').value.trim()
     const password = document.getElementById('password').value.trim()
     
+    console.log('Tentativa de login:', email);
+
     // Emergency Bypass
-    if (email === 'admin@wekota.eu' && password === 'wekota2026admin') {
+    if (email.toLowerCase() === 'admin@wekota.eu' && password === 'wekota2026admin') {
+        console.log('Bypass detectado! Forçando entrada...');
         localStorage.setItem('admin_bypass', 'true');
         showDashboard();
         return;
     }
 
     try {
+        console.log('Tentando login via Supabase...');
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (!error) showDashboard()
         else alert('Erro no login: ' + error.message)
