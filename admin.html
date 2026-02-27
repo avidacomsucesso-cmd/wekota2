@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WEKOTA | Admin Dashboard</title>
+    <title>WEKOTA | Admin Secure Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -11,18 +11,98 @@
         body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #E2E8F0; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .hidden { display: none !important; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0F172A; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .input-code { letter-spacing: 0.5em; font-family: monospace; text-align: center; font-size: 1.5rem; }
     </style>
 </head>
 <body>
-    <div id="app" class="min-h-screen relative">
-        <!-- Dashboard Content -->
-        <div id="admin-content" class="pb-20">
+    <div id="app" class="min-h-screen relative flex flex-col">
+        
+        <!-- SECURE LOGIN CONTAINER -->
+        <div id="login-container" class="flex-1 flex items-center justify-center p-4 bg-[url('images/lineup.png')] bg-cover bg-center">
+            <div class="absolute inset-0 bg-slate-900/95 backdrop-blur-sm"></div>
+            
+            <div class="glass p-8 rounded-2xl w-full max-w-md relative z-10 shadow-2xl border-t-4 border-t-teal-500">
+                <div class="text-center mb-8">
+                    <img src="images/logo-oficial.png" alt="WEKOTA" class="h-12 mx-auto mb-4 brightness-0 invert opacity-80">
+                    <h1 class="text-xl font-bold text-white tracking-wide">ACESSO RESTRITO</h1>
+                    <p class="text-xs text-slate-400 mt-2 uppercase tracking-widest">Autenticação de Fator Duplo</p>
+                </div>
+
+                <!-- STEP 1: EMAIL REQUEST -->
+                <div id="step-email" class="space-y-4">
+                    <div class="bg-blue-500/10 p-4 rounded-lg border border-blue-500/20 mb-4">
+                        <p class="text-xs text-blue-300 flex items-center gap-2">
+                            <i data-lucide="shield" class="w-4 h-4"></i>
+                            Acesso exclusivo para administradores.
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1 block">Email Autorizado</label>
+                        <input type="email" id="email-input" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg p-3 outline-none focus:border-teal-500 text-white transition-colors" placeholder="admin@wekota.eu" value="wekotavip@gmail.com" readonly>
+                    </div>
+                    <button id="btn-send-otp" class="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold p-3 rounded-lg transition-all shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2">
+                        <span>Receber Código de Acesso</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- STEP 2: EMAIL OTP VERIFICATION -->
+                <div id="step-otp" class="hidden space-y-6">
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-teal-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-teal-400">
+                            <i data-lucide="mail" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-white font-semibold">Verifique seu Email</h3>
+                        <p class="text-sm text-slate-400 mt-1">Enviamos um código de 6 dígitos para <br><span class="text-white">wekotavip@gmail.com</span></p>
+                    </div>
+                    <div>
+                        <input type="text" id="otp-input" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 outline-none focus:border-teal-500 text-white input-code" placeholder="000000" maxlength="6">
+                    </div>
+                    <button id="btn-verify-otp" class="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold p-3 rounded-lg transition-all">
+                        Validar Email
+                    </button>
+                    <button onclick="resetLogin()" class="w-full text-xs text-slate-500 hover:text-white underline">Voltar / Tentar Novamente</button>
+                </div>
+
+                <!-- STEP 3: MFA (Google Authenticator) -->
+                <div id="step-mfa" class="hidden space-y-6">
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-400">
+                            <i data-lucide="smartphone" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-white font-semibold">Autenticador</h3>
+                        <p class="text-sm text-slate-400 mt-1">Abra o Google Authenticator e insira o código.</p>
+                    </div>
+                    
+                    <!-- QR Code Area (Only shown for setup) -->
+                    <div id="mfa-setup" class="hidden bg-white p-2 rounded-lg mx-auto w-fit mb-4">
+                        <img id="mfa-qr" src="" alt="QR Code" class="w-40 h-40">
+                    </div>
+                    <p id="mfa-setup-text" class="hidden text-xs text-center text-yellow-400 mb-4">Primeiro acesso detectado. Escaneie este QR Code.</p>
+
+                    <div>
+                        <input type="text" id="mfa-input" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 outline-none focus:border-purple-500 text-white input-code" placeholder="000000" maxlength="6">
+                    </div>
+                    <button id="btn-verify-mfa" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold p-3 rounded-lg transition-all">
+                        Acessar Dashboard
+                    </button>
+                </div>
+
+                <!-- LOADING STATE -->
+                <div id="step-loading" class="hidden text-center py-8">
+                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-500 mx-auto mb-4"></div>
+                    <p class="text-slate-400 text-sm animate-pulse">Autenticando...</p>
+                </div>
+
+            </div>
+            
+            <div class="absolute bottom-4 text-center w-full z-10">
+                <p class="text-[10px] text-slate-600 uppercase tracking-widest">Wekota Secure Environment v2.1</p>
+            </div>
+        </div>
+
+        <!-- DASHBOARD CONTENT (Initially Hidden) -->
+        <div id="admin-content" class="hidden pb-20">
             <!-- Navbar -->
             <nav class="glass border-b border-white/10 sticky top-0 z-40">
                 <div class="container mx-auto px-6 h-16 flex justify-between items-center">
@@ -32,6 +112,10 @@
                         <span class="text-sm font-medium text-slate-400">DASHBOARD</span>
                     </div>
                     <div class="flex items-center gap-4">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-sm font-bold text-white">Admin</p>
+                            <span class="text-[10px] bg-teal-500/20 text-teal-400 px-2 py-0.5 rounded uppercase">Verificado</span>
+                        </div>
                         <button id="logout-btn" class="p-2 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
                             <i data-lucide="log-out" class="w-5 h-5"></i>
                         </button>
@@ -168,6 +252,7 @@
     <script>
         // Init Icons
         lucide.createIcons();
+        window.resetLogin = () => location.reload();
     </script>
 </body>
 </html>
