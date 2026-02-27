@@ -1354,64 +1354,64 @@
         
         if (supabase) {
             try {
-              console.log('Tentando inserir lead (v3 - ultra permissiva):', { name, email, phone, country });
+              console.log('Tentando inserir lead (v4 - mínima absoluta):', { email, phone });
               
-              // Simplificando o objeto de inserção ao máximo
-              const leadData = { 
-                name: name, 
-                email: email, 
-                whatsapp: phone, 
-                country: country || 'PT', // Valor padrão caso vazio
-                status: 'started' 
-              };
-
+              // 1. Tentar inserção completa
               const { data, error } = await supabase
                 .from('leads')
-                .insert([leadData])
+                .insert([{ 
+                    name, 
+                    email, 
+                    whatsapp: phone, 
+                    country, 
+                    status: 'started' 
+                }])
                 .select();
 
-              if (error) {
-                console.error('Erro ao salvar dados no Supabase:', error);
-                
-                // Fallback para qualquer erro de coluna ou constraint
-                console.warn('Tentando fallback total devido ao erro:', error.code);
-                const fallbackData = { 
-                    email: email, 
-                    whatsapp: phone,
-                    status: 'started'
-                };
-                
-                const { data: retryData, error: retryError } = await supabase
-                    .from('leads')
-                    .insert([fallbackData])
-                    .select();
-                  
-                if (!retryError && retryData && retryData.length > 0) {
-                    currentLeadId = retryData[0].id;
-                    localStorage.setItem('wekotaleadId', currentLeadId);
-                    btnStep1.textContent = 'Continuar';
-                    btnStep1.disabled = false;
-                    forceNavigate('step2');
-                    return;
-                }
-
-                alert('Erro crítico ao salvar dados: ' + (retryError?.message || error.message));
+              if (!error && data && data.length > 0) {
+                currentLeadId = data[0].id;
+                localStorage.setItem('wekotaleadId', currentLeadId);
                 btnStep1.textContent = 'Continuar';
                 btnStep1.disabled = false;
+                forceNavigate('step2');
                 return;
               }
 
-              if (data && data.length > 0) {
-                currentLeadId = data[0].id;
-                console.log('Lead criado com sucesso. ID:', currentLeadId);
+              // 2. Fallback ULTRA MÍNIMO: Tentar apenas com e-mail e whatsapp
+              // Se falhar o 'status', tentamos sem 'status', sem 'name', sem 'country'
+              console.warn('Erro na inserção completa, tentando fallback ultra mínimo:', error);
+              
+              const { data: minData, error: minError } = await supabase
+                .from('leads')
+                .insert([{ 
+                    email: email, 
+                    whatsapp: phone 
+                }])
+                .select();
+
+              if (!minError && minData && minData.length > 0) {
+                currentLeadId = minData[0].id;
                 localStorage.setItem('wekotaleadId', currentLeadId);
+                btnStep1.textContent = 'Continuar';
+                btnStep1.disabled = false;
+                forceNavigate('step2');
+                return;
               }
-            } catch (err) {
-              console.error('Erro inesperado no fluxo do Supabase:', err);
-              alert('Erro inesperado: ' + err.message);
+
+              // 3. Se TUDO falhar (schema cache muito quebrado), forçamos o avanço no frontend 
+              // para não perder o usuário, embora isso possa dar erro no passo 3 (KYC)
+              console.error('Falha total na API Supabase:', minError);
+              alert('Aviso: Estamos com uma instabilidade técnica momentânea. Vamos prosseguir com sua reserva, mas o envio de documentos pode ser solicitado depois via WhatsApp.');
+              
               btnStep1.textContent = 'Continuar';
               btnStep1.disabled = false;
-              return;
+              forceNavigate('step2');
+
+            } catch (err) {
+              console.error('Erro inesperado no fluxo:', err);
+              btnStep1.textContent = 'Continuar';
+              btnStep1.disabled = false;
+              forceNavigate('step2');
             }
         }
         

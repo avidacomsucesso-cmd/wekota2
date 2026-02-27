@@ -1347,47 +1347,47 @@
         
         if (supabase) {
             try {
-              const leadData = { name, email, whatsapp: phone, country: country || 'ES', status: 'started' };
               const { data, error } = await supabase
                 .from('leads')
-                .insert([leadData])
+                .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
                 .select();
 
-              if (error) {
-                console.error('Error en Supabase:', error);
-                
-                const fallbackData = { email, whatsapp: phone, status: 'started' };
-                const { data: retryData, error: retryError } = await supabase
-                    .from('leads')
-                    .insert([fallbackData])
-                    .select();
-                  
-                if (!retryError && retryData && retryData.length > 0) {
-                    currentLeadId = retryData[0].id;
-                    localStorage.setItem('wekotaleadId', currentLeadId);
-                    btnStep1.textContent = 'Continuar';
-                    btnStep1.disabled = false;
-                    forceNavigate('step2');
-                    return;
-                  }
-
-                alert('Error crítico: ' + (retryError?.message || error.message));
+              if (!error && data && data.length > 0) {
+                currentLeadId = data[0].id;
+                localStorage.setItem('wekotaleadId', currentLeadId);
                 btnStep1.textContent = 'Continuar';
                 btnStep1.disabled = false;
+                forceNavigate('step2');
                 return;
               }
 
-              if (data && data.length > 0) {
-                currentLeadId = data[0].id;
-                console.log('Lead creado con éxito. ID:', currentLeadId);
+              console.warn('Error en inserción completa, probando fallback ultra mínimo:', error);
+              
+              const { data: minData, error: minError } = await supabase
+                .from('leads')
+                .insert([{ email, whatsapp: phone }])
+                .select();
+
+              if (!minError && minData && minData.length > 0) {
+                currentLeadId = minData[0].id;
                 localStorage.setItem('wekotaleadId', currentLeadId);
+                btnStep1.textContent = 'Continuar';
+                btnStep1.disabled = false;
+                forceNavigate('step2');
+                return;
               }
-            } catch (err) {
-              console.error('Error inesperado:', err);
-              alert('Error inesperado: ' + err.message);
+
+              console.error('Falla total API Supabase:', minError);
+              alert('Aviso: Estamos experimentando inestabilidad técnica. Procederemos con su reserva, pero es posible que se le solicite el envío de documentos más adelante vía WhatsApp.');
+              
               btnStep1.textContent = 'Continuar';
               btnStep1.disabled = false;
-              return;
+              forceNavigate('step2');
+
+            } catch (err) {
+              btnStep1.textContent = 'Continuar';
+              btnStep1.disabled = false;
+              forceNavigate('step2');
             }
         }
         
