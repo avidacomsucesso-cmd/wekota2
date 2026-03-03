@@ -225,6 +225,66 @@
       </div>
     </section>
 
+    <!-- 5.1️⃣ NOVOS GRUPOS (EM BREVE) -->
+    <section class="section-padding bg-white" id="novos-grupos">
+      <div class="container">
+        <div class="text-center mb-60">
+          <h2 class="section-title">Em breve novos grupos</h2>
+          <p class="section-desc">Estamos a preparar novas oportunidades de aquisição coletiva.</p>
+        </div>
+        
+        <div class="upcoming-grid">
+          <!-- MacBook Air M4 -->
+          <div class="upcoming-card">
+            <div class="mini-carousel" data-autoplay="true">
+              <div class="mini-track">
+                <img src="images/macbook1.png" alt="MacBook Air M4">
+                <img src="images/macbook2.png" alt="MacBook Air M4">
+                <img src="images/macbook3.png" alt="MacBook Air M4">
+                <img src="images/macbook4.png" alt="MacBook Air M4">
+                <img src="images/macbook5.png" alt="MacBook Air M4">
+                <img src="images/macbook6.png" alt="MacBook Air M4">
+                <img src="images/macbook7.png" alt="MacBook Air M4">
+                <img src="images/macbook8.png" alt="MacBook Air M4">
+              </div>
+              <div class="mini-nav">
+                <button class="mini-btn prev"><i data-lucide="chevron-left"></i></button>
+                <button class="mini-btn next"><i data-lucide="chevron-right"></i></button>
+              </div>
+            </div>
+            <div class="upcoming-content">
+              <h3 class="upcoming-name">MacBook Air M4</h3>
+              <p class="upcoming-desc">MacBook Air APPLE Meia-Noite (13.6'' - Apple M4 10-Core - RAM: 16 GB - 256 GB SSD - 8-Core</p>
+              <div class="upcoming-status">EM BREVE</div>
+            </div>
+          </div>
+
+          <!-- Samsung Galaxy S26 Ultra -->
+          <div class="upcoming-card">
+            <div class="mini-carousel" data-autoplay="true">
+              <div class="mini-track">
+                <img src="images/samsung1.png" alt="Samsung Galaxy S26 Ultra">
+                <img src="images/samsung2.png" alt="Samsung Galaxy S26 Ultra">
+                <img src="images/samsung3.png" alt="Samsung Galaxy S26 Ultra">
+                <img src="images/samsung4.png" alt="Samsung Galaxy S26 Ultra">
+                <img src="images/samsung5.png" alt="Samsung Galaxy S26 Ultra">
+                <img src="images/samsung6.png" alt="Samsung Galaxy S26 Ultra">
+              </div>
+              <div class="mini-nav">
+                <button class="mini-btn prev"><i data-lucide="chevron-left"></i></button>
+                <button class="mini-btn next"><i data-lucide="chevron-right"></i></button>
+              </div>
+            </div>
+            <div class="upcoming-content">
+              <h3 class="upcoming-name">Galaxy S26 Ultra</h3>
+              <p class="upcoming-desc">Smartphone SAMSUNG Galaxy S26 Ultra (6.9'' - 12 GB - 512 GB</p>
+              <div class="upcoming-status">EM BREVE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- 5️⃣ ESTRUTURA DE PAGAMENTO -->
     <section class="section-padding bg-light" id="pagamento">
       <div class="container">
@@ -580,6 +640,36 @@
 
   <script>
     lucide.createIcons();
+
+    // Mini Carousels Logic
+    document.querySelectorAll('.mini-carousel').forEach(carousel => {
+      const track = carousel.querySelector('.mini-track');
+      const slides = Array.from(track.children);
+      const next = carousel.querySelector('.next');
+      const prev = carousel.querySelector('.prev');
+      let index = 0;
+
+      function update() {
+        track.style.transform = `translateX(-${index * 100}%)`;
+      }
+
+      next.addEventListener('click', () => {
+        index = (index + 1) % slides.length;
+        update();
+      });
+
+      prev.addEventListener('click', () => {
+        index = (index - 1 + slides.length) % slides.length;
+        update();
+      });
+
+      if (carousel.dataset.autoplay === 'true') {
+        setInterval(() => {
+          index = (index + 1) % slides.length;
+          update();
+        }, 4000);
+      }
+    });
 
     // Product Carousel
     const productTrack = document.querySelector('.product-carousel-track');
