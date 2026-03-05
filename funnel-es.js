@@ -112,22 +112,29 @@ if (dropZone) {
 }
 
 window.payWithStripe = async () => {
-    const priceId = document.querySelector('input[name="plan"]:checked').value === '12' 
-        ? 'price_1T4oJhEGWHer1k6evF1y6zR5' 
-        : 'price_1T4oKuEGWHer1k6ed8oBXVap';
+    // Determine the correct price based on selection
+    const planType = document.querySelector('input[name="payment_plan"]:checked')?.value || '24';
+    const priceId = planType === '12' 
+        ? 'price_1T7jnEEGWHer1k6ezpa6Ra7V' // TESTE - 1 EURO
+        : 'price_1T7jnEEGWHer1k6ezpa6Ra7V'; // TESTE - 1 EURO
 
-    const { data, error } = await supabase.functions.invoke('stripe-payments', {
-        body: { 
-            action: 'create-checkout-session',
-            lead_id: currentLeadId,
-            price_id: priceId,
-            success_url: window.location.origin + '/es.html?status=success',
-            cancel_url: window.location.origin + '/funil-conversao-es.html'
-        }
-    });
+    try {
+        const { data, error } = await supabase.functions.invoke('stripe-payments', {
+            body: { 
+                action: 'create-checkout-session',
+                lead_id: currentLeadId,
+                price_id: priceId,
+                success_url: window.location.origin + '/es.html?status=success',
+                cancel_url: window.location.origin + '/funil-conversao-es.html'
+            }
+        });
 
-    if (data?.url) window.location.href = data.url;
-    else alert('Error al iniciar pago.');
+        if (data?.url) window.location.href = data.url;
+        else alert('Error al iniciar pago.');
+    } catch (e) {
+        console.error(e);
+        alert('Error al iniciar pago.');
+    }
 }
 
 updateDynamicPos();
