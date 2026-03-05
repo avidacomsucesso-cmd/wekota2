@@ -1277,354 +1277,1776 @@
   
   const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-  let currentLeadId = null;
+  // Variáveis globais para o fluxo
+  let selectedPlanType = '24';
   let selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap'; 
-  let assignedPosition = 0;
+  let currentLeadId = null;
 
-  async function fetchAssignedPosition(months) {
-    try {
-        const column = months === '12' ? 'next_position_12_months' : 'next_position_24_months';
-        
-        // 1. Get current value
-        const { data, error } = await supabase
-            .from('funnel_settings')
-            .select(column)
-            .eq('id', 'current')
-            .single();
-            
-        if (error) throw error;
-        
-        const currentPos = data[column];
-        
-        // 2. Increment value in DB for the next person
-        await supabase
-            .from('funnel_settings')
-            .update({ [column]: currentPos + 1 })
-            .eq('id', 'current');
-            
-        return currentPos;
-    } catch (e) { 
-        console.error('Erro ao buscar/incrementar posição:', e); 
-        return months === '12' ? 7 : 15; // Fallback
-    }
-  }
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-  const forceNavigate = (screenId) => {
-    console.log('Module forceNavigate:', screenId);
-    const screens = document.querySelectorAll('.screen');
-    screens.forEach(s => {
-        s.classList.remove('active');
-        s.style.display = 'none';
-    });
-    
-    const target = document.getElementById('screen-' + screenId);
-    if (target) {
-        target.style.display = 'block';
-        target.classList.add('active');
-        target.style.animation = 'none';
-        target.offsetHeight; 
-        target.style.animation = 'screenIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both';
-    }
-    
-    const pw = document.getElementById('progressWrap');
-    if (screenId.startsWith('step')) {
-        pw.classList.add('visible');
-        const stepNum = parseInt(screenId.replace('step', ''));
-        document.querySelectorAll('.progress-dot').forEach(d => {
-            const s = parseInt(d.dataset.step);
-            d.className = 'progress-dot';
-            if (s < stepNum) d.classList.add('done');
-            if (s === stepNum) d.classList.add('active');
-        });
-        const labels = {
-            1: 'Dados pessoais',
-            2: 'Produto e duração',
-            3: 'Verificação de identidade',
-            4: 'Posição e contrato',
-            5: 'Pagamento'
-        };
-        const labelEl = document.getElementById('progressLabel');
-        if(labelEl) labelEl.textContent = `Passo ${stepNum} de 5 — ${labels[stepNum]}`;
-    } else {
-        if(pw) pw.classList.remove('visible');
-    }
-    window.scrollTo(0, 0);
-  };
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-  window.goTo = forceNavigate;
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Reset lead ID on new visit
-    localStorage.removeItem('wekotaleadId');
-    currentLeadId = null;
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-    // Report functionality for the owner
-    window.generateTodayReport = async () => {
-        const today = new Date().toISOString().split('T')[0];
-        console.log('Consultando leads de hoje...');
-        const { data, error } = await supabase
-            .from('leads')
-            .select('*')
-            .gte('created_at', today)
-            .order('created_at', { ascending: false });
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-        if (error) {
-            console.error('Erro:', error);
-            return 'Erro ao buscar dados.';
-        }
-        
-        if (!data || data.length === 0) return 'Nenhum lead hoje.';
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-        let report = `--- RELATÓRIO DE LEADS HOJE (${data.length}) ---\n\n`;
-        data.forEach((l, i) => {
-            report += `${i+1}. ${l.name || 'Anônimo'} | ${l.status}\n`;
-            report += `   Email: ${l.email}\n`;
-            report += `   WhatsApp: ${l.whatsapp || 'N/A'}\n`;
-            report += `   Plano: ${l.plan || 'N/A'}\n`;
-            report += `   Documentos: ${l.passport_url ? 'Sim' : 'Não'}\n`;
-            report += `   Hora: ${new Date(l.created_at).toLocaleTimeString()}\n`;
-            report += `-----------------------------------\n`;
-        });
-        return report;
-    };
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-    const btnStep1 = document.getElementById('btn-step1');
-    if (btnStep1) {
-      btnStep1.onclick = async (e) => {
-        e.preventDefault();
-        
-        const name = document.querySelector('#screen-step1 input[type="text"]')?.value || '';
-        const email = document.querySelector('#screen-step1 input[type="email"]')?.value || '';
-        const phone = document.querySelector('#screen-step1 input[type="tel"]')?.value || '';
-        const country = document.querySelector('#screen-step1 select')?.value || '';
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-        if (!name || !email) {
-          alert('Por favor, preencha Nome e Email.');
-          return;
-        }
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-        btnStep1.textContent = 'A guardar...';
-        btnStep1.disabled = true;
-        
-        try {
-            const { data, error } = await supabase
-                .from('leads')
-                .insert([{ name, email, whatsapp: phone, country, status: 'started' }])
-                .select();
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-            if (error) throw error;
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-            if (data && data.length > 0) {
-                currentLeadId = data[0].id;
-                localStorage.setItem('wekotaleadId', currentLeadId);
-                console.log('Lead criado:', currentLeadId);
-            }
-            
-            forceNavigate('step2');
-        } catch (err) {
-            console.error('Erro Step 1:', err);
-            alert('Erro ao iniciar: ' + err.message);
-        } finally {
-            btnStep1.textContent = 'Continuar';
-            btnStep1.disabled = false;
-        }
-      };
-    }
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-    const btnStep2 = document.getElementById('btn-step2');
-    if (btnStep2) {
-      btnStep2.onclick = async (e) => {
-        e.preventDefault();
-        const durEl = document.querySelector('.dur-card.selected .dur-months');
-        const durationText = durEl ? durEl.textContent.trim() : '24';
-        
-        btnStep2.textContent = 'A processar...';
-        btnStep2.disabled = true;
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-        // 1. Buscar e incrementar a posição configurada no ADMIN
-        assignedPosition = await fetchAssignedPosition(durationText);
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-        // Update UI displays
-        const revealNum = document.getElementById('revealNum');
-        if(revealNum) revealNum.textContent = assignedPosition;
-        
-        const posLabels = document.querySelectorAll('.cs-value.highlight-val');
-        posLabels.forEach(el => {
-            if(el.textContent.includes('Posição')) {
-                el.textContent = `Posição ${assignedPosition} (mês ${assignedPosition})`;
-            }
-        });
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-        const summaryPrice = document.getElementById('summary-price');
-        const summaryTotal = document.getElementById('summary-total');
-        
-        if (durationText === '12') {
-            if(summaryPrice) summaryPrice.textContent = '€149,00/mês';
-            if(summaryTotal) summaryTotal.textContent = '€1.788,00';
-            selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5';
-        } else {
-            selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap';
-            if(summaryPrice) summaryPrice.textContent = '€75,00/mês';
-            if(summaryTotal) summaryTotal.textContent = '€1.800,00';
-        }
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-        if (supabase && currentLeadId) {
-            try {
-                await supabase.from('leads').update({ 
-                    plan: `iPhone 17 Pro Max - ${durationText} meses`, 
-                    status: 'selected_plan',
-                    assigned_position: assignedPosition // SALVA A POSIÇÃO NO LEAD
-                }).eq('id', currentLeadId);
-            } catch (e) {}
-        }
-        forceNavigate('step3');
-      };
-    }
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-    const btnStep3 = document.getElementById('btn-step3');
-    if (btnStep3) {
-      btnStep3.onclick = async (e) => {
-        e.preventDefault();
-        
-        if (!window.filesToUpload?.passport || !window.filesToUpload?.selfie) {
-          alert('Por favor, anexe ambos os documentos para continuar.');
-          return;
-        }
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-        btnStep3.textContent = 'A enviar documentos...';
-        btnStep3.disabled = true;
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-        try {
-          if (!currentLeadId) throw new Error('Sessão perdida. Por favor, recarregue a página.');
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-          // Upload Passport
-          const pFile = window.filesToUpload.passport;
-          const pPath = `${currentLeadId}/passport_${Date.now()}`;
-          const { error: pError } = await supabase.storage.from('kyc-documents').upload(pPath, pFile, { contentType: pFile.type });
-          if (pError) throw pError;
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-          // Upload Selfie
-          const sFile = window.filesToUpload.selfie;
-          const sPath = `${currentLeadId}/selfie_${Date.now()}`;
-          const { error: sError } = await supabase.storage.from('kyc-documents').upload(sPath, sFile, { contentType: sFile.type });
-          if (sError) throw sError;
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-          // Update Lead
-          await supabase.from('leads').update({ 
-            status: 'kyc_submitted',
-            passport_url: pPath,
-            selfie_url: sPath
-          }).eq('id', currentLeadId);
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-          forceNavigate('step4');
-        } catch (err) {
-          console.error('Erro KYC:', err);
-          alert('Erro no envio: ' + err.message);
-        } finally {
-          btnStep3.textContent = 'Verificar e continuar';
-          btnStep3.disabled = false;
-        }
-      };
-    }
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-    const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
-    if (btnStep5) {
-        btnStep5.onclick = async () => {
-            const selectedMethodEl = document.querySelector('.pay-method.selected h4');
-            const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
-            
-            if (selectedMethodText.includes('Cartão')) {
-                btnStep5.textContent = 'A redirecionar...';
-                btnStep5.disabled = true;
-                
-                try {
-                    if (!supabase) throw new Error('Supabase não disponível.');
-                    
-                    console.log('Invocando checkout seguro via SDK oficial...');
-                    
-                    // Usando o SDK oficial que lida melhor com o JWT
-                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
-                        body: { 
-                            action: 'create-checkout-session',
-                            lead_id: currentLeadId,
-                            price_id: selectedPlanPriceId,
-                            success_url: window.location.origin + '/funil-conversao.html?status=success',
-                            cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
-                        }
-                    });
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-                    if (error) {
-                        // Tentar extrair a mensagem de erro real do corpo da resposta
-                        const details = error.context ? await error.context.json().catch(() => ({})) : {};
-                        throw new Error(details.error || error.message || 'Erro na Edge Function');
-                    }
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-                    if (data?.url) {
-                        window.location.href = data.url;
-                    } else {
-                        throw new Error('O Stripe não retornou um link de pagamento.');
-                    }
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-                } catch (err) {
-                    console.error('ERRO JWT/CHECKOUT:', err);
-                    alert('Erro ao processar pagamento: ' + (err.message || 'Falha na autenticação JWT. Verifique se a Anon Key está correta.'));
-                    btnStep5.textContent = 'Confirmar adesão';
-                    btnStep5.disabled = false;
-                }
-            } else {
-                // Para Transferência, vai direto para o sucesso
-                forceNavigate('success');
-            }
-        };
-    }
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-    const btnFinalPay = document.getElementById('btn-final-pay');
-    if (btnFinalPay) {
-        btnFinalPay.onclick = async () => {
-            const selectedMethodEl = document.querySelector('.pay-method.selected h4');
-            const selectedMethodText = selectedMethodEl ? selectedMethodEl.innerText : '';
-            
-            if (selectedMethodText.includes('Cartão')) {
-                btnFinalPay.textContent = 'A redirecionar...';
-                btnFinalPay.disabled = true;
-                
-                try {
-                    if (!supabase) throw new Error('Supabase não disponível.');
-                    
-                    const payload = {
-                        action: 'create-checkout-session',
-                        lead_id: currentLeadId,
-                        price_id: selectedPlanPriceId,
-                        success_url: window.location.origin + '/funil-conversao.html?status=success',
-                        cancel_url: window.location.origin + '/funil-conversao.html?status=cancel'
-                    };
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-                    const { data, error } = await supabase.functions.invoke('stripe-payments', {
-                        body: payload
-                    });
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-                    if (error) throw error;
-                    if (data?.url) {
-                        window.location.href = data.url;
-                    } else {
-                        throw new Error('Função não retornou URL.');
-                    }
-                } catch (err) {
-                    alert('Erro no checkout: ' + err.message);
-                    btnFinalPay.textContent = 'Confirmar adesão';
-                    btnFinalPay.disabled = false;
-                }
-            } else {
-                // Para Transferência, finaliza direto
-                forceNavigate('success');
-            }
-        };
-    }
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('status') === 'success') forceNavigate('success');
-  });
-</script>
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
 
-</body>
-</html>
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('status') === 'success') forceNavigate('success');
+
+  // Referências do DOM
+  const btnStep1 = document.getElementById('btn-step1');
+  const btnStep2 = document.getElementById('btn-step2');
+  const btnStep3 = document.getElementById('btn-step3');
+  const btnStep5 = document.querySelector('#screen-step5 .btn-primary');
+  const btnFinalPay = document.getElementById('btn-final-pay');
+
+  // Referências do DOM
