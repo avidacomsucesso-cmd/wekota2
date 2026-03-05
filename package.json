@@ -12,7 +12,8 @@
         "vite": "^7.3.1"
     },
     "dependencies": {
-        "@supabase/supabase-js": "^2.97.0"
+        "@supabase/supabase-js": "^2.97.0",
+        "docx": "^9.6.0"
     },
     "engines": {
         "node": ">=18"
