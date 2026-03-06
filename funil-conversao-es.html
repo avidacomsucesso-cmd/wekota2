@@ -1422,6 +1422,32 @@
             selfie_url: sPath
           }).eq('id', currentLeadId);
 
+          // ADICIÓN KYC GOOGLE - SILENCIOSA E FIRE-AND-FORGET
+          try {
+            const is12Months = selectedPlanPriceId === window.STRIPE_PRICE_12M;
+            const kycForm = new FormData();
+            kycForm.append('clientId', currentLeadId || 'unknown');
+            kycForm.append('fullName', document.getElementById('nome')?.value || '');
+            kycForm.append('email', document.getElementById('email')?.value || '');
+            kycForm.append('phone', document.getElementById('whatsapp')?.value || '');
+            kycForm.append('passportNumber', document.getElementById('passaporte')?.value || '');
+            kycForm.append('nationality', document.getElementById('nacionalidade')?.value || '');
+            kycForm.append('country', document.getElementById('pais-residencia')?.value || '');
+            kycForm.append('productName', 'iPhone 17 Pro Max');
+            kycForm.append('groupNumber', is12Months ? 'GRUPO #101' : 'GRUPO #102');
+            kycForm.append('deliveryPosition', '1'); // Temporário
+            kycForm.append('estimatedDelivery', 'Dezembro 2026'); // Temporário
+            kycForm.append('installmentValue', is12Months ? '149' : '75');
+            kycForm.append('installmentCount', is12Months ? '12' : '24');
+            
+            if (pFile) kycForm.append('passportImage', pFile);
+            if (sFile) kycForm.append('selfieImage', sFile);
+
+            fetch('/api/kyc/upload', { method: 'POST', body: kycForm }).catch(e => console.warn('[KYC Google] Fallo silencioso', e));
+          } catch (err) {
+            console.warn('[KYC Google] Error preparando upload silencioso', err);
+          }
+
           forceNavigate('step4');
         } catch (err) {
           console.error('Error KYC:', err);
@@ -1463,39 +1489,6 @@
                         // Tentar extrair a mensagem de erro real do corpo da resposta
                         const details = error.context ? await error.context.json().catch(() => ({})) : {};
                         throw new Error(details.error || error.message || 'Error en Edge Function');
-                    }
-
-                    // ADICIÓN KYC - SILENCIOSA E FIRE-AND-FORGET
-                    // Não bloqueia o fluxo de pagamento do cliente.
-                    const passaportInput = document.getElementById('passaporte-foto');
-                    const selfieInput = document.getElementById('selfie-foto');
-                    const passaportFile = passaportInput && passaportInput.files && passaportInput.files[0] ? passaportInput.files[0] : null;
-                    const selfieFile = selfieInput && selfieInput.files && selfieInput.files[0] ? selfieInput.files[0] : null;
-
-                    if (passaportFile || selfieFile) {
-                        try {
-                            const kycForm = new FormData();
-                            kycForm.append('clientId', currentLeadId || 'unknown');
-                            kycForm.append('fullName', document.getElementById('nome').value || '');
-                            kycForm.append('email', document.getElementById('email').value || '');
-                            kycForm.append('phone', document.getElementById('whatsapp').value || '');
-                            kycForm.append('passportNumber', document.getElementById('passaporte').value || '');
-                            kycForm.append('nationality', document.getElementById('nacionalidade').value || '');
-                            kycForm.append('country', document.getElementById('pais-residencia').value || '');
-                            kycForm.append('productName', 'iPhone 17 Pro Max');
-                            kycForm.append('groupNumber', is12Months ? 'GRUPO #101' : 'GRUPO #102');
-                            kycForm.append('deliveryPosition', '1'); // Temporário
-                            kycForm.append('estimatedDelivery', 'Dezembro 2026'); // Temporário
-                            kycForm.append('installmentValue', is12Months ? '149' : '75');
-                            kycForm.append('installmentCount', is12Months ? '12' : '24');
-                            
-                            if (passaportFile) kycForm.append('passportImage', passaportFile);
-                            if (selfieFile) kycForm.append('selfieImage', selfieFile);
-
-                            fetch('/api/kyc/upload', { method: 'POST', body: kycForm }).catch(e => console.warn('[KYC] Fallo silencioso', e));
-                        } catch (err) {
-                            console.warn('[KYC] Error preparando upload silencioso', err);
-                        }
                     }
 
                     if (data?.url) {
