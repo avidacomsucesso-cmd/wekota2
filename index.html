@@ -22,33 +22,40 @@
   <script type="module">
     import { supabase } from './supabaseClient.js';
 
-    // 1. CAPTURAR O CONSULTOR DA URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get('ref');
+    /**
+     * Rastreamento de Consultores WEKOTA
+     * Captura o refCode da URL e registra a visita no Supabase
+     */
+    async function trackConsultorVisit() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const refCode = urlParams.get('ref');
 
-    if (refCode) {
-      localStorage.setItem('wekota_ref', refCode);
-      console.log('Consultor capturado e salvo:', refCode);
-    }
+      // 1. Se houver código na URL, salva no localStorage (Cookie de 30 dias simulado)
+      if (refCode) {
+        localStorage.setItem('wekota_ref', refCode);
+        console.log('Consultor capturado e salvo:', refCode);
+      }
 
-    // 2. REGISTRAR VISITA NO SUPABASE (funnel_events)
-    async function trackPageView() {
-      try {
+      // 2. Verifica se existe um consultor ativo no navegador
+      const activeRef = localStorage.getItem('wekota_ref');
+
+      if (activeRef) {
+        // REGISTRA A VISITA NO FUNIL (Tabela: funnel_events)
+        // O Dashboard de consultores filtra pelo refCode dentro da source_url
         const { error } = await supabase
           .from('funnel_events')
           .insert({
             event_type: 'page_view',
-            source_url: window.location.href,
+            source_url: window.location.href + (window.location.search ? '' : `?ref=${activeRef}`),
             funnel_step: 'landing'
           });
-        
-        if (error) console.error('Erro ao gravar funnel_event:', error);
-      } catch (err) {
-        console.error('Falha na conexão com Supabase:', err);
+          
+        if (error) console.error("Erro ao registrar visita do consultor:", error);
       }
     }
 
-    trackPageView();
+    // Executar ao carregar a página
+    trackConsultorVisit();
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
