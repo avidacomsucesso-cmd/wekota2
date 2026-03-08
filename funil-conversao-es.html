@@ -1370,26 +1370,22 @@
         btnStep2.disabled = true;
 
         // RASTREAMENTO DE CHECKOUT (PÁGINA DE PAGAMENTO - INICIOU PLANO)
-        const activeRef = localStorage.getItem('wekota_ref');
-        if (activeRef && supabase) {
-          console.log('Enviando evento checkout_started al Supabase...');
-          const { error, data } = await supabase
-            .from('funnel_events')
-            .insert({
-              event_type: 'checkout_started',
-              source_url: window.location.href + (window.location.search ? '&' : '?') + `ref=${activeRef}`,
-              funnel_step: 'payment'
-            })
-            .select();
-            
-          if (error) {
-            console.error("ERROR SUPABASE [checkout_started]:", error);
-          } else {
-            console.log("Éxito al grabar checkout_started:", data);
-          }
+        async function trackCheckoutStarted() {
+          const activeRef = localStorage.getItem('wekota_ref');
+          if (!activeRef) return;
+          
+          // Apenas INSERT, sem .select() no final para evitar erros de RLS
+          const { error } = await supabase.from('funnel_events').insert({
+            event_type: 'checkout_started',
+            source_url: window.location.href + (window.location.search ? '&' : '?') + `ref=${activeRef}`,
+            funnel_step: 'checkout'
+          });
+          
+          if (error) console.error("Error no tracking de checkout:", error);
         }
+        trackCheckoutStarted();
 
-        // 1. Buscar e incrementar a posição configurada no ADMIN
+        // 1. Buscar e incrementar a posición configurada no ADMIN
         assignedPosition = await fetchAssignedPosition(durationText);
 
         const summaryPrice = document.getElementById('summary-price');
@@ -1502,35 +1498,53 @@
                 btnStep5.disabled = true;
 
                 // REGISTRO DE VENDA E COMISSÃO (PRE-CHECKOUT)
-                try {
+                async function registerConsultorSale(orderData) {
                   const activeRef = localStorage.getItem('wekota_ref');
-                  if (activeRef && supabase && currentLeadId) {
-                    const { data: vendor } = await supabase
+                  if (!activeRef) return;
+                  
+                  try {
+                    // 1. Ir buscar o ID do consultor 
+                    const { data: vendor, error: vendorError } = await supabase
                       .from('vendors')
                       .select('id')
                       .eq('ref_code', activeRef)
                       .single();
 
-                    if (vendor) {
-                      const is12Months = selectedPlanPriceId === window.STRIPE_PRICE_12M;
-                      await supabase
-                        .from('vendor_sales')
-                        .insert({
-                          vendor_id: vendor.id,
-                          ref_code: activeRef,
-                          client_name: document.getElementById('nome')?.value || 'Cliente WEKOTA',
-                          client_email: document.getElementById('email')?.value || '',
-                          product_name: `iPhone 17 Pro Max ${is12Months ? '12M' : '24M'}`,
-                          total_price: is12Months ? 1788 : 1800,
-                          commission_1: 25,
-                          commission_2: 25,
-                          commission_1_paid: false, 
-                          status: 'pending' 
-                        });
-                      console.log("Venda atribuída con éxito al consultor:", activeRef);
+                    if (vendorError || !vendor) {
+                      console.error("Consultor não encontrado:", vendorError);
+                      return;
                     }
+
+                    // 2. Gravar a venda na tabela vendor_sales (Apenas insert, sem .select())
+                    const { error: insertError } = await supabase
+                      .from('vendor_sales')
+                      .insert({
+                        vendor_id: vendor.id,
+                        ref_code: activeRef,
+                        client_name: orderData.customerName || 'Cliente Stripe',
+                        product_name: orderData.productName || 'Assinatura',
+                        total_price: orderData.totalAmount || 0,
+                        commission_1: 25,
+                        commission_2: 25,
+                        commission_1_paid: false,
+                        status: 'pending'
+                      });
+                      
+                    if (insertError) console.error("Erro ao gravar venda do consultor:", insertError);
+                    else console.log("Venda do consultor registada com sucesso!");
+
+                  } catch (err) {
+                    console.error("Exceção na atribuição de venda:", err);
                   }
-                } catch(e) { console.warn('Error al registrar vendor_sales', e) }
+                }
+
+                const is12Months = selectedPlanPriceId === window.STRIPE_PRICE_12M;
+                const orderData = {
+                  customerName: document.getElementById('nome')?.value || 'Cliente WEKOTA',
+                  productName: `iPhone 17 Pro Max ${is12Months ? '12M' : '24M'}`,
+                  totalAmount: is12Months ? 1788 : 1800
+                };
+                registerConsultorSale(orderData);
                 
                 try {
                     if (!supabase) throw new Error('Supabase no disponible.');
