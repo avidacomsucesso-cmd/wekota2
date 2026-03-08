@@ -1370,20 +1370,26 @@
         btnStep2.disabled = true;
 
         // RASTREAMENTO DE CHECKOUT (PÁGINA DE PAGAMENTO - INICIOU PLANO)
-        try {
-          const activeRef = localStorage.getItem('wekota_ref');
-          if (activeRef && supabase) {
-            await supabase
-              .from('funnel_events')
-              .insert({
-                event_type: 'checkout_started',
-                source_url: window.location.href + (window.location.search ? '&' : '?') + `ref=${activeRef}`,
-                funnel_step: 'checkout'
-              });
+        const activeRef = localStorage.getItem('wekota_ref');
+        if (activeRef && supabase) {
+          console.log('Enviando evento checkout_started al Supabase...');
+          const { error, data } = await supabase
+            .from('funnel_events')
+            .insert({
+              event_type: 'checkout_started',
+              source_url: window.location.href + (window.location.search ? '&' : '?') + `ref=${activeRef}`,
+              funnel_step: 'checkout'
+            })
+            .select();
+            
+          if (error) {
+            console.error("ERROR SUPABASE [checkout_started]:", error);
+          } else {
+            console.log("Éxito al grabar checkout_started:", data);
           }
-        } catch(e) { console.warn('Erro trackCheckoutStarted', e) }
+        }
 
-        // 1. Buscar e incrementar a posição configurada no ADMIN
+        // 1. Buscar e incrementar a posición configurada no ADMIN
         assignedPosition = await fetchAssignedPosition(durationText);
 
         const summaryPrice = document.getElementById('summary-price');

@@ -42,15 +42,21 @@
       if (activeRef) {
         // REGISTRA A VISITA NO FUNIL (Tabela: funnel_events)
         // O Dashboard de consultores filtra pelo refCode dentro da source_url
-        const { error } = await supabase
+        console.log('A tentar enviar evento page_view para o Supabase...');
+        const { error, data } = await supabase
           .from('funnel_events')
           .insert({
             event_type: 'page_view',
             source_url: window.location.href + (window.location.search ? '' : `?ref=${activeRef}`),
             funnel_step: 'landing'
-          });
+          })
+          .select();
           
-        if (error) console.error("Erro ao registrar visita del consultor:", error);
+        if (error) {
+          console.error("ERRO SUPABASE [funnel_events]:", error);
+        } else {
+          console.log("Sucesso a gravar funnel_events:", data);
+        }
       }
     }
 
