@@ -13,9 +13,22 @@
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
+
     gtag('js', new Date());
 
     gtag('config', 'G-W9TSLCFJ31');
+  </script>
+
+  <script>
+    // 1. CAPTURAR O CONSULTOR DA URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+
+    if (refCode) {
+      // Salva no navegador para não perder a venda se o cliente voltar depois
+      localStorage.setItem('wekota_ref', refCode);
+      console.log('Consultor capturado e salvo:', refCode);
+    }
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
