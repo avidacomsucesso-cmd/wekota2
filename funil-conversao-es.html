@@ -1378,7 +1378,7 @@
             .insert({
               event_type: 'checkout_started',
               source_url: window.location.href + (window.location.search ? '&' : '?') + `ref=${activeRef}`,
-              funnel_step: 'checkout'
+              funnel_step: 'payment'
             })
             .select();
             
@@ -1389,7 +1389,7 @@
           }
         }
 
-        // 1. Buscar e incrementar a posición configurada no ADMIN
+        // 1. Buscar e incrementar a posição configurada no ADMIN
         assignedPosition = await fetchAssignedPosition(durationText);
 
         const summaryPrice = document.getElementById('summary-price');

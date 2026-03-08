@@ -1458,7 +1458,7 @@
             .insert({
               event_type: 'checkout_started',
               source_url: window.location.href + (window.location.search ? '&' : '?') + `ref=${activeRef}`,
-              funnel_step: 'checkout'
+              funnel_step: 'payment' // Mudado de 'checkout' para 'payment' porque 'checkout' é um enum value inválido
             })
             .select();
             
