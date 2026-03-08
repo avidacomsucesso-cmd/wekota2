@@ -19,16 +19,36 @@
     gtag('config', 'G-W9TSLCFJ31');
   </script>
 
-  <script>
+  <script type="module">
+    import { supabase } from './supabaseClient.js';
+
     // 1. CAPTURAR O CONSULTOR DA URL
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
 
     if (refCode) {
-      // Salva no navegador para não perder a venda se o cliente voltar depois
       localStorage.setItem('wekota_ref', refCode);
       console.log('Consultor capturado e salvo:', refCode);
     }
+
+    // 2. REGISTRAR VISITA NO SUPABASE (funnel_events)
+    async function trackPageView() {
+      try {
+        const { error } = await supabase
+          .from('funnel_events')
+          .insert({
+            event_type: 'page_view',
+            source_url: window.location.href,
+            funnel_step: 'landing'
+          });
+        
+        if (error) console.error('Erro ao gravar funnel_event:', error);
+      } catch (err) {
+        console.error('Falha na conexão com Supabase:', err);
+      }
+    }
+
+    trackPageView();
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
