@@ -822,7 +822,7 @@
   <!-- SCREEN 0: SPLIT — COMPRAR OU PERGUNTAR -->
   <!-- ============================================ -->
   <div class="screen active" id="screen-split">
-    <div class="screen-title">Pronto para garantir o seu iPhone 17 Pro Max?</div>
+    <div class="screen-title" id="split-title">Pronto para garantir o seu iPhone 17 Pro Max?</div>
     <div class="screen-sub">Junte-se a um grupo, pague prestações fixas, receba o seu produto. <strong>Sem banco, sem juros, sem surpresas.</strong></div>
 
     <div class="split-choices">
@@ -905,13 +905,19 @@
         <div class="faq-q">Qual é o custo total? <span>+</span></div>
         <div class="faq-a">O preço do produto + 25% de taxa de serviço, divididos em prestações fixas. Zero surpresas. Vê o valor exato da prestação antes de assinar.</div>
       </div>
+      <div class="faq-item">
+        <div class="faq-q">O que acontece se eu quiser cancelar?</div>
+        <div class="faq-a">Tem 14 dias para desistir e garantimos um processo transparente de saída.</div>
+      </div>
     </div>
-
-    <button class="btn-primary mt-2" onclick="goTo('split')">← Voltar e aderir agora</button>
+    
+    <button class="btn-primary" onclick="goTo('step1')" style="width:100%; margin-top:30px;">
+      Continuar para a inscrição
+    </button>
   </div>
 
   <!-- ============================================ -->
-  <!-- STEP 1: DADOS BÁSICOS -->
+  <!-- SCREEN 1: DADOS PESSOAIS -->
   <!-- ============================================ -->
   <div class="screen" id="screen-step1">
     <div class="screen-title">Vamos começar 👋</div>
@@ -950,26 +956,21 @@
   </div>
 
   <!-- ============================================ -->
-  <!-- STEP 2: PRODUTO + DURAÇÃO -->
+  <!-- SCREEN 2: PRODUTO -->
   <!-- ============================================ -->
   <div class="screen" id="screen-step2">
     <div class="screen-title">O que quer adquirir?</div>
-    <div class="screen-sub">Escolha o produto e a duração do grupo.</div>
+    <div class="screen-sub" id="group-subtitle">O Grupo 101 já está aberto e a preencher lugares.</div>
 
-    <label class="form-label">Produto</label>
-    <div class="product-cards">
-      <div class="product-card selected">
-        <div class="pc-radio"></div>
-        <div class="pc-info">
-          <h4>iPhone 17 Pro Max 256GB</h4>
-          <p>Disponível em várias cores — <span class="pc-price">Desde €75/mês</span></p>
-        </div>
-        <div class="pc-badge">Popular</div>
+    <div class="product-card" id="product-card-display">
+      <div class="prod-img" id="product-card-icon">📱</div>
+      <div class="prod-info">
+        <h3 id="product-card-title">iPhone 17 Pro Max</h3>
+        <p id="product-card-desc">256GB, Cor à escolha</p>
       </div>
     </div>
-
-    <label class="form-label">Duração do grupo</label>
-    <div class="duration-cards">
+    
+    <div class="dur-opts">
       <div class="dur-card" onclick="selectDur(this)">
         <div class="dur-months">12</div>
         <div class="dur-label">meses</div>
@@ -1135,7 +1136,7 @@
     <div class="contract-summary">
       <div class="cs-row">
         <span class="cs-label">Produto</span>
-        <span class="cs-value">iPhone 17 Pro Max 256GB</span>
+        <span class="cs-value" id="success-product">iPhone 17 Pro Max 256GB</span>
       </div>
       <div class="cs-row">
         <span class="cs-label">A sua posição</span>
@@ -1143,7 +1144,7 @@
       </div>
       <div class="cs-row">
         <span class="cs-label">Prestação</span>
-        <span class="cs-value highlight-val">€75,00/mês</span>
+        <span class="cs-value highlight-val" id="success-price">€75,00/mês</span>
       </div>
       <div class="cs-row">
         <span class="cs-label">Estado do grupo</span>
@@ -1358,6 +1359,40 @@
     localStorage.removeItem('wekotaleadId');
     currentLeadId = null;
 
+    // Check URL params for product type
+    const urlParams = new URLSearchParams(window.location.search);
+    const produto = urlParams.get('produto');
+    const isMacbook = produto === 'macbook';
+
+    if (isMacbook) {
+      const splitTitle = document.getElementById('split-title');
+      if (splitTitle) splitTitle.textContent = 'Pronto para garantir o seu MacBook Air M4?';
+
+      const prodCardTitle = document.getElementById('product-card-title');
+      if (prodCardTitle) prodCardTitle.textContent = 'MacBook Air M4';
+
+      const prodCardDesc = document.getElementById('product-card-desc');
+      if (prodCardDesc) prodCardDesc.textContent = '16GB RAM, 256GB SSD, Cor à escolha';
+
+      const prodCardIcon = document.getElementById('product-card-icon');
+      if (prodCardIcon) prodCardIcon.textContent = '💻';
+
+      const groupSub = document.getElementById('group-subtitle');
+      if (groupSub) groupSub.textContent = 'O Grupo 103 já está aberto e a preencher lugares.';
+
+      const durPrice12 = document.querySelector('.dur-card:nth-child(1) .dur-price');
+      if (durPrice12) durPrice12.textContent = '€98/mês';
+      
+      const durPrice24 = document.querySelector('.dur-card:nth-child(2) .dur-price');
+      if (durPrice24) durPrice24.textContent = '€49/mês';
+      
+      const successProduct = document.getElementById('success-product');
+      if (successProduct) successProduct.textContent = 'MacBook Air M4';
+      
+      const successPrice = document.getElementById('success-price');
+      if (successPrice) successPrice.textContent = '€49,00/mês'; // Default to 24m
+    }
+
     // Report functionality for the owner
     window.generateTodayReport = async () => {
         const today = new Date().toISOString().split('T')[0];
@@ -1481,6 +1516,7 @@
 
         const summaryPrice = document.getElementById('summary-price');
         const summaryTotal = document.getElementById('summary-total');
+        const successPrice = document.getElementById('success-price');
         
         const urlParams = new URLSearchParams(window.location.search);
         const produto = urlParams.get('produto');
@@ -1492,11 +1528,13 @@
             if (isMacbook) {
                 if(summaryPrice) summaryPrice.textContent = '€98,00/mês';
                 if(summaryTotal) summaryTotal.textContent = '€1.176,00';
+                if(successPrice) successPrice.textContent = '€98,00/mês';
                 selectedPlanPriceId = 'price_1T99DWEGWHer1k6exHsDcDkL';
                 productNameText = 'MacBook Air M4';
             } else {
                 if(summaryPrice) summaryPrice.textContent = '€149,00/mês';
                 if(summaryTotal) summaryTotal.textContent = '€1.788,00';
+                if(successPrice) successPrice.textContent = '€149,00/mês';
                 selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5';
                 productNameText = 'iPhone 17 Pro Max';
             }
@@ -1505,11 +1543,13 @@
                 selectedPlanPriceId = 'price_1T99EWEGWHer1k6e8YMLuPwX';
                 if(summaryPrice) summaryPrice.textContent = '€49,00/mês';
                 if(summaryTotal) summaryTotal.textContent = '€1.176,00';
+                if(successPrice) successPrice.textContent = '€49,00/mês';
                 productNameText = 'MacBook Air M4';
             } else {
                 selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap';
                 if(summaryPrice) summaryPrice.textContent = '€75,00/mês';
                 if(summaryTotal) summaryTotal.textContent = '€1.800,00';
+                if(successPrice) successPrice.textContent = '€75,00/mês';
                 productNameText = 'iPhone 17 Pro Max';
             }
         }
