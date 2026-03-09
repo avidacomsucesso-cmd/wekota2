@@ -1521,8 +1521,8 @@
         const summaryTotal = document.getElementById('summary-total');
         const successPrice = document.getElementById('success-price');
         
-        const urlParams = new URLSearchParams(window.location.search);
-        const produto = urlParams.get('produto');
+        const step2UrlParams = new URLSearchParams(window.location.search);
+        const produto = step2UrlParams.get('produto');
         const isMacbook = produto === 'macbook';
         
         let productNameText = '';
@@ -1607,8 +1607,8 @@
 
           // ADIÇÃO KYC GOOGLE - SILENCIOSA E FIRE-AND-FORGET
           try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const produto = urlParams.get('produto');
+            const kycUrlParams = new URLSearchParams(window.location.search);
+            const produto = kycUrlParams.get('produto');
             const isMacbook = produto === 'macbook';
             
             const is12Months = selectedPlanPriceId === 'price_1T4oJhEGWHer1k6evF1y6zR5' || selectedPlanPriceId === 'price_1T99DWEGWHer1k6exHsDcDkL';
@@ -1812,8 +1812,8 @@
         };
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('status') === 'success') forceNavigate('success');
+    const statusParams = new URLSearchParams(window.location.search);
+    if (statusParams.get('status') === 'success') forceNavigate('success');
   });
 </script>
 
