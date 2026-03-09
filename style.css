@@ -1250,12 +1250,12 @@ body {
         font-size: 1rem;
     }
     .hero {
-        padding-top: 160px;
+        padding-top: 180px;
         padding-bottom: 40px;
         min-height: auto;
     }
     .hero__inner { grid-template-columns: 1fr; text-align: center; gap: 30px; }
-    .hero__headline { font-size: 2.2rem; }
+    .hero__headline { font-size: 2rem; }
     .hero__img { max-width: 300px; margin-top: 40px; }
     .urgency-title { font-size: 2.2rem; }
     .countdown-grid { gap: 12px; }
