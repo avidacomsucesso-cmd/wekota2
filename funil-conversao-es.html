@@ -1385,26 +1385,48 @@
         }
         trackCheckoutStarted();
 
-        // 1. Buscar e incrementar a posición configurada no ADMIN
+        // 1. Buscar e incrementar a posição configurada no ADMIN
         assignedPosition = await fetchAssignedPosition(durationText);
 
         const summaryPrice = document.getElementById('summary-price');
         const summaryTotal = document.getElementById('summary-total');
         
+        const urlParams = new URLSearchParams(window.location.search);
+        const produto = urlParams.get('produto');
+        const isMacbook = produto === 'macbook';
+        
+        let productNameText = '';
+
         if (durationText === '12') {
-            if(summaryPrice) summaryPrice.textContent = '€149,00/mes';
-            if(summaryTotal) summaryTotal.textContent = '€1.788,00';
-            selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5';
+            if (isMacbook) {
+                if(summaryPrice) summaryPrice.textContent = '€98,00/mes';
+                if(summaryTotal) summaryTotal.textContent = '€1.176,00';
+                selectedPlanPriceId = 'price_1T99DWEGWHer1k6exHsDcDkL';
+                productNameText = 'MacBook Air M4';
+            } else {
+                if(summaryPrice) summaryPrice.textContent = '€149,00/mes';
+                if(summaryTotal) summaryTotal.textContent = '€1.788,00';
+                selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5';
+                productNameText = 'iPhone 17 Pro Max';
+            }
         } else {
-            selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap';
-            if(summaryPrice) summaryPrice.textContent = '€75,00/mes';
-            if(summaryTotal) summaryTotal.textContent = '€1.800,00';
+            if (isMacbook) {
+                selectedPlanPriceId = 'price_1T99EWEGWHer1k6e8YMLuPwX';
+                if(summaryPrice) summaryPrice.textContent = '€49,00/mes';
+                if(summaryTotal) summaryTotal.textContent = '€1.176,00';
+                productNameText = 'MacBook Air M4';
+            } else {
+                selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap';
+                if(summaryPrice) summaryPrice.textContent = '€75,00/mes';
+                if(summaryTotal) summaryTotal.textContent = '€1.800,00';
+                productNameText = 'iPhone 17 Pro Max';
+            }
         }
 
         if (supabase && currentLeadId) {
             try {
                 await supabase.from('leads').update({ 
-                    plan: `iPhone 17 Pro Max - ${durationText} meses`, 
+                    plan: `${productNameText} - ${durationText} meses`, 
                     status: 'selected_plan',
                     assigned_position: assignedPosition // SALVA A POSIÇÃO NO LEAD
                 }).eq('id', currentLeadId);
@@ -1451,7 +1473,22 @@
 
           // ADICIÓN KYC GOOGLE - SILENCIOSA E FIRE-AND-FORGET
           try {
-            const is12Months = selectedPlanPriceId === window.STRIPE_PRICE_12M;
+            const urlParams = new URLSearchParams(window.location.search);
+            const produto = urlParams.get('produto');
+            const isMacbook = produto === 'macbook';
+            
+            const is12Months = selectedPlanPriceId === 'price_1T4oJhEGWHer1k6evF1y6zR5' || selectedPlanPriceId === 'price_1T99DWEGWHer1k6exHsDcDkL';
+            
+            let pName = 'iPhone 17 Pro Max 256GB';
+            let gNumber = is12Months ? 'GRUPO #101' : 'GRUPO #102';
+            let instValue = is12Months ? 149 : 75;
+
+            if (isMacbook) {
+              pName = 'MacBook Air M4';
+              gNumber = is12Months ? 'GRUPO #103' : 'GRUPO #104';
+              instValue = is12Months ? 98 : 49;
+            }
+
             const clientData = {
               clientId: currentLeadId || 'unknown',
               fullName: document.getElementById('nome')?.value || '',
@@ -1460,11 +1497,11 @@
               passportNumber: document.getElementById('passaporte')?.value || '',
               nationality: document.getElementById('nacionalidade')?.value || '',
               country: document.getElementById('pais-residencia')?.value || '',
-              productName: 'iPhone 17 Pro Max 256GB',
-              groupNumber: is12Months ? 'GRUPO #101' : 'GRUPO #102',
-              deliveryPosition: 1, // Temporário
-              estimatedDelivery: 'Dezembro 2026', // Temporário
-              installmentValue: is12Months ? 149 : 75,
+              productName: pName,
+              groupNumber: gNumber,
+              deliveryPosition: assignedPosition || 1, // Temporário
+              estimatedDelivery: 'Diciembre 2026', // Temporário
+              installmentValue: instValue,
               installmentCount: is12Months ? 12 : 24,
             };
 
@@ -1538,11 +1575,21 @@
                   }
                 }
 
-                const is12Months = selectedPlanPriceId === window.STRIPE_PRICE_12M;
+                const is12Months = selectedPlanPriceId === 'price_1T4oJhEGWHer1k6evF1y6zR5' || selectedPlanPriceId === 'price_1T99DWEGWHer1k6exHsDcDkL';
+                const isMacbook = selectedPlanPriceId === 'price_1T99DWEGWHer1k6exHsDcDkL' || selectedPlanPriceId === 'price_1T99EWEGWHer1k6e8YMLuPwX';
+                
+                let pNameCheckout = `iPhone 17 Pro Max ${is12Months ? '12M' : '24M'}`;
+                let totalAmtCheckout = is12Months ? 1788 : 1800;
+
+                if (isMacbook) {
+                  pNameCheckout = `MacBook Air M4 ${is12Months ? '12M' : '24M'}`;
+                  totalAmtCheckout = is12Months ? 1176 : 1176; 
+                }
+
                 const orderData = {
                   customerName: document.getElementById('nome')?.value || 'Cliente WEKOTA',
-                  productName: `iPhone 17 Pro Max ${is12Months ? '12M' : '24M'}`,
-                  totalAmount: is12Months ? 1788 : 1800
+                  productName: pNameCheckout,
+                  totalAmount: totalAmtCheckout
                 };
                 registerConsultorSale(orderData);
                 
