@@ -1481,91 +1481,96 @@
     if (btnStep2) {
       btnStep2.onclick = async (e) => {
         e.preventDefault();
+        console.log('Botão Continuar clicado');
         const durEl = document.querySelector('.dur-card.selected .dur-months');
         const durationText = durEl ? durEl.textContent.trim() : '24';
         
         btnStep2.textContent = 'A processar...';
         btnStep2.disabled = true;
 
-        // RASTREAMENTO DE CHECKOUT (PÁGINA DE PAGAMENTO - INICIOU PLANO)
-        async function trackCheckoutStarted() {
+        try {
+          // RASTREAMENTO DE CHECKOUT
           const activeRef = localStorage.getItem('wekota_ref');
-          if (!activeRef) return;
+          if (activeRef) {
+            supabase.from('funnel_events').insert({
+              event_type: 'checkout_started',
+              source_url: window.location.href + (window.location.search ? '&' : '?') + `ref=${activeRef}`,
+              funnel_step: 'checkout'
+            }).then(({error}) => { if(error) console.error("Erro no tracking:", error); });
+          }
+
+          // 1. Buscar e incrementar a posição configurada no ADMIN
+          assignedPosition = await fetchAssignedPosition(durationText);
+
+          // Update UI displays
+          const revealNum = document.getElementById('revealNum');
+          const revealDetail = document.getElementById('revealDetail');
+          const summaryDeliveryPeriod = document.getElementById('summary-delivery-period');
+          const summaryGroupDesc = document.getElementById('summary-group-desc');
+          const summaryProductName = document.getElementById('summary-product-name');
           
-          // Apenas INSERT, sem .select() no final para evitar erros de RLS
-          const { error } = await supabase.from('funnel_events').insert({
-            event_type: 'checkout_started',
-            source_url: window.location.href + (window.location.search ? '&' : '?') + `ref=${activeRef}`,
-            funnel_step: 'checkout'
-          });
+          const summaryPrice = document.getElementById('summary-price');
+          const summaryTotal = document.getElementById('summary-total');
+          const successPrice = document.getElementById('success-price');
+
+          const step2UrlParams = new URLSearchParams(window.location.search);
+          const produto = step2UrlParams.get('produto');
+          const isMacbook = produto === 'macbook';
           
-          if (error) console.error("Erro no tracking de checkout:", error);
+          let productNameText = isMacbook ? 'MacBook Air M4' : 'iPhone 17 Pro Max 256GB';
+          if (summaryProductName) summaryProductName.textContent = productNameText;
+
+          if (durationText === '12') {
+              if (revealNum) revealNum.textContent = '4-8 meses';
+              if (summaryDeliveryPeriod) summaryDeliveryPeriod.textContent = 'Entre o mês 4 e o mês 8';
+              if (summaryGroupDesc) summaryGroupDesc.textContent = '12 meses · 12 membros';
+              if (revealDetail) revealDetail.textContent = `Grupo de 12 meses · ${productNameText}`;
+
+              if (isMacbook) {
+                  if(summaryPrice) summaryPrice.textContent = '€98,00/mês';
+                  if(summaryTotal) summaryTotal.textContent = '€1.176,00';
+                  if(successPrice) successPrice.textContent = '€98,00/mês';
+                  selectedPlanPriceId = 'price_1T99DWEGWHer1k6exHsDcDkL';
+              } else {
+                  if(summaryPrice) summaryPrice.textContent = '€149,00/mês';
+                  if(summaryTotal) summaryTotal.textContent = '€1.788,00';
+                  if(successPrice) successPrice.textContent = '€149,00/mês';
+                  selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5';
+              }
+          } else {
+              if (revealNum) revealNum.textContent = '12-16 meses';
+              if (summaryDeliveryPeriod) summaryDeliveryPeriod.textContent = 'Entre o mês 12 e o mês 16';
+              if (summaryGroupDesc) summaryGroupDesc.textContent = '24 meses · 24 membros';
+              if (revealDetail) revealDetail.textContent = `Grupo de 24 meses · ${productNameText}`;
+
+              if (isMacbook) {
+                  selectedPlanPriceId = 'price_1T99EWEGWHer1k6e8YMLuPwX';
+                  if(summaryPrice) summaryPrice.textContent = '€49,00/mês';
+                  if(summaryTotal) summaryTotal.textContent = '€1.176,00';
+                  if(successPrice) successPrice.textContent = '€49,00/mês';
+              } else {
+                  selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap';
+                  if(summaryPrice) summaryPrice.textContent = '€75,00/mês';
+                  if(summaryTotal) summaryTotal.textContent = '€1.800,00';
+                  if(successPrice) successPrice.textContent = '€75,00/mês';
+              }
+          }
+
+          if (supabase && currentLeadId) {
+              await supabase.from('leads').update({ 
+                  plan: `${productNameText} - ${durationText} meses`, 
+                  status: 'selected_plan',
+                  assigned_position: assignedPosition
+              }).eq('id', currentLeadId);
+          }
+          forceNavigate('step3');
+        } catch (err) {
+          console.error('Erro no Step 2:', err);
+          alert('Ocorreu um erro ao processar o seu plano. Por favor, tente novamente.');
+        } finally {
+          btnStep2.textContent = 'Continuar';
+          btnStep2.disabled = false;
         }
-        trackCheckoutStarted();
-
-        // 1. Buscar e incrementar a posição configurada no ADMIN
-        assignedPosition = await fetchAssignedPosition(durationText);
-
-        // Update UI displays
-        const revealNum = document.getElementById('revealNum');
-        const revealDetail = document.getElementById('revealDetail');
-        const summaryDeliveryPeriod = document.getElementById('summary-delivery-period');
-        const summaryGroupDesc = document.getElementById('summary-group-desc');
-        const summaryProductName = document.getElementById('summary-product-name');
-        
-        const step2UrlParams = new URLSearchParams(window.location.search);
-        const produto = step2UrlParams.get('produto');
-        const isMacbook = produto === 'macbook';
-        
-        let productNameText = isMacbook ? 'MacBook Air M4' : 'iPhone 17 Pro Max 256GB';
-        if (summaryProductName) summaryProductName.textContent = productNameText;
-
-        if (durationText === '12') {
-            if (revealNum) revealNum.textContent = '4-8 meses';
-            if (summaryDeliveryPeriod) summaryDeliveryPeriod.textContent = 'Entre o mês 4 e o mês 8';
-            if (summaryGroupDesc) summaryGroupDesc.textContent = '12 meses · 12 membros';
-            if (revealDetail) revealDetail.textContent = `Grupo de 12 meses · ${productNameText}`;
-
-            if (isMacbook) {
-                if(summaryPrice) summaryPrice.textContent = '€98,00/mês';
-                if(summaryTotal) summaryTotal.textContent = '€1.176,00';
-                if(successPrice) successPrice.textContent = '€98,00/mês';
-                selectedPlanPriceId = 'price_1T99DWEGWHer1k6exHsDcDkL';
-            } else {
-                if(summaryPrice) summaryPrice.textContent = '€149,00/mês';
-                if(summaryTotal) summaryTotal.textContent = '€1.788,00';
-                if(successPrice) successPrice.textContent = '€149,00/mês';
-                selectedPlanPriceId = 'price_1T4oJhEGWHer1k6evF1y6zR5';
-            }
-        } else {
-            if (revealNum) revealNum.textContent = '12-16 meses';
-            if (summaryDeliveryPeriod) summaryDeliveryPeriod.textContent = 'Entre o mês 12 e o mês 16';
-            if (summaryGroupDesc) summaryGroupDesc.textContent = '24 meses · 24 membros';
-            if (revealDetail) revealDetail.textContent = `Grupo de 24 meses · ${productNameText}`;
-
-            if (isMacbook) {
-                selectedPlanPriceId = 'price_1T99EWEGWHer1k6e8YMLuPwX';
-                if(summaryPrice) summaryPrice.textContent = '€49,00/mês';
-                if(summaryTotal) summaryTotal.textContent = '€1.176,00';
-                if(successPrice) successPrice.textContent = '€49,00/mês';
-            } else {
-                selectedPlanPriceId = 'price_1T4oKuEGWHer1k6ed8oBXVap';
-                if(summaryPrice) summaryPrice.textContent = '€75,00/mês';
-                if(summaryTotal) summaryTotal.textContent = '€1.800,00';
-                if(successPrice) successPrice.textContent = '€75,00/mês';
-            }
-        }
-
-        if (supabase && currentLeadId) {
-            try {
-                await supabase.from('leads').update({ 
-                    plan: `${productNameText} - ${durationText} meses`, 
-                    status: 'selected_plan',
-                    assigned_position: assignedPosition // SALVA A POSIÇÃO NO LEAD
-                }).eq('id', currentLeadId);
-            } catch (e) {}
-        }
-        forceNavigate('step3');
       };
     }
 
