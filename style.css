@@ -117,7 +117,7 @@ body {
   align-items: center;
 }
 .logo { display: flex; align-items: center; text-decoration: none; }
-.logo__img-official { height: 160px; width: auto; object-fit: contain; }
+.logo__img-official { height: 180px; width: auto; object-fit: contain; }
 .brightness-invert { filter: brightness(0) invert(1); }
 
 /* HERO */
@@ -1244,7 +1244,7 @@ body {
         display: none;
     }
     .logo__img-official {
-        height: 120px;
+        height: 140px;
     }
     .faq-question {
         font-size: 1rem;
