@@ -202,30 +202,74 @@
     <!-- 4️⃣ SEÇÃO PRODUTO (CARROSSEL) -->
     <section class="section-padding bg-white" id="produto">
       <div class="container">
-        <div class="text-center mb-60">
-          <h2 class="section-title">iPhone 17 Pro Max 256GB — <span class="text-teal">Todas as Cores</span></h2>
-        </div>
-        <div class="product-carousel-wrapper">
-          <div class="product-carousel-track">
-            <div class="product-slide">
-              <img src="images/product-orange.png" alt="iPhone 17 Pro Max" class="product-img-premium">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px;">
+          <!-- iPhone Carousel -->
+          <div>
+            <div class="text-center mb-40">
+              <h2 class="section-title" style="font-size: 1.8rem;">iPhone 17 Pro Max 256GB</h2>
             </div>
-            <div class="product-slide">
-              <img src="images/product-info.jpg" alt="iPhone 17 Pro Max Info" class="product-img-premium">
-            </div>
-            <div class="product-slide">
-              <img src="images/product-cable.png" alt="iPhone 17 Pro Max Cable" class="product-img-premium">
-            </div>
-            <div class="product-slide">
-              <img src="images/hero-split.png" alt="iPhone 17 Pro Max Detalhe" class="product-img-premium">
-            </div>
-             <div class="product-slide">
-              <img src="images/lineup.png" alt="iPhone 17 Pro Max Lineup" class="product-img-premium">
+            <div class="product-carousel-wrapper">
+              <div class="product-carousel-track">
+                <div class="product-slide">
+                  <img src="images/product-orange.png" alt="iPhone 17 Pro Max" class="product-img-premium">
+                </div>
+                <div class="product-slide">
+                  <img src="images/product-info.jpg" alt="iPhone 17 Pro Max Info" class="product-img-premium">
+                </div>
+                <div class="product-slide">
+                  <img src="images/product-cable.png" alt="iPhone 17 Pro Max Cable" class="product-img-premium">
+                </div>
+                <div class="product-slide">
+                  <img src="images/hero-split.png" alt="iPhone 17 Pro Max Detalhe" class="product-img-premium">
+                </div>
+                <div class="product-slide">
+                  <img src="images/lineup.png" alt="iPhone 17 Pro Max Lineup" class="product-img-premium">
+                </div>
+              </div>
+              <div class="carousel-nav">
+                <button class="nav-btn prev"><i data-lucide="chevron-left"></i></button>
+                <button class="nav-btn next"><i data-lucide="chevron-right"></i></button>
+              </div>
             </div>
           </div>
-          <div class="carousel-nav">
-            <button class="nav-btn prev"><i data-lucide="chevron-left"></i></button>
-            <button class="nav-btn next"><i data-lucide="chevron-right"></i></button>
+
+          <!-- MacBook Carousel -->
+          <div>
+            <div class="text-center mb-40">
+              <h2 class="section-title" style="font-size: 1.8rem;">MacBook Air M4</h2>
+            </div>
+            <div class="product-carousel-wrapper">
+              <div class="product-carousel-track">
+                <div class="product-slide">
+                  <img src="images/macbook1.png" alt="MacBook Air M4" class="product-img-premium" style="object-fit: contain;">
+                </div>
+                <div class="product-slide">
+                  <img src="images/macbook2.png" alt="MacBook Air M4" class="product-img-premium" style="object-fit: contain;">
+                </div>
+                <div class="product-slide">
+                  <img src="images/macbook3.png" alt="MacBook Air M4" class="product-img-premium" style="object-fit: contain;">
+                </div>
+                <div class="product-slide">
+                  <img src="images/macbook4.png" alt="MacBook Air M4" class="product-img-premium" style="object-fit: contain;">
+                </div>
+                <div class="product-slide">
+                  <img src="images/macbook5.png" alt="MacBook Air M4" class="product-img-premium" style="object-fit: contain;">
+                </div>
+                <div class="product-slide">
+                  <img src="images/macbook6.png" alt="MacBook Air M4" class="product-img-premium" style="object-fit: contain;">
+                </div>
+                <div class="product-slide">
+                  <img src="images/macbook7.png" alt="MacBook Air M4" class="product-img-premium" style="object-fit: contain;">
+                </div>
+                <div class="product-slide">
+                  <img src="images/macbook8.png" alt="MacBook Air M4" class="product-img-premium" style="object-fit: contain;">
+                </div>
+              </div>
+              <div class="carousel-nav">
+                <button class="nav-btn prev"><i data-lucide="chevron-left"></i></button>
+                <button class="nav-btn next"><i data-lucide="chevron-right"></i></button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -891,31 +935,33 @@
     }
 
     // Product Carousel
-    const productTrack = document.querySelector('.product-carousel-track');
-    const slides = Array.from(productTrack.children);
-    const nextButton = document.querySelector('.nav-btn.next');
-    const prevButton = document.querySelector('.nav-btn.prev');
-    let currentIndex = 0;
+    document.querySelectorAll('.product-carousel-wrapper').forEach(carousel => {
+      const track = carousel.querySelector('.product-carousel-track');
+      const slides = Array.from(track.children);
+      const nextBtn = carousel.querySelector('.nav-btn.next');
+      const prevBtn = carousel.querySelector('.nav-btn.prev');
+      let currentIndex = 0;
 
-    function updateCarousel() {
-      productTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
-    }
+      function updateCarousel() {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      }
 
-    nextButton.addEventListener('click', () => {
-      currentIndex = (currentIndex + 1) % slides.length;
-      updateCarousel();
+      nextBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        updateCarousel();
+      });
+
+      prevBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        updateCarousel();
+      });
+
+      // Auto transition
+      setInterval(() => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        updateCarousel();
+      }, 5000);
     });
-
-    prevButton.addEventListener('click', () => {
-      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-      updateCarousel();
-    });
-
-    // Auto transition
-    setInterval(() => {
-      currentIndex = (currentIndex + 1) % slides.length;
-      updateCarousel();
-    }, 5000);
 
     // Testimonial Carousel Logic
     const testimonialTrack = document.querySelector('.testimonial-track');
