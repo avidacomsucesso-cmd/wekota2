@@ -823,11 +823,11 @@
   <!-- ============================================ -->
   <div class="screen active" id="screen-split">
     <div class="screen-title" id="split-title">¿Listo para asegurar tu iPhone 17 Pro Max?</div>
-    <div class="screen-sub">Únete a un grupo, paga cuotas fijas, recibe tu producto. <strong>Sin bancos, sin intereses, sin sorpresas.</strong></div>
+    <div class="screen-sub" id="split-sub">Únete a un grupo, paga cuotas fijas, recibe tu producto. <strong>Sin bancos, sin intereses, sin sorpresas.</strong></div>
 
     <div class="split-choices">
       <button class="split-btn split-btn-primary" onclick="goTo('step1')">
-        <span class="split-badge">🔥 6 posiciones restantes</span>
+        <span class="split-badge" id="split-badge">🔥 6 posiciones restantes</span>
         <div class="split-icon">🚀</div>
         <div class="split-text">
           <h3>Quiero asegurar el mío</h3>
@@ -1334,6 +1334,9 @@
 
       const groupSub = document.getElementById('group-subtitle');
       if (groupSub) groupSub.textContent = 'El Grupo 103 ya está abierto y llenando plazas.';
+      
+      const splitBadge = document.getElementById('split-badge');
+      if (splitBadge) splitBadge.textContent = '🔥 9 posiciones restantes';
 
       const durPrice12 = document.querySelector('.dur-card:nth-child(1) .dur-price');
       if (durPrice12) durPrice12.textContent = '€98/mes';
