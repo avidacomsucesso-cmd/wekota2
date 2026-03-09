@@ -87,17 +87,46 @@
   </header>
 
   <main>
-    <section class="hero">
-      <div class="container hero__inner">
-        <div class="hero__content">
-          <h1 class="hero__headline">Ten el iPhone 17 Pro Max en Europa.</h1>
-          <p class="hero__subheadline">Únete a un grupo. Paga cuotas fijas. Recibe tu iPhone.</p>
-          <p class="hero__mini-text">Sin bancos, sin intereses, sin sorpresas.</p>
-          <a href="./funil-conversao-es.html" class="btn btn--primary btn--lg">Quiero mi posición</a>
+    <!-- 1️⃣ HERO (Desejo + Autoridade) CAROUSEL -->
+    <section class="hero" style="overflow: hidden; position: relative; padding: 0;">
+      <div class="hero-carousel-track" style="display: flex; transition: transform 0.5s ease-in-out; height: 100%;">
+        
+        <!-- Slide 1: iPhone -->
+        <div class="hero-slide" style="min-width: 100%; display: flex; align-items: center; padding: 80px 0;">
+          <div class="container hero__inner">
+            <div class="hero__content">
+              <h1 class="hero__headline">Ten el iPhone 17 Pro Max en Europa.</h1>
+              <p class="hero__subheadline">Únete a un grupo. Paga cuotas fijas. Recibe tu iPhone.</p>
+              <p class="hero__mini-text">Sin bancos, sin intereses, sin sorpresas.</p>
+              <a href="./funil-conversao-es.html?produto=iphone" class="btn btn--primary btn--lg">Quiero mi posición</a>
+            </div>
+            <div class="hero__visual">
+              <img src="images/hero-split.png" alt="iPhone 17 Pro Max" class="hero__img">
+            </div>
+          </div>
         </div>
-        <div class="hero__visual">
-          <img src="images/hero-split.png" alt="iPhone 17 Pro Max" class="hero__img">
+
+        <!-- Slide 2: MacBook -->
+        <div class="hero-slide" style="min-width: 100%; display: flex; align-items: center; padding: 80px 0;">
+          <div class="container hero__inner">
+            <div class="hero__content">
+              <h1 class="hero__headline">Ten el MacBook Air M4 en Europa.</h1>
+              <p class="hero__subheadline">Únete a un grupo. Paga cuotas fijas. Recibe tu MacBook.</p>
+              <p class="hero__mini-text">Sin bancos, sin intereses, sin sorpresas.</p>
+              <a href="./funil-conversao-es.html?produto=macbook" class="btn btn--primary btn--lg">Quiero mi posición</a>
+            </div>
+            <div class="hero__visual">
+              <img src="images/macbook1.png" alt="MacBook Air M4" class="hero__img" style="transform: scale(1.2);">
+            </div>
+          </div>
         </div>
+
+      </div>
+      
+      <!-- Hero Navigation Dots -->
+      <div class="hero-dots" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+        <span class="hero-dot active" style="width: 10px; height: 10px; border-radius: 50%; background: var(--teal); cursor: pointer; transition: background 0.3s;"></span>
+        <span class="hero-dot" style="width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: background 0.3s;"></span>
       </div>
     </section>
 
@@ -171,41 +200,96 @@
     <section class="urgency-banner section-padding" style="background: linear-gradient(rgba(22, 62, 99, 0.95), rgba(22, 62, 99, 0.95)), url('images/hero-split.png') center/cover fixed;">
       <div class="container text-center text-white">
         <div class="status-badge-premium mb-32">
-          <span class="status-dot-pulse"></span> INSCRIPCIONES ABIERTAS PARA EL GRUPO
+          <span class="status-dot-pulse"></span> INSCRIPCIONES ABIERTAS
         </div>
         <h2 class="urgency-title mb-32">Posiciones limitadas <br> <span class="text-teal">disponibles.</span></h2>
-        <p class="section-desc text-white-60 mb-48 mx-auto" style="line-height: 1.8;">El grupo se abrirá solo cuando los primeros <strong>12 participantes calificados</strong> confirmen su posición.</p>
-        <div class="metrics-grid">
-          <div class="metric-item-premium">
-            <span class="metric-value">+300</span>
-            <span class="metric-label">Interesados</span>
+        <p class="section-desc text-white-60 mb-48 mx-auto" style="line-height: 1.8;">Cada grupo se abrirá solo cuando los primeros <strong>12 o 24 participantes calificados</strong> confirmen su posición.</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-bottom: 60px;">
+          <!-- iPhone Card -->
+          <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 32px;">
+            <h3 style="font-size: 1.5rem; margin-bottom: 24px; color: #fff;">iPhone 17 Pro Max</h3>
+            
+            <div class="positions-status mb-32">
+              <p style="font-size: 0.9rem; margin-bottom: 12px; color: var(--white-60); text-transform: uppercase; letter-spacing: 1px;">Plan 12 Meses</p>
+              <div class="dots-row" style="margin-bottom: 12px;">
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+              </div>
+              <p class="dots-label">6 de 12 posiciones confirmadas</p>
+            </div>
+            
+            <div class="positions-status">
+              <p style="font-size: 0.9rem; margin-bottom: 12px; color: var(--white-60); text-transform: uppercase; letter-spacing: 1px;">Plan 24 Meses</p>
+              <div class="dots-row" style="margin-bottom: 12px; flex-wrap: wrap; justify-content: center;">
+                <span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+              </div>
+              <p class="dots-label">9 de 24 posiciones confirmadas</p>
+            </div>
+            
+            <a href="./funil-conversao-es.html?produto=iphone" class="btn btn--primary btn--full mt-32">Reservar iPhone</a>
           </div>
-          <div class="metric-item-premium">
-            <span class="metric-value">35%</span>
-            <span class="metric-label">Cualificados</span>
-          </div>
-          <div class="metric-item-premium">
-            <span class="metric-value">-30</span>
-            <span class="metric-label">Plazas Restantes</span>
+
+          <!-- MacBook Card -->
+          <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 32px;">
+            <h3 style="font-size: 1.5rem; margin-bottom: 24px; color: #fff;">MacBook Air M4</h3>
+            <div class="status-badge-premium mb-24" style="font-size: 0.75rem; padding: 4px 12px; display: inline-flex;">GRUPO 103</div>
+            
+            <div class="positions-status mb-32">
+              <p style="font-size: 0.9rem; margin-bottom: 12px; color: var(--white-60); text-transform: uppercase; letter-spacing: 1px;">Plan 12 Meses</p>
+              <div class="dots-row" style="margin-bottom: 12px;">
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+                <span class="dot-pos"></span>
+              </div>
+              <p class="dots-label">3 de 12 posiciones confirmadas</p>
+            </div>
+            
+            <div class="positions-status">
+              <p style="font-size: 0.9rem; margin-bottom: 12px; color: var(--white-60); text-transform: uppercase; letter-spacing: 1px;">Plan 24 Meses</p>
+              <div class="dots-row" style="margin-bottom: 12px; flex-wrap: wrap; justify-content: center;">
+                <span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos filled"></span>
+                <span class="dot-pos filled"></span><span class="dot-pos filled"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+                <span class="dot-pos"></span><span class="dot-pos"></span><span class="dot-pos"></span>
+              </div>
+              <p class="dots-label">8 de 24 posiciones confirmadas</p>
+            </div>
+            
+            <a href="./funil-conversao-es.html?produto=macbook" class="btn btn--primary btn--full mt-32">Reservar MacBook</a>
           </div>
         </div>
-        <div class="positions-status mb-60">
-          <div class="dots-row">
-            <span class="dot-pos filled"></span>
-            <span class="dot-pos filled"></span>
-            <span class="dot-pos filled"></span>
-            <span class="dot-pos filled"></span>
-            <span class="dot-pos filled"></span>
-            <span class="dot-pos filled"></span>
-            <span class="dot-pos"></span>
-            <span class="dot-pos"></span>
-            <span class="dot-pos"></span>
-            <span class="dot-pos"></span>
-            <span class="dot-pos"></span>
-            <span class="dot-pos"></span>
-          </div>
-          <p class="dots-label mt-24">6 de 12 posiciones confirmadas — 6 restantes</p>
-        </div>
+
         <div class="countdown-wrapper mb-60">
           <p class="countdown-header mb-16"><i data-lucide="clock" class="icon-sm"></i> LA VENTANA DE INSCRIPCIÓN CIERRA EN</p>
           <div class="countdown-grid">
@@ -229,7 +313,9 @@
         <div class="text-center mb-60">
           <h2 class="section-title">Estructura de Pago</h2>
         </div>
-        <div class="payment-flex">
+
+        <h3 class="text-center mb-32" style="font-size: 1.5rem; color: var(--navy); font-weight: 700;">iPhone 17 Pro Max 256GB</h3>
+        <div class="payment-flex mb-60">
           <div class="payment-card-premium featured-plan">
             <div class="card-header-finance">
               <div class="badge-upgrade">GARANTIA DE UPGRADE</div>
@@ -254,7 +340,7 @@
                 <li><i data-lucide="check" class="finance-check"></i> Exento de intereses</li>
                 <li><i data-lucide="check" class="finance-check"></i> Cero comisiones ocultas</li>
               </ul>
-              <a href="./funil-conversao-es.html" class="btn btn--primary btn--full">Reservar Ahora</a>
+              <a href="./funil-conversao-es.html?produto=iphone" class="btn btn--primary btn--full">Reservar Ahora</a>
             </div>
           </div>
           <div class="payment-card-premium featured-plan">
@@ -281,7 +367,65 @@
                 <li><i data-lucide="check" class="finance-check"></i> Exento de intereses</li>
                 <li><i data-lucide="check" class="finance-check"></i> Cero comisiones ocultas</li>
               </ul>
-              <a href="./funil-conversao-es.html" class="btn btn--primary btn--full">Reservar Ahora</a>
+              <a href="./funil-conversao-es.html?produto=iphone" class="btn btn--primary btn--full">Reservar Ahora</a>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-center mb-32" style="font-size: 1.5rem; color: var(--navy); font-weight: 700;">MacBook Air M4</h3>
+        <div class="payment-flex">
+          <div class="payment-card-premium featured-plan">
+            <div class="card-header-finance">
+              <div class="badge-upgrade">GARANTIA DE UPGRADE</div>
+              <span class="finance-tag">GRUPO #103</span>
+              <h3 class="duration-title">12 meses</h3>
+              <p class="duration-subtitle">duración del grupo</p>
+              <div class="installment-price mt-24">
+                <span class="price-value">98,00€</span>
+                <span class="price-label">/ mensualidad fija</span>
+              </div>
+            </div>
+            <div class="card-body-finance">
+              <div class="upgrade-info mb-24">
+                <div class="badge-upgrade-inline">GARANTIA DE UPGRADE</div>
+                <div class="upgrade-text-wrap">
+                  <i data-lucide="sparkles" class="upgrade-icon"></i>
+                  <p>Todos nuestros planes reciben automáticamente un <strong>upgrade al último modelo</strong> de MacBook disponible.</p>
+                </div>
+              </div>
+              <ul class="finance-list">
+                <li><i data-lucide="check" class="finance-check"></i> Mensualidades fijas</li>
+                <li><i data-lucide="check" class="finance-check"></i> Exento de intereses</li>
+                <li><i data-lucide="check" class="finance-check"></i> Cero comisiones ocultas</li>
+              </ul>
+              <a href="./funil-conversao-es.html?produto=macbook" class="btn btn--primary btn--full">Reservar Ahora</a>
+            </div>
+          </div>
+          <div class="payment-card-premium featured-plan">
+            <div class="card-header-finance">
+              <div class="badge-upgrade">GARANTIA DE UPGRADE</div>
+              <span class="finance-tag">GRUPO #104</span>
+              <h3 class="duration-title">24 meses</h3>
+              <p class="duration-subtitle">duración del grupo</p>
+              <div class="installment-price mt-24">
+                <span class="price-value">49,00€</span>
+                <span class="price-label">/ mensualidad fija</span>
+              </div>
+            </div>
+            <div class="card-body-finance">
+              <div class="upgrade-info mb-24">
+                <div class="badge-upgrade-inline">GARANTIA DE UPGRADE</div>
+                <div class="upgrade-text-wrap">
+                  <i data-lucide="sparkles" class="upgrade-icon"></i>
+                  <p>Todos nuestros planes reciben automáticamente un <strong>upgrade al último modelo</strong> de MacBook disponible.</p>
+                </div>
+              </div>
+              <ul class="finance-list">
+                <li><i data-lucide="check" class="finance-check"></i> Mensualidades fijas</li>
+                <li><i data-lucide="check" class="finance-check"></i> Exento de intereses</li>
+                <li><i data-lucide="check" class="finance-check"></i> Cero comisiones ocultas</li>
+              </ul>
+              <a href="./funil-conversao-es.html?produto=macbook" class="btn btn--primary btn--full">Reservar Ahora</a>
             </div>
           </div>
         </div>
@@ -296,34 +440,9 @@
           <p class="section-desc text-center mx-auto">Estamos preparando nuevas oportunidades de adquisición colectiva.</p>
         </div>
         
-        <div class="upcoming-grid">
-          <!-- MacBook Air M4 -->
-          <div class="upcoming-card">
-            <div class="mini-carousel" data-autoplay="true">
-              <div class="mini-track">
-                <img src="images/macbook1.png" alt="MacBook Air M4">
-                <img src="images/macbook2.png" alt="MacBook Air M4">
-                <img src="images/macbook3.png" alt="MacBook Air M4">
-                <img src="images/macbook4.png" alt="MacBook Air M4">
-                <img src="images/macbook5.png" alt="MacBook Air M4">
-                <img src="images/macbook6.png" alt="MacBook Air M4">
-                <img src="images/macbook7.png" alt="MacBook Air M4">
-                <img src="images/macbook8.png" alt="MacBook Air M4">
-              </div>
-              <div class="mini-nav">
-                <button class="mini-btn prev"><i data-lucide="chevron-left"></i></button>
-                <button class="mini-btn next"><i data-lucide="chevron-right"></i></button>
-              </div>
-            </div>
-            <div class="upcoming-content">
-              <h3 class="upcoming-name">MacBook Air M4</h3>
-              <p class="upcoming-desc">MacBook Air APPLE Medianoche (13.6'' - Apple M4 10-Core - RAM: 16 GB - 256 GB SSD - 8-Core</p>
-              <div class="upcoming-status">PRÓXIMAMENTE</div>
-            </div>
-          </div>
-
+        <div class="upcoming-grid" style="display: flex; justify-content: center;">
           <!-- Samsung Galaxy S26 Ultra -->
-          <div class="upcoming-card">
+          <div class="upcoming-card" style="max-width: 400px; width: 100%;">
             <div class="mini-carousel" data-autoplay="true">
               <div class="mini-track">
                 <img src="images/samsung1.png" alt="Samsung Galaxy S26 Ultra">
