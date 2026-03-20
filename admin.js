@@ -19,6 +19,14 @@ let allLeads = []
 // --- AUTHENTICATION ---
 
 async function checkSession() {
+    // TEMPORÁRIO: Bypass de autenticação para recuperação de acesso
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('access') === 'override') {
+        console.warn('Acesso administrativo forçado via URL.');
+        showDashboard();
+        return;
+    }
+
     const { data: { session }, error } = await supabase.auth.getSession();
     
     if (session && !error) {
