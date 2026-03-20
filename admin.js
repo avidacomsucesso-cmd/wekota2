@@ -405,14 +405,19 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal
 
 // Adicionar botão de exportar no HTML dinamicamente se não existir
 function addExportButton() {
-    const actionsBar = document.querySelector('.flex.flex-col.md\\:flex-row.gap-4.mb-6');
-    if (actionsBar && !document.getElementById('export-btn')) {
+    // Tenta encontrar o container onde estão os filtros de busca e status
+    const filterContainer = document.querySelector('.lg\\:col-span-2 .flex.gap-2');
+    
+    if (filterContainer && !document.getElementById('export-btn')) {
         const btn = document.createElement('button');
         btn.id = 'export-btn';
-        btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium text-sm shadow-lg shadow-emerald-900/20';
-        btn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> Exportar Excel (Hoje)';
+        btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-all font-medium text-xs shadow-lg shadow-emerald-900/20 whitespace-nowrap';
+        btn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> Exportar';
         btn.onclick = exportTodayLeads;
-        actionsBar.appendChild(btn);
+        
+        // Insere o botão no início do container de filtros
+        filterContainer.prepend(btn);
+        
         if (window.lucide) window.lucide.createIcons();
     }
 }
