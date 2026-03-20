@@ -1,5 +1,8 @@
 import { supabase } from './supabaseClient.js'
 
+// Import dynamic para XLSX para não pesar no carregamento inicial
+const loadXLSX = () => import('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js');
+
 // DOM Elements
 const loginScreen = document.getElementById('login-screen')
 const loginForm = document.getElementById('login-form')
@@ -41,6 +44,8 @@ function showDashboard() {
         adminContent.style.display = 'block';
         adminContent.classList.remove('hidden');
     }
+    
+    addExportButton(); // Adiciona o botão de exportar
     
     // Load data initially
     loadSettings().catch(e => console.error('Failed to load settings:', e));
@@ -389,3 +394,72 @@ const closeModal = () => {
 if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal)
 if(modalBackdrop) modalBackdrop.addEventListener('click', closeModal)
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal() })
+
+// Adicionar botão de exportar no HTML dinamicamente se não existir
+function addExportButton() {
+    const actionsBar = document.querySelector('.flex.flex-col.md\\:flex-row.gap-4.mb-6');
+    if (actionsBar && !document.getElementById('export-btn')) {
+        const btn = document.createElement('button');
+        btn.id = 'export-btn';
+        btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl flex items-center gap-2 transition-all font-medium text-sm shadow-lg shadow-emerald-900/20';
+        btn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> Exportar Excel (Hoje)';
+        btn.onclick = exportTodayLeads;
+        actionsBar.appendChild(btn);
+        if (window.lucide) window.lucide.createIcons();
+    }
+}
+
+async function exportTodayLeads() {
+    const btn = document.getElementById('export-btn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> A gerar...';
+    if (window.lucide) window.lucide.createIcons();
+
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const { data, error } = await supabase
+            .from('leads')
+            .select('*')
+            .gte('created_at', today)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            alert('Não existem leads registados hoje para exportar.');
+            return;
+        }
+
+        // Carregar biblioteca XLSX
+        await loadXLSX();
+        const XLSX = window.XLSX;
+
+        // Preparar dados para o Excel
+        const excelData = data.map(l => ({
+            'Data/Hora': new Date(l.created_at).toLocaleString('pt-PT'),
+            'Nome': l.name || 'N/A',
+            'Email': l.email || 'N/A',
+            'WhatsApp': l.whatsapp || 'N/A',
+            'País': l.country || 'N/A',
+            'Plano': l.plan || 'N/A',
+            'Status': l.status || 'N/A',
+            'Cód. Consultor': l.ref_code || 'Direto',
+            'Posição': l.assigned_position || 'N/A'
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Leads Hoje");
+
+        // Download do arquivo
+        XLSX.writeFile(workbook, `Wekota_Leads_${today}.xlsx`);
+
+    } catch (err) {
+        console.error('Erro ao exportar:', err);
+        alert('Erro ao gerar ficheiro Excel: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        if (window.lucide) window.lucide.createIcons();
+    }
+}
