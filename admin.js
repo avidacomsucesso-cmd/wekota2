@@ -53,7 +53,7 @@ function showDashboard() {
         adminContent.classList.remove('hidden');
     }
     
-    addExportButton(); // Adiciona o botão de exportar
+    addExportUI(); // Nova UI com seletor de data
     
     // Load data initially
     loadSettings().catch(e => console.error('Failed to load settings:', e));
@@ -402,6 +402,118 @@ const closeModal = () => {
 if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal)
 if(modalBackdrop) modalBackdrop.addEventListener('click', closeModal)
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal() })
+
+// Adicionar modal de exportação com filtro de data
+function addExportUI() {
+    const filterContainer = document.querySelector('.lg\\:col-span-2 .flex.gap-2');
+    if (filterContainer && !document.getElementById('export-btn')) {
+        const btn = document.createElement('button');
+        btn.id = 'export-btn';
+        btn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-all font-medium text-xs shadow-lg shadow-emerald-900/20 whitespace-nowrap';
+        btn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> Exportar';
+        btn.onclick = () => document.getElementById('export-modal').classList.remove('hidden');
+        filterContainer.prepend(btn);
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Criar o Modal de Exportação se não existir
+    if (!document.getElementById('export-modal')) {
+        const modal = document.createElement('div');
+        modal.id = 'export-modal';
+        modal.className = 'fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden';
+        modal.innerHTML = `
+            <div class="glass max-w-sm w-full p-6 rounded-2xl border border-white/10 shadow-2xl">
+                <h3 class="text-white font-bold text-lg mb-4">Exportar Relatório</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Data Inicial</label>
+                        <input type="date" id="export-start-date" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Data Final</label>
+                        <input type="date" id="export-end-date" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500">
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="document.getElementById('export-modal').classList.add('hidden')" class="flex-1 px-4 py-2 rounded-xl text-slate-400 hover:bg-white/5 text-sm font-medium transition-colors">Cancelar</button>
+                        <button id="confirm-export-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all">Gerar Excel</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Definir datas padrão (hoje)
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('export-start-date').value = today;
+        document.getElementById('export-end-date').value = today;
+
+        document.getElementById('confirm-export-btn').onclick = runExport;
+    }
+}
+
+async function runExport() {
+    const start = document.getElementById('export-start-date').value;
+    const end = document.getElementById('export-end-date').value;
+    const btn = document.getElementById('confirm-export-btn');
+    
+    if (!start || !end) return alert('Por favor, selecione as datas.');
+
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Gerando...';
+
+    try {
+        // Ajustar fim para o final do dia
+        const endDateTime = end + 'T23:59:59.999Z';
+        
+        const { data, error } = await supabase
+            .from('leads')
+            .select('*')
+            .gte('created_at', start)
+            .lte('created_at', endDateTime)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            alert('Nenhum registro encontrado neste período.');
+            return;
+        }
+
+        await loadXLSX();
+        const XLSX = window.XLSX;
+
+        // Mapeamento completo conforme a imagem do modal de detalhes
+        const excelData = data.map(l => ({
+            'Nome': l.name || 'N/A',
+            'Email': l.email || 'N/A',
+            'WhatsApp': l.whatsapp || 'N/A',
+            'País': l.country || 'N/A',
+            'Endereço': l.address || 'Não informado',
+            'Cadastro em': new Date(l.created_at).toLocaleString('pt-PT'),
+            'Plano Escolhido': l.plan || 'N/A',
+            'Grupo/Posição': l.assigned_position ? `Pos #${l.assigned_position}` : 'N/A',
+            'Método de Pagamento': l.payment_method || '-',
+            'Status Financeiro': l.payment_status || 'PENDENTE',
+            'Status do Funil': l.status || 'Incompleto',
+            'Documentos KYC': (l.passport_url && l.selfie_url) ? 'ENVIADOS' : 'PENDENTE',
+            'Código Consultor': l.ref_code || 'Direto'
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório Leads");
+        
+        XLSX.writeFile(workbook, `Wekota_Leads_${start}_a_${end}.xlsx`);
+        document.getElementById('export-modal').classList.add('hidden');
+
+    } catch (err) {
+        console.error('Erro:', err);
+        alert('Erro ao exportar: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
 
 // Adicionar botão de exportar no HTML dinamicamente se não existir
 function addExportButton() {
